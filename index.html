@@ -573,6 +573,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   </div><!-- /main -->
 </div><!-- /shell -->
 
+<!-- IMAGE PICKER MODAL -->
+<div class="modal-overlay" id="imgPickerModal" style="display:none;" onclick="if(event.target===this)closeImagePicker()">
+  <div class="modal" style="width:min(700px,100%);max-height:80vh;">
+    <div class="modal-header">
+      <div class="modal-title serif">Swap Image</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeImagePicker()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="small mute" style="margin-bottom:12px;">Select a replacement image from your loaded library</div>
+      <div id="imgPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="small mute">Click any image to swap it into the selected grid slot</div>
+      <button class="btn btn-ghost" onclick="closeImagePicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- GOOGLE DRIVE PICKER MODAL -->
 <div class="modal-overlay" id="driveModal" style="display:none;" onclick="if(event.target===this)closeDriveModal()">
   <div class="modal">
@@ -879,35 +897,136 @@ function renderPlan() {
     const img = S.images[(p.imageIndex - 1) % S.images.length];
     const cell = document.createElement('div');
     cell.className = 'grid-cell';
+    cell.draggable = true;
+    cell.dataset.index = i;
+    cell.style.cursor = 'grab';
+
+    const imgSrc = img ? img.dataUrl : '';
     cell.innerHTML = `
-      <img src="${img ? img.dataUrl : ''}" loading="lazy"/>
+      <img src="${imgSrc}" loading="lazy" crossorigin="anonymous"
+        style="width:100%;height:100%;object-fit:cover;display:block;"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:var(--surface3);">
+        <span style="font-size:20px;">◫</span>
+        <span class="small mute">Click to set image</span>
+      </div>
       <div class="grid-cell-num">${i+1}</div>
       <div class="grid-cell-overlay">
-        <div class="grid-cell-date">${p.date}</div>
-        <div class="grid-cell-type">${p.theme}</div>
+        <div class="grid-cell-date">${p.date} · ${p.time}</div>
+        <div class="grid-cell-type">${p.theme || p.type}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button onclick="event.stopPropagation();openImagePicker(${i})" 
+            style="background:rgba(201,165,90,.85);border:none;color:#000;font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;">swap image</button>
+          <button onclick="event.stopPropagation();editCaption(${i})"
+            style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;">edit</button>
+        </div>
       </div>
     `;
+
+    // Drag to reorder
+    cell.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', i);
+      cell.style.opacity = '0.4';
+    });
+    cell.addEventListener('dragend', () => cell.style.opacity = '1');
+    cell.addEventListener('dragover', e => { e.preventDefault(); cell.style.outline = '2px solid var(--gold)'; });
+    cell.addEventListener('dragleave', () => cell.style.outline = '');
+    cell.addEventListener('drop', e => {
+      e.preventDefault();
+      cell.style.outline = '';
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = i;
+      if (from !== to) {
+        const moved = S.plan.splice(from, 1)[0];
+        S.plan.splice(to, 0, moved);
+        renderPlan();
+        toast('Post reordered ✓');
+      }
+    });
+
     grid.appendChild(cell);
   });
 
-  // Plan items
+  // Plan items list
   const items = document.getElementById('planItems');
   items.innerHTML = S.plan.map((p, i) => {
+    const img = S.images[(p.imageIndex - 1) % S.images.length];
     const badgeClass = p.type === 'carousel' ? 'badge-carousel' : p.type === 'reel' ? 'badge-reel' : 'badge-single';
     return `
-      <div class="plan-item">
-        <div class="plan-num">${String(i+1).padStart(2,'0')}</div>
-        <div>
-          <div class="plan-date">${p.date} · ${p.time}</div>
-          <div class="plan-caption">${p.caption.substring(0, 140)}…</div>
+      <div class="plan-item" id="planItem${i}">
+        <div style="position:relative;cursor:pointer;" onclick="openImagePicker(${i})">
+          <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous"
+            style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--border2);display:block;"
+            onerror="this.style.background='var(--surface3)'"/>
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;"
+            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+            <span style="font-size:10px;color:#fff;">swap</span>
+          </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        <div style="flex:1;min-width:0;">
+          <div class="plan-date">${p.date} · ${p.time}</div>
+          <div class="plan-caption" id="caption${i}" onclick="editCaption(${i})" style="cursor:text;" title="Click to edit">${p.caption.substring(0, 120)}…</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0;">
           <span class="plan-type-badge ${badgeClass}">${p.type}</span>
-          <button class="btn btn-ghost btn-sm" onclick="addPlanToQueue(${i})">+ Queue</button>
+          <div style="display:flex;gap:4px;">
+            <button class="btn btn-ghost btn-sm" onclick="movePlanItem(${i},-1)" title="Move up">↑</button>
+            <button class="btn btn-ghost btn-sm" onclick="movePlanItem(${i},1)" title="Move down">↓</button>
+            <button class="btn btn-ghost btn-sm" onclick="addPlanToQueue(${i})">+ Queue</button>
+          </div>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function movePlanItem(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= S.plan.length) return;
+  [S.plan[i], S.plan[j]] = [S.plan[j], S.plan[i]];
+  renderPlan();
+}
+
+function editCaption(i) {
+  const p = S.plan[i];
+  const newCap = prompt('Edit caption:', p.caption);
+  if (newCap !== null) {
+    S.plan[i].caption = newCap;
+    renderPlan();
+    toast('Caption updated ✓');
+  }
+}
+
+// Image picker for swapping grid images
+let pickerTargetIndex = null;
+function openImagePicker(planIndex) {
+  pickerTargetIndex = planIndex;
+  document.getElementById('imgPickerModal').style.display = 'flex';
+  renderImagePickerGrid();
+}
+
+function closeImagePicker() {
+  document.getElementById('imgPickerModal').style.display = 'none';
+  pickerTargetIndex = null;
+}
+
+function renderImagePickerGrid() {
+  const grid = document.getElementById('imgPickerGrid');
+  grid.innerHTML = S.images.map((img, i) => `
+    <div onclick="selectPickerImage(${i})" style="aspect-ratio:1;border-radius:5px;overflow:hidden;cursor:pointer;border:2px solid var(--border);transition:border-color .2s;position:relative;"
+      onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <img src="${img.dataUrl}" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.background='var(--surface3)'"/>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:3px 5px;font-size:9px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${img.name}</div>
+    </div>
+  `).join('');
+}
+
+function selectPickerImage(imgIndex) {
+  if (pickerTargetIndex === null) return;
+  S.plan[pickerTargetIndex].imageIndex = imgIndex + 1;
+  closeImagePicker();
+  renderPlan();
+  toast('Image updated ✓');
 }
 
 function addPlanToQueue(i) {
