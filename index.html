@@ -333,9 +333,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
                   <option value="custom">Custom…</option>
                 </select>
                 <div id="customFreqWrap" style="display:none;align-items:center;gap:4px;">
-                  <input type="number" id="customPostCount" min="1" max="30" value="6" class="finput" style="width:50px;text-align:center;"/>
+                  <input type="number" id="customPostCount" min="1" max="30" value="6" class="finput" style="width:50px;text-align:center;" oninput="updateSmartFreqHint()"/>
+                  <span class="small mute">posts</span>
                 </div>
               </div>
+              <div id="smartFreqHint" class="small" style="margin-top:4px;color:var(--green);display:none;"></div>
             </div>
             <div class="field flex1">
               <label>Content Mix</label>
@@ -894,7 +896,37 @@ function setPostSize(el,ratio,w,h){
   const notes={'4:5':'4:5 Portrait (1080×1350) — maximum Instagram real estate ★','9:16':'9:16 Reel/Story (1080×1920)','1:1':'1:1 Square (1080×1080)','16:9':'16:9 Landscape (1080×608)'};
   document.getElementById('sizeNote').textContent=notes[ratio]||'';
 }
-function toggleCustomFreq(sel){document.getElementById('customFreqWrap').style.display=sel.value==='custom'?'flex':'none';}
+function toggleCustomFreq(sel){
+  document.getElementById('customFreqWrap').style.display=sel.value==='custom'?'flex':'none';
+  updateSmartFreqHint();
+}
+
+function getPostCount(){
+  const freq=document.getElementById('planFreq').value;
+  return freq==='daily'?14:freq==='5pw'?10:freq==='3pw'?6:freq==='2pw'?4
+    :parseInt(document.getElementById('customPostCount').value)||6;
+}
+
+function updateSmartFreqHint(){
+  const hint=document.getElementById('smartFreqHint');
+  if(!hint)return;
+  if(!S.images.length){hint.style.display='none';return;}
+  const count=getPostCount();
+  const imgs=S.images.length;
+  const perPost=imgs/count;
+  if(perPost>=1.5){
+    const perCarousel=Math.ceil(perPost);
+    hint.textContent=`✦ ${imgs} images ÷ ${count} posts ≈ ${perCarousel} per post — Claude will use carousels to cover all images`;
+    hint.style.color='var(--green)';hint.style.display='block';
+  } else if(perPost<0.85){
+    hint.textContent=`✦ ${imgs} images across ${count} posts — some images may repeat`;
+    hint.style.color='var(--gold)';hint.style.display='block';
+  } else {
+    hint.textContent=`✦ 1 image per post — all ${imgs} images covered as singles`;
+    hint.style.color='var(--mute)';hint.style.display='block';
+  }
+}
+
 function updateDesignSizeNote(){}
 
 /* ── IMAGES ── */
@@ -902,7 +934,7 @@ function handleFiles(files){
   Array.from(files).forEach(file=>{
     if(!file.type.startsWith('image/'))return;
     const reader=new FileReader();
-    reader.onload=e=>{S.images.push({id:'img_'+Date.now()+Math.random().toString(36).slice(2),name:file.name,dataUrl:e.target.result});renderImageGrid();renderStoryImgPicker();};
+    reader.onload=e=>{S.images.push({id:'img_'+Date.now()+Math.random().toString(36).slice(2),name:file.name,dataUrl:e.target.result});renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();};
     reader.readAsDataURL(file);
   });
 }
@@ -939,17 +971,33 @@ async function runContentPlan(){
   const btn=document.getElementById('btnPlan');
   btn.innerHTML='<span class="spin"></span> Planning…';btn.disabled=true;
   const voice=document.getElementById('planVoice').value;
-  const freq=document.getElementById('planFreq').value;
-  const mix=document.getElementById('planMix').value;
   const globalCtx=document.getElementById('globalContext').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
   const hashtags=S.settings.hashtags||'#luxuryphotography';
-  const count=freq==='daily'?14:freq==='5pw'?10:freq==='3pw'?6:freq==='2pw'?4:parseInt(document.getElementById('customPostCount').value)||6;
+  const count=getPostCount();
+  const totalImgs=S.images.length;
   const ratio=`${S.postW}×${S.postH}`;
-  const imgDesc=S.images.slice(0,20).map((img,i)=>`Image ${i+1}: ${img.name}`).join('\n');
+  const imgDesc=S.images.slice(0,30).map((img,i)=>`Image ${i+1}: ${img.name}`).join('\n');
+
+  // Smart distribution
+  const perPost=totalImgs/count;
+  let distributionNote='';
+  let suggestedMix='mixed';
+  if(perPost>=2){
+    const slidesEach=Math.ceil(perPost);
+    distributionNote=`SMART DISTRIBUTION: There are ${totalImgs} images across ${count} posts (${slidesEach} per post). Make most posts CAROUSELS with ~${slidesEach} slides each so every image is used. Distribute all ${totalImgs} images across the posts — use each image exactly once if possible.`;
+    suggestedMix='carousels';
+  } else if(perPost>=1.2){
+    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts. Mix carousels (2-3 slides) and singles to cover all images. Each image should appear in the plan.`;
+    suggestedMix='mixed';
+  } else {
+    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts — 1 image per post. Use the most visually diverse images for maximum grid variety.`;
+    suggestedMix='stills';
+  }
 
   const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions from photographer's POV. Always end with studio credit.`;
-  const prompt=`Plan a 2-week Instagram calendar. ${S.images.length} images:\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nMix: ${mix}\nPost format: ${ratio}\nHashtags: ${hashtags}\n\nVISUAL DIVERSITY — CRITICAL:\n- Never repeat same imageIndex\n- Never place similar images adjacent (two portraits, two interiors, two warm tones = bad)\n- Every 3-column grid row must feel varied: mix wide/close, people/spaces, warm/cool\n- Carousels must tell a progression, not repeat same subject\n- For carousels include 3-5 varied slide indices\n\nReturn ONLY valid JSON array:\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3,5],"type":"single|carousel|reel","time":"09:00","caption":"full caption with hashtags","theme":"short theme","notes":""}]`;
+
+  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images available:\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\nHashtags: ${hashtags}\n\n${distributionNote}\n\nVISUAL DIVERSITY — CRITICAL:\n- Never place similar images adjacent in the 3-column grid\n- Every row of 3 must mix: wide shot / close-up / detail, person / space / object, warm / cool tone\n- Carousels: images must tell a progression, not repeat the same subject\n- No imageIndex should appear in two different posts' cover images\n\nReturn ONLY valid JSON array:\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3,5],"type":"single|carousel|reel","time":"09:00","caption":"full caption with hashtags","theme":"short theme","notes":""}]`;
 
   try{
     const raw=await claudeCall(system,prompt);
@@ -1176,7 +1224,6 @@ function exportCaptions(){
 }
 
 /* ── CAPTION EDITOR MODAL ── */
-let captionEditIndex=null;
 function openCaptionEditor(i){
   captionEditIndex=i;
   document.getElementById('captionEditorText').value=S.plan[i].caption;
@@ -1762,7 +1809,7 @@ async function importFromDrive(){
   }
   bar.style.width='100%';label.textContent=`Done — ${imported} imported`;
   setTimeout(()=>{
-    prog.style.display='none';renderImageGrid();renderStoryImgPicker();
+    prog.style.display='none';renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();
     showActiveFolderTag(document.getElementById('driveUrl').value);
     closeDriveModal();toast(`${imported} image${imported!==1?'s':''} imported ✓`);
     btn.disabled=false;updateDriveSelCount();
