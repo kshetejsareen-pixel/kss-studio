@@ -1,0 +1,1563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KSS · Instagram Studio v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0908;--surface:#111009;--surface2:#181610;--surface3:#1f1d14;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
+  --text:#e6dfd4;--mute:#6b6355;--mute2:#8a7f6e;
+  --gold:#c9a55a;--gold2:#e8c97a;--gold-dim:rgba(201,165,90,.15);
+  --red:#c84a2a;--green:#4a8c5c;
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;}
+body{font-family:'DM Mono',monospace;font-size:12px;font-weight:300;-webkit-font-smoothing:antialiased;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:.5;}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-rows:52px 1fr;height:100vh;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;padding:0 24px;gap:32px;border-bottom:1px solid var(--border);background:var(--surface);}
+.logo{font-family:'Fraunces',serif;font-size:16px;font-weight:300;color:var(--gold);letter-spacing:.02em;white-space:nowrap;}
+.logo span{font-style:italic;color:var(--mute2);}
+.nav{display:flex;gap:2px;flex:1;}
+.nav-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:11px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{color:var(--text);background:var(--surface3);}
+.nav-btn.active{color:var(--gold);background:var(--gold-dim);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--mute);}
+.status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);}
+
+/* MAIN */
+.main{display:grid;grid-template-columns:280px 1fr;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--border);overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:12px;}
+.sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.sidebar-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;}
+.upload-zone{border:1px dashed var(--border2);border-radius:6px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upload-zone:hover{border-color:var(--gold);background:var(--gold-dim);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone-text{color:var(--mute2);font-size:11px;line-height:1.5;}
+.upload-zone-icon{font-size:20px;margin-bottom:6px;}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;}
+.img-thumb{aspect-ratio:1;border-radius:4px;overflow:hidden;cursor:pointer;position:relative;border:2px solid transparent;transition:border-color .2s;}
+.img-thumb.selected{border-color:var(--gold);}
+.img-thumb img{width:100%;height:100%;object-fit:cover;}
+.img-thumb .sel-badge{position:absolute;top:3px;right:3px;background:var(--gold);color:#000;width:16px;height:16px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:500;display:none;}
+.img-thumb.selected .sel-badge{display:flex;}
+.img-count{font-size:10px;color:var(--mute);text-align:center;margin-top:4px;}
+
+/* CONTENT AREA */
+.content{overflow-y:auto;display:flex;flex-direction:column;}
+.tab-panel{display:none;flex:1;padding:24px;}
+.tab-panel.active{display:flex;flex-direction:column;gap:20px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-title{font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:var(--text);margin-bottom:4px;}
+.card-sub{font-size:11px;color:var(--mute);margin-bottom:16px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:5px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:400;letter-spacing:.06em;transition:all .2s;}
+.btn-primary{background:var(--gold);color:#000;}
+.btn-primary:hover{background:var(--gold2);}
+.btn-primary:disabled{background:var(--mute);cursor:not-allowed;opacity:.5;}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(200,74,42,.3);}
+.btn-sm{padding:6px 12px;font-size:10px;}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FORM ELEMENTS */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+.field select option{background:var(--surface2);}
+.field textarea{resize:vertical;min-height:80px;}
+
+/* GRID PREVIEW */
+.grid-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:8px;overflow:hidden;}
+.grid-cell{aspect-ratio:1;position:relative;background:var(--surface2);cursor:pointer;overflow:hidden;}
+.grid-cell img{width:100%;height:100%;object-fit:cover;}
+.grid-cell-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.8));opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;}
+.grid-cell:hover .grid-cell-overlay{opacity:1;}
+.grid-cell-date{font-size:9px;color:var(--gold);letter-spacing:.1em;}
+.grid-cell-type{font-size:10px;color:var(--text);}
+.grid-cell-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:var(--gold);font-size:9px;padding:2px 6px;border-radius:3px;}
+
+/* PLAN CARDS */
+.plan-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:start;}
+.plan-num{font-family:'Fraunces',serif;font-size:22px;color:var(--gold);line-height:1;}
+.plan-date{font-size:10px;color:var(--mute);margin-bottom:4px;}
+.plan-caption{font-size:11px;color:var(--text);line-height:1.6;}
+.plan-type-badge{font-size:9px;padding:3px 8px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;}
+.badge-single{background:rgba(201,165,90,.15);color:var(--gold);}
+.badge-carousel{background:rgba(74,140,92,.15);color:var(--green);}
+.badge-reel{background:rgba(200,74,42,.15);color:var(--red);}
+
+/* DESIGN STUDIO */
+.design-workspace{display:grid;grid-template-columns:1fr 320px;gap:16px;height:100%;}
+.design-canvas{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:400px;}
+.design-canvas-inner{width:320px;height:320px;position:relative;border-radius:4px;overflow:hidden;}
+.design-placeholder{text-align:center;color:var(--mute);}
+.design-placeholder-icon{font-size:40px;margin-bottom:8px;}
+.design-controls{display:flex;flex-direction:column;gap:12px;}
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.style-opt{padding:10px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;text-align:center;transition:all .2s;font-size:10px;letter-spacing:.06em;}
+.style-opt:hover{border-color:var(--gold);color:var(--gold);}
+.style-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+
+/* VIDEO STUDIO */
+.video-workspace{display:grid;grid-template-columns:1fr 300px;gap:16px;}
+.video-preview{background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:1;position:relative;display:flex;align-items:center;justify-content:center;}
+.video-preview canvas{max-width:100%;max-height:100%;}
+.video-placeholder{color:var(--mute);text-align:center;}
+.effect-list{display:flex;flex-direction:column;gap:6px;}
+.effect-opt{padding:10px 12px;border:1px solid var(--border);border-radius:5px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.effect-opt:hover{border-color:var(--gold);}
+.effect-opt.active{border-color:var(--gold);background:var(--gold-dim);}
+.effect-icon{font-size:16px;}
+.effect-name{font-size:11px;color:var(--text);}
+.effect-desc{font-size:10px;color:var(--mute);}
+
+/* SCHEDULER */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-header{font-size:9px;text-align:center;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;padding:4px;}
+.cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;min-height:70px;cursor:pointer;transition:border-color .2s;position:relative;}
+.cal-day:hover{border-color:var(--border2);}
+.cal-day.has-post{border-color:rgba(201,165,90,.3);}
+.cal-day-num{font-size:10px;color:var(--mute);margin-bottom:4px;}
+.cal-post-dot{width:100%;background:var(--gold-dim);border:1px solid var(--gold);border-radius:3px;padding:3px 5px;margin-top:2px;font-size:9px;color:var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.queue-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;}
+.queue-thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;}
+.queue-info{overflow:hidden;}
+.queue-caption{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.queue-meta{font-size:10px;color:var(--mute);margin-top:2px;}
+.queue-actions{display:flex;gap:6px;}
+
+/* META STATUS */
+.meta-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);}
+.meta-status-icon{font-size:16px;}
+.meta-status-text{font-size:11px;color:var(--mute);}
+
+/* OUTPUT */
+.output-box{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:14px;font-size:11px;line-height:1.8;color:var(--text);max-height:300px;overflow-y:auto;white-space:pre-wrap;}
+.output-box:empty::before{content:'Output will appear here...';color:var(--mute);}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);padding:10px 16px;border-radius:6px;font-size:11px;color:var(--text);z-index:10000;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ROW/COL UTILITIES */
+.row{display:flex;gap:10px;align-items:center;}
+.col{display:flex;flex-direction:column;gap:8px;}
+.flex1{flex:1;}
+.mt{margin-top:12px;}
+.mt-sm{margin-top:6px;}
+.divider{border:none;border-top:1px solid var(--border);margin:4px 0;}
+.serif{font-family:'Fraunces',serif;}
+.gold{color:var(--gold);}
+.mute{color:var(--mute);}
+.small{font-size:10px;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
+
+/* DRIVE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:min(960px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.modal-title{font-family:'Fraunces',serif;font-size:20px;font-weight:300;flex:1;}
+.modal-body{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-shrink:0;}
+.drive-url-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;}
+.drive-hint{font-size:10px;color:var(--mute);line-height:1.6;padding:10px 12px;background:var(--surface2);border-radius:5px;border-left:2px solid var(--gold);}
+.drive-count-bar{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.drive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:4px;}
+.drive-item{border:2px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;aspect-ratio:1;background:var(--surface2);}
+.drive-item:hover{border-color:var(--border2);transform:scale(1.02);}
+.drive-item.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.drive-item img{width:100%;height:100%;object-fit:cover;transition:opacity .2s;}
+.drive-item-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:4px 6px 6px;font-size:9px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em;}
+.drive-check{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:10px;display:none;align-items:center;justify-content:center;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.drive-item.selected .drive-check{display:flex;}
+.drive-empty{text-align:center;padding:40px;color:var(--mute);}
+.drive-import-progress{background:var(--surface2);border-radius:5px;overflow:hidden;height:3px;margin-top:6px;}
+.drive-import-bar{height:100%;background:var(--gold);transition:width .3s;}
+.drive-folder-tag{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,165,90,.3);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--gold);}
+.drive-status-row{display:flex;align-items:center;gap:10px;}
+
+/* LOADING OVERLAY */
+.loading-overlay{position:absolute;inset:0;background:rgba(10,9,8,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:100;border-radius:var(--r);}
+.loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+.loading-text{font-size:11px;color:var(--mute2);}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">KSS <span>·</span> Instagram Studio <span>v3</span></div>
+    <nav class="nav">
+      <button class="nav-btn active" onclick="switchTab('plan')">Plan</button>
+      <button class="nav-btn" onclick="switchTab('design')">Design</button>
+      <button class="nav-btn" onclick="switchTab('video')">Video</button>
+      <button class="nav-btn" onclick="switchTab('schedule')">Schedule</button>
+      <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
+    </nav>
+    <div class="topbar-right">
+      <div id="metaDot" class="status-dot" title="Meta API not connected"></div>
+      <span class="small mute" id="metaStatusLabel">Meta: not connected</span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Images</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFiles(this.files)"/>
+          <div class="upload-zone-icon">⌃</div>
+          <div class="upload-zone-text">Drop images here<br/><span class="gold">or click to upload</span></div>
+        </div>
+        <div class="img-grid" id="imgGrid"></div>
+        <div class="img-count" id="imgCount"></div>
+        <button class="btn btn-ghost btn-sm" onclick="openDriveModal()" style="width:100%;margin-top:8px;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 87.3 78" fill="currentColor"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
+          Import from Google Drive
+        </button>
+        <div id="driveActiveFolderTag" style="display:none;margin-top:6px;"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Queue</div>
+        <div class="small mute" id="queueSummary">No posts queued</div>
+        <div class="mt-sm" id="queueMini"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Selected</div>
+        <div id="selectedInfo" class="small mute">None selected</div>
+        <div class="mt-sm row">
+          <button class="btn btn-ghost btn-sm" onclick="clearSelected()">Clear</button>
+          <button class="btn btn-ghost btn-sm" onclick="selectAll()">All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ── PLAN TAB ── -->
+      <div class="tab-panel active" id="tab-plan">
+        <div class="card">
+          <div class="card-title serif">Content Planner</div>
+          <div class="card-sub">Claude analyses your images and builds a 2-week posting schedule with captions</div>
+          <div class="row" style="flex-wrap:wrap;gap:10px;">
+            <div class="field flex1">
+              <label>Brand Voice</label>
+              <select id="planVoice">
+                <option value="editorial">Editorial — restrained, elegant</option>
+                <option value="warm">Warm — personal, behind-the-scenes</option>
+                <option value="bold">Bold — campaign energy</option>
+                <option value="documentary">Documentary — story-driven</option>
+              </select>
+            </div>
+            <div class="field flex1">
+              <label>Posting Frequency</label>
+              <select id="planFreq">
+                <option value="daily">Daily (14 posts)</option>
+                <option value="5pw">5× per week (10 posts)</option>
+                <option value="3pw" selected>3× per week (6 posts)</option>
+                <option value="2pw">2× per week (4 posts)</option>
+              </select>
+            </div>
+            <div class="field flex1">
+              <label>Content Mix</label>
+              <select id="planMix">
+                <option value="mixed">Mixed — stills, carousels, reels</option>
+                <option value="stills">Stills only</option>
+                <option value="carousels">Carousels heavy</option>
+                <option value="reels">Reels heavy</option>
+              </select>
+            </div>
+            <div class="field" style="width:100%">
+              <label>Additional Context</label>
+              <input type="text" id="planContext" placeholder="e.g. Launching Boil & Co. content this week, avoid repeating Taj shots"/>
+            </div>
+          </div>
+          <div class="mt row">
+            <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">
+              <span>Plan 2 Weeks with Claude</span>
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="exportPlan()">Export Plan</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Grid Preview</div>
+            <div class="grid-preview" id="gridPreview">
+              <!-- filled by JS -->
+              <div class="grid-cell" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Generated Plan</div>
+            <div class="col" id="planItems" style="max-height:320px;overflow-y:auto;gap:8px;">
+              <div class="small mute">Generate a plan to see posts here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DESIGN TAB ── -->
+      <div class="tab-panel" id="tab-design">
+        <div class="card">
+          <div class="card-title serif">Claude Design Studio</div>
+          <div class="card-sub">Select an image, pick a style, and Claude generates a branded graphic</div>
+        </div>
+
+        <div class="design-workspace">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="design-canvas" id="designCanvas" style="min-height:380px;">
+              <div class="design-placeholder" id="designPlaceholder">
+                <div class="design-placeholder-icon">◫</div>
+                <div class="small mute">Select an image from sidebar<br/>then generate a design</div>
+              </div>
+              <div id="designOutput" style="width:100%;height:100%;display:none;position:relative;"></div>
+              <div class="loading-overlay" id="designLoading" style="display:none;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Claude is designing…</div>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn btn-primary" onclick="runDesign()" id="btnDesign">Generate Design</button>
+              <button class="btn btn-ghost btn-sm" onclick="addDesignToQueue()">Add to Queue</button>
+              <button class="btn btn-ghost btn-sm" onclick="downloadDesign()">Download</button>
+            </div>
+          </div>
+
+          <div class="design-controls">
+            <div class="field">
+              <label>Style</label>
+              <div class="style-grid">
+                <div class="style-opt active" onclick="setStyle(this,'editorial')" data-style="editorial">Editorial</div>
+                <div class="style-opt" onclick="setStyle(this,'campaign')" data-style="campaign">Campaign</div>
+                <div class="style-opt" onclick="setStyle(this,'minimal')" data-style="minimal">Minimal</div>
+                <div class="style-opt" onclick="setStyle(this,'bts')" data-style="bts">BTS Frame</div>
+                <div class="style-opt" onclick="setStyle(this,'quote')" data-style="quote">Quote Card</div>
+                <div class="style-opt" onclick="setStyle(this,'location')" data-style="location">Location</div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Design Prompt (optional)</label>
+              <textarea id="designPrompt" rows="3" placeholder="e.g. Leela Gurgaon lobby, evening light, add location tag bottom-right…"></textarea>
+            </div>
+            <div class="field">
+              <label>Text Overlay</label>
+              <input type="text" id="designText" placeholder="e.g. Where light meets luxury."/>
+            </div>
+            <div class="field">
+              <label>Sub-text / Location</label>
+              <input type="text" id="designSub" placeholder="e.g. The Leela, Gurgaon"/>
+            </div>
+            <div class="field">
+              <label>Caption (auto-generated)</label>
+              <textarea id="designCaption" rows="4" placeholder="Claude will write a caption for this graphic…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIDEO TAB ── -->
+      <div class="tab-panel" id="tab-video">
+        <div class="card">
+          <div class="card-title serif">Video Generator</div>
+          <div class="card-sub">Turn your stills into motion — Ken Burns, crossfades, and cinematic loops</div>
+        </div>
+
+        <div class="video-workspace">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="video-preview" id="videoPreview">
+              <div class="video-placeholder">
+                <div style="font-size:32px;margin-bottom:8px;">▶</div>
+                <div class="small mute">Select images + effect<br/>then preview</div>
+              </div>
+              <canvas id="videoCanvas" style="display:none;max-width:100%;max-height:100%;"></canvas>
+            </div>
+            <div class="row">
+              <button class="btn btn-primary" onclick="previewVideo()" id="btnPreview">Preview</button>
+              <button class="btn btn-ghost btn-sm" onclick="renderVideo()" id="btnRender">Export Video</button>
+              <button class="btn btn-ghost btn-sm" onclick="stopVideo()">Stop</button>
+            </div>
+            <div class="small mute" id="videoStatus">No preview active</div>
+          </div>
+
+          <div class="design-controls">
+            <div class="field">
+              <label>Effect</label>
+              <div class="effect-list">
+                <div class="effect-opt active" onclick="setEffect(this,'kenburnz')" data-effect="kenburnz">
+                  <span class="effect-icon">⟱</span>
+                  <div><div class="effect-name">Ken Burns</div><div class="effect-desc">Pan & zoom on single image</div></div>
+                </div>
+                <div class="effect-opt" onclick="setEffect(this,'crossfade')" data-effect="crossfade">
+                  <span class="effect-icon">⇄</span>
+                  <div><div class="effect-name">Crossfade</div><div class="effect-desc">Dissolve between images</div></div>
+                </div>
+                <div class="effect-opt" onclick="setEffect(this,'slideshow')" data-effect="slideshow">
+                  <span class="effect-icon">≡</span>
+                  <div><div class="effect-name">Slideshow</div><div class="effect-desc">Cut between frames</div></div>
+                </div>
+                <div class="effect-opt" onclick="setEffect(this,'zoom')" data-effect="zoom">
+                  <span class="effect-icon">⊕</span>
+                  <div><div class="effect-name">Slow Zoom</div><div class="effect-desc">Gentle push in</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Duration (seconds)</label>
+              <input type="range" id="videoDuration" min="5" max="60" value="15" oninput="document.getElementById('durVal').textContent=this.value+'s'"/>
+              <span id="durVal" class="small gold">15s</span>
+            </div>
+            <div class="field">
+              <label>Frame Rate</label>
+              <select id="videoFPS">
+                <option value="24">24fps — cinematic</option>
+                <option value="30" selected>30fps — standard</option>
+                <option value="60">60fps — smooth</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Caption for this Reel</label>
+              <textarea id="videoCaption" rows="3" placeholder="Add a caption for this video post…"></textarea>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="generateVideoCaption()">Auto-write Caption</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SCHEDULE TAB ── -->
+      <div class="tab-panel" id="tab-schedule">
+        <div class="card">
+          <div class="card-title serif">Post Scheduler</div>
+          <div class="card-sub">Queue your posts and publish to Instagram via Meta Graph API</div>
+          <div class="meta-status" id="metaStatusCard">
+            <span class="meta-status-icon">○</span>
+            <span class="meta-status-text">Meta API not connected — add credentials in Settings</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+          <div>
+            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">2-Week Calendar</div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+
+          <div>
+            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Queue</div>
+            <div class="col" id="postQueue" style="gap:8px;max-height:400px;overflow-y:auto;">
+              <div class="small mute">No posts queued yet. Generate a plan or add from Design/Video tabs.</div>
+            </div>
+            <div class="mt row">
+              <button class="btn btn-primary btn-sm" onclick="publishAll()" id="btnPublish">Publish All Scheduled</button>
+              <button class="btn btn-ghost btn-sm" onclick="clearQueue()">Clear Queue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS TAB ── -->
+      <div class="tab-panel" id="tab-settings">
+        <div class="card">
+          <div class="card-title serif">Settings</div>
+          <div class="card-sub">API credentials and studio preferences — saved locally in your browser</div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="card">
+            <div class="sidebar-label" style="margin-bottom:12px;">Claude API</div>
+            <div class="col">
+              <div class="field">
+                <label>Anthropic API Key</label>
+                <input type="password" id="settAnthropicKey" placeholder="sk-ant-…"/>
+              </div>
+              <div class="small mute">Required for AI-powered design, planning, and captions.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sidebar-label" style="margin-bottom:12px;">Google Drive</div>
+            <div class="col">
+              <div class="field">
+                <label>Google API Key</label>
+                <input type="password" id="settGoogleKey" placeholder="AIza…"/>
+              </div>
+              <div class="small mute">Create a key at <span class="gold">console.cloud.google.com</span> → enable Drive API → Credentials → API Key. No OAuth needed for public folders.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sidebar-label" style="margin-bottom:12px;">Meta / Instagram</div>
+            <div class="col">
+              <div class="field">
+                <label>Access Token</label>
+                <input type="password" id="settMetaToken" placeholder="EAA…"/>
+              </div>
+              <div class="field">
+                <label>Instagram Account ID</label>
+                <input type="text" id="settIgId" placeholder="17841400…"/>
+              </div>
+              <div class="small mute">From Meta Business Suite → Instagram → Account ID. Token needs <code>instagram_basic</code>, <code>instagram_content_publish</code> scopes.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sidebar-label" style="margin-bottom:12px;">Cloudinary</div>
+            <div class="col">
+              <div class="field">
+                <label>Cloud Name</label>
+                <input type="text" id="settCloudName" placeholder="dsouvrzlr" value="dsouvrzlr"/>
+              </div>
+              <div class="small mute">Used to pull images from your library for scheduling.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sidebar-label" style="margin-bottom:12px;">Studio Brand</div>
+            <div class="col">
+              <div class="field">
+                <label>Studio Handle</label>
+                <input type="text" id="settHandle" placeholder="@kshetejsareenstudios" value="@kshetejsareenstudios"/>
+              </div>
+              <div class="field">
+                <label>Default Hashtags</label>
+                <textarea id="settHashtags" rows="3" placeholder="#luxuryphotography #hospitality…">#luxuryphotography #hospitalityphotography #architecturephotography #fnbphotography #commercialphotography #delhiphotographer #bangalorephotographer #interiorphotography #kshetejsareenstudios</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt">
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+          <button class="btn btn-ghost btn-sm" onclick="testMetaConnection()">Test Meta Connection</button>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- GOOGLE DRIVE PICKER MODAL -->
+<div class="modal-overlay" id="driveModal" style="display:none;" onclick="if(event.target===this)closeDriveModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <svg width="22" height="22" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
+      <div class="modal-title">Import from Google Drive</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeDriveModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="drive-hint">
+        The folder must be shared as <strong style="color:var(--gold)">Anyone with the link → Viewer</strong>. Paste the folder URL below. A Google API key is required (add it in Settings).
+      </div>
+
+      <div id="driveNoKeyWarning" style="display:none;background:rgba(200,74,42,.1);border:1px solid rgba(200,74,42,.3);border-radius:5px;padding:10px 12px;font-size:11px;color:var(--red);">
+        ⚠ No Google API Key found. <a href="#" onclick="switchTab('settings');closeDriveModal()" style="color:var(--gold);text-decoration:underline;">Add it in Settings →</a>
+      </div>
+
+      <div class="drive-url-row">
+        <div class="field">
+          <label>Google Drive Folder URL</label>
+          <input type="text" id="driveUrl" placeholder="https://drive.google.com/drive/folders/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74olGrid…"
+            onkeydown="if(event.key==='Enter')loadDriveFolder()"/>
+        </div>
+        <button class="btn btn-primary" onclick="loadDriveFolder()" id="btnLoadDrive" style="white-space:nowrap;">Browse Folder</button>
+      </div>
+
+      <div class="drive-status-row">
+        <div id="driveStatus" class="small mute flex1"></div>
+        <div id="driveLoadingSpinner" style="display:none;" class="spin"></div>
+      </div>
+
+      <div id="driveImportProgress" style="display:none;">
+        <div class="small mute" id="driveProgressLabel">Importing…</div>
+        <div class="drive-import-progress mt-sm"><div class="drive-import-bar" id="driveProgressBar" style="width:0%"></div></div>
+      </div>
+
+      <div id="driveCountBar" class="drive-count-bar" style="display:none;">
+        <span id="driveFileCount" class="small mute2"></span>
+        <div class="flex1"></div>
+        <button class="btn btn-ghost btn-sm" onclick="driveSelectAll()">Select All</button>
+        <button class="btn btn-ghost btn-sm" onclick="driveClearAll()">Clear All</button>
+        <span id="driveSelCountBadge" class="small gold"></span>
+      </div>
+
+      <div class="drive-grid" id="driveGrid"></div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="small mute" id="driveFooterNote">Select images to import into the studio.</div>
+      <div class="row">
+        <button class="btn btn-ghost" onclick="closeDriveModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="importFromDrive()" id="btnDriveImport" disabled>
+          Import <span id="driveImportCount">0</span> Images
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const S = {
+  images: [],        // {id, name, dataUrl, file}
+  selected: [],      // image ids
+  plan: [],          // generated plan items
+  queue: [],         // scheduled posts
+  effect: 'kenburnz',
+  designStyle: 'editorial',
+  videoAnim: null,
+  videoRecorder: null,
+  videoChunks: [],
+  settings: {}
+};
+
+/* ============================================================
+   INIT
+============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  renderCalendar();
+  renderQueue();
+  updateMetaStatus();
+
+  // Drag & drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--gold)'; });
+  zone.addEventListener('dragleave', () => zone.style.borderColor = '');
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.style.borderColor = ''; handleFiles(e.dataTransfer.files); });
+});
+
+/* ============================================================
+   SETTINGS
+============================================================ */
+function saveSettings() {
+  S.settings = {
+    anthropicKey: document.getElementById('settAnthropicKey').value,
+    googleApiKey: document.getElementById('settGoogleKey').value,
+    metaToken: document.getElementById('settMetaToken').value,
+    igId: document.getElementById('settIgId').value,
+    cloudName: document.getElementById('settCloudName').value,
+    handle: document.getElementById('settHandle').value,
+    hashtags: document.getElementById('settHashtags').value
+  };
+  localStorage.setItem('kss_settings', JSON.stringify(S.settings));
+  updateMetaStatus();
+  toast('Settings saved ✓');
+}
+
+function loadSettings() {
+  const stored = localStorage.getItem('kss_settings');
+  if (stored) {
+    S.settings = JSON.parse(stored);
+    if (S.settings.anthropicKey) document.getElementById('settAnthropicKey').value = S.settings.anthropicKey;
+    if (S.settings.googleApiKey) document.getElementById('settGoogleKey').value = S.settings.googleApiKey;
+    if (S.settings.metaToken) document.getElementById('settMetaToken').value = S.settings.metaToken;
+    if (S.settings.igId) document.getElementById('settIgId').value = S.settings.igId;
+    if (S.settings.cloudName) document.getElementById('settCloudName').value = S.settings.cloudName || 'dsouvrzlr';
+    if (S.settings.handle) document.getElementById('settHandle').value = S.settings.handle || '@kshetejsareenstudios';
+    if (S.settings.hashtags) document.getElementById('settHashtags').value = S.settings.hashtags;
+  }
+  const savedQueue = localStorage.getItem('kss_queue');
+  if (savedQueue) { S.queue = JSON.parse(savedQueue); renderQueue(); }
+  const savedDriveUrl = localStorage.getItem('kss_last_drive_url');
+  if (savedDriveUrl) {
+    document.getElementById('driveUrl').value = savedDriveUrl;
+    showActiveFolderTag(savedDriveUrl);
+  }
+}
+
+function updateMetaStatus() {
+  const connected = S.settings.metaToken && S.settings.igId;
+  document.getElementById('metaDot').className = 'status-dot' + (connected ? ' live' : '');
+  document.getElementById('metaStatusLabel').textContent = connected ? 'Meta: connected' : 'Meta: not connected';
+  const card = document.getElementById('metaStatusCard');
+  card.innerHTML = connected
+    ? `<span class="meta-status-icon">●</span><span class="meta-status-text" style="color:var(--green)">Meta API connected · IG ID: ${S.settings.igId}</span>`
+    : `<span class="meta-status-icon">○</span><span class="meta-status-text">Meta API not connected — add credentials in Settings</span>`;
+}
+
+async function testMetaConnection() {
+  const token = document.getElementById('settMetaToken').value;
+  const igId = document.getElementById('settIgId').value;
+  if (!token || !igId) { toast('Enter token and IG Account ID first'); return; }
+  try {
+    const r = await fetch(`https://graph.facebook.com/v19.0/${igId}?fields=name,username&access_token=${token}`);
+    const d = await r.json();
+    if (d.username) toast(`Connected: @${d.username} ✓`);
+    else toast('Connection failed: ' + (d.error?.message || 'Unknown error'));
+  } catch (e) { toast('Network error — check token'); }
+}
+
+/* ============================================================
+   IMAGE HANDLING
+============================================================ */
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const id = 'img_' + Date.now() + Math.random().toString(36).slice(2);
+      S.images.push({ id, name: file.name, dataUrl: e.target.result, file });
+      renderImageGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImageGrid() {
+  const grid = document.getElementById('imgGrid');
+  grid.innerHTML = S.images.map(img => `
+    <div class="img-thumb ${S.selected.includes(img.id) ? 'selected' : ''}" onclick="toggleSelect('${img.id}')" title="${img.name}">
+      <img src="${img.dataUrl}" loading="lazy"/>
+      <div class="sel-badge">✓</div>
+    </div>
+  `).join('');
+  document.getElementById('imgCount').textContent = `${S.images.length} image${S.images.length !== 1 ? 's' : ''} loaded`;
+  renderSelectedInfo();
+}
+
+function toggleSelect(id) {
+  const i = S.selected.indexOf(id);
+  if (i === -1) S.selected.push(id); else S.selected.splice(i, 1);
+  renderImageGrid();
+}
+
+function clearSelected() { S.selected = []; renderImageGrid(); }
+function selectAll() { S.selected = S.images.map(i => i.id); renderImageGrid(); }
+
+function renderSelectedInfo() {
+  document.getElementById('selectedInfo').textContent = S.selected.length
+    ? `${S.selected.length} image${S.selected.length !== 1 ? 's' : ''} selected`
+    : 'None selected';
+}
+
+function getSelectedImages() {
+  return S.images.filter(i => S.selected.includes(i.id));
+}
+
+/* ============================================================
+   TAB NAVIGATION
+============================================================ */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.textContent.toLowerCase() === tab) b.classList.add('active');
+  });
+}
+
+/* ============================================================
+   CLAUDE API HELPER
+============================================================ */
+async function claudeCall(systemPrompt, userPrompt) {
+  const key = S.settings.anthropicKey || localStorage.getItem('kss_settings') && JSON.parse(localStorage.getItem('kss_settings')).anthropicKey;
+  if (!key) {
+    toast('Add your Anthropic API key in Settings');
+    throw new Error('No API key');
+  }
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-opus-4-5',
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || 'API error'); }
+  const d = await r.json();
+  return d.content[0].text;
+}
+
+/* ============================================================
+   CONTENT PLANNER
+============================================================ */
+async function runContentPlan() {
+  if (S.images.length === 0) { toast('Upload images first'); return; }
+  const btn = document.getElementById('btnPlan');
+  btn.innerHTML = '<span class="spin"></span> Planning…';
+  btn.disabled = true;
+
+  const voice = document.getElementById('planVoice').value;
+  const freq = document.getElementById('planFreq').value;
+  const mix = document.getElementById('planMix').value;
+  const context = document.getElementById('planContext').value;
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  const hashtags = S.settings.hashtags || '#luxuryphotography #hospitalityphotography';
+  const count = freq === 'daily' ? 14 : freq === '5pw' ? 10 : freq === '3pw' ? 6 : 4;
+
+  const imageDescriptions = S.images.slice(0, 20).map((img, i) => `Image ${i+1}: ${img.name}`).join('\n');
+
+  const system = `You are a luxury commercial photography studio's Instagram content strategist. The studio is Kshetej Sareen Studios (${handle}) — a dual-city (Delhi + Bangalore) studio specialising in luxury hospitality, architectural, and F&B photography. Clients include Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. You write captions from the photographer's POV, never the client's. Always include the studio credit at the end.`;
+
+  const prompt = `Plan a 2-week Instagram content calendar. I have ${S.images.length} images:
+
+${imageDescriptions}
+
+Requirements:
+- ${count} posts over 14 days
+- Mix: ${mix}
+- Context: ${context || 'None'}
+- Voice: ${voice}
+- Hashtags to append: ${hashtags}
+
+Return ONLY valid JSON array, no markdown, no explanation:
+[{
+  "day": 1,
+  "date": "Mon Apr 21",
+  "imageIndex": 1,
+  "type": "single|carousel|reel",
+  "time": "09:00",
+  "caption": "full caption text with hashtags",
+  "theme": "short theme label"
+}]`;
+
+  try {
+    const raw = await claudeCall(system, prompt);
+    const clean = raw.replace(/```json|```/g, '').trim();
+    S.plan = JSON.parse(clean);
+    renderPlan();
+    toast(`Plan ready — ${S.plan.length} posts scheduled ✓`);
+  } catch (e) {
+    toast('Error: ' + e.message);
+    console.error(e);
+  } finally {
+    btn.innerHTML = 'Plan 2 Weeks with Claude';
+    btn.disabled = false;
+  }
+}
+
+function renderPlan() {
+  // Grid preview
+  const grid = document.getElementById('gridPreview');
+  grid.innerHTML = '';
+  S.plan.forEach((p, i) => {
+    const img = S.images[(p.imageIndex - 1) % S.images.length];
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.innerHTML = `
+      <img src="${img ? img.dataUrl : ''}" loading="lazy"/>
+      <div class="grid-cell-num">${i+1}</div>
+      <div class="grid-cell-overlay">
+        <div class="grid-cell-date">${p.date}</div>
+        <div class="grid-cell-type">${p.theme}</div>
+      </div>
+    `;
+    grid.appendChild(cell);
+  });
+
+  // Plan items
+  const items = document.getElementById('planItems');
+  items.innerHTML = S.plan.map((p, i) => {
+    const badgeClass = p.type === 'carousel' ? 'badge-carousel' : p.type === 'reel' ? 'badge-reel' : 'badge-single';
+    return `
+      <div class="plan-item">
+        <div class="plan-num">${String(i+1).padStart(2,'0')}</div>
+        <div>
+          <div class="plan-date">${p.date} · ${p.time}</div>
+          <div class="plan-caption">${p.caption.substring(0, 140)}…</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+          <span class="plan-type-badge ${badgeClass}">${p.type}</span>
+          <button class="btn btn-ghost btn-sm" onclick="addPlanToQueue(${i})">+ Queue</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addPlanToQueue(i) {
+  const p = S.plan[i];
+  const img = S.images[(p.imageIndex - 1) % S.images.length];
+  S.queue.push({
+    id: 'q_' + Date.now(),
+    imageDataUrl: img?.dataUrl || '',
+    caption: p.caption,
+    type: p.type,
+    date: p.date,
+    time: p.time,
+    status: 'queued'
+  });
+  saveQueue();
+  renderQueue();
+  toast('Added to queue ✓');
+}
+
+function exportPlan() {
+  if (!S.plan.length) { toast('Generate a plan first'); return; }
+  const text = S.plan.map(p => `${p.date} ${p.time} [${p.type.toUpperCase()}]\n${p.caption}\n`).join('\n---\n\n');
+  const blob = new Blob([text], {type: 'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Content-Plan.txt'; a.click();
+}
+
+/* ============================================================
+   CLAUDE DESIGN
+============================================================ */
+function setStyle(el, style) {
+  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  S.designStyle = style;
+}
+
+async function runDesign() {
+  const imgs = getSelectedImages();
+  if (!imgs.length) { toast('Select an image from sidebar'); return; }
+
+  const img = imgs[0];
+  const btn = document.getElementById('btnDesign');
+  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span> Designing…';
+  btn.disabled = true;
+
+  document.getElementById('designPlaceholder').style.display = 'none';
+  document.getElementById('designOutput').style.display = 'none';
+  document.getElementById('designLoading').style.display = 'flex';
+
+  const style = S.designStyle;
+  const prompt = document.getElementById('designPrompt').value;
+  const overlayText = document.getElementById('designText').value;
+  const subText = document.getElementById('designSub').value;
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+
+  const system = `You are Claude Design — a luxury visual design AI for Kshetej Sareen Studios, a premium commercial photography studio. You generate self-contained HTML/CSS graphic layouts for Instagram posts (1:1 square, 1080×1080px equivalent). The aesthetic is editorial luxury: Fraunces serif, DM Mono, dark or warm paper tones, gold accents. No purple gradients. No generic AI aesthetics. Every design should feel like it could appear in Cereal magazine or an Aman Resorts campaign. Return ONLY the HTML/CSS code. No explanation, no markdown fences.`;
+
+  const styleGuides = {
+    editorial: 'Editorial magazine style. Full-bleed image with a thin serif caption at bottom on a dark semi-transparent strip. Gold rule line. Studio credit bottom-right in 8px mono.',
+    campaign: 'Bold campaign frame. Image fills 80% of canvas. Large italic serif headline overlaid top-left with slight transparency. Thick border frame in warm paper tone.',
+    minimal: 'Pure minimalism. White or off-white canvas. Image takes up 60% centered. Caption below in light grey mono, 11px. Studio mark in corner. Maximum breathing room.',
+    bts: 'Behind-the-scenes documentary feel. Slight vignette on image. Raw mono font. "Behind the frame" label top-left. Date stamp bottom-left. Film grain overlay.',
+    quote: 'Quote card. Blurred or dark image as background. Large italic serif quote centered. Attribution line below. Studio mark bottom-right.',
+    location: 'Location card. Full image with gradient overlay bottom 40%. Location pin icon. Place name in large serif. City in small mono above. Date below.'
+  };
+
+  const userPrompt = `Create an Instagram post graphic (1080×1080px, use width:1080px height:1080px or use a square container) for Kshetej Sareen Studios.
+
+Style: ${style} — ${styleGuides[style]}
+Image: Use this as background/main image: <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;"/>
+Overlay text: "${overlayText || 'Kshetej Sareen Studios'}"
+Sub-text: "${subText || ''}"
+Studio handle: ${handle}
+Additional direction: ${prompt || 'Make it feel premium and editorial.'}
+
+Requirements:
+- Self-contained HTML with embedded CSS
+- Use Google Fonts: Fraunces (serif) and DM Mono
+- Gold accent: #c9a55a
+- The image must be embedded using the img tag I gave you
+- Output must be a complete HTML snippet (no <html> or <body> tags, just the styled div)
+- Exactly 1080×1080 logical pixels, scale to fit with transform if needed`;
+
+  try {
+    const html = await claudeCall(system, userPrompt);
+    const clean = html.replace(/```html|```/g, '').trim();
+
+    // Render in output div
+    const out = document.getElementById('designOutput');
+    out.style.display = 'block';
+    out.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;">${clean}</div>`;
+
+    // Scale to preview
+    const inner = out.querySelector('div > *');
+    if (inner) {
+      const pw = document.getElementById('designCanvas').clientWidth;
+      const scale = (pw - 40) / 1080;
+      inner.style.transform = `scale(${scale})`;
+      inner.style.transformOrigin = 'top left';
+    }
+
+    // Generate caption
+    generateDesignCaption(overlayText, subText, style);
+    toast('Design ready ✓');
+  } catch (e) {
+    toast('Error: ' + e.message);
+    document.getElementById('designPlaceholder').style.display = 'block';
+  } finally {
+    document.getElementById('designLoading').style.display = 'none';
+    btn.innerHTML = 'Generate Design';
+    btn.disabled = false;
+  }
+}
+
+async function generateDesignCaption(text, sub, style) {
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  const hashtags = S.settings.hashtags || '#luxuryphotography';
+  try {
+    const caption = await claudeCall(
+      `You write Instagram captions for Kshetej Sareen Studios, a luxury commercial photography studio. Captions are from the photographer's POV. Short, poetic, atmospheric. Never clichéd. 3-4 lines max + hashtags.`,
+      `Write a caption for a ${style}-style Instagram post. Text on the graphic: "${text}". Location/context: "${sub}". Studio: ${handle}. End with: ${hashtags}`
+    );
+    document.getElementById('designCaption').value = caption.replace(/```/g,'').trim();
+  } catch(e) { /* silent */ }
+}
+
+function addDesignToQueue() {
+  const caption = document.getElementById('designCaption').value;
+  if (!caption) { toast('Generate a design first'); return; }
+  const imgs = getSelectedImages();
+  S.queue.push({
+    id: 'q_' + Date.now(),
+    imageDataUrl: imgs[0]?.dataUrl || '',
+    caption,
+    type: 'single',
+    date: '',
+    time: '09:00',
+    status: 'queued'
+  });
+  saveQueue();
+  renderQueue();
+  toast('Added to queue ✓');
+}
+
+function downloadDesign() {
+  const out = document.getElementById('designOutput');
+  if (!out.innerHTML) { toast('Generate a design first'); return; }
+  const blob = new Blob([out.querySelector('div').innerHTML], {type: 'text/html'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Design.html'; a.click();
+}
+
+/* ============================================================
+   VIDEO GENERATOR
+============================================================ */
+function setEffect(el, effect) {
+  document.querySelectorAll('.effect-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  S.effect = effect;
+}
+
+async function previewVideo() {
+  const imgs = getSelectedImages();
+  if (!imgs.length) { toast('Select images from sidebar'); return; }
+  stopVideo();
+
+  const canvas = document.getElementById('videoCanvas');
+  const preview = document.getElementById('videoPreview');
+  canvas.style.display = 'block';
+  preview.querySelector('.video-placeholder')?.remove();
+
+  const size = Math.min(preview.clientWidth, preview.clientHeight) || 480;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  const duration = parseInt(document.getElementById('videoDuration').value) * 1000;
+  const fps = parseInt(document.getElementById('videoFPS').value);
+  const effect = S.effect;
+
+  // Load images
+  const loaded = await Promise.all(imgs.slice(0, 8).map(img => new Promise(res => {
+    const i = new Image(); i.onload = () => res(i); i.src = img.dataUrl;
+  })));
+
+  const startTime = performance.now();
+  const perImg = duration / loaded.length;
+
+  function drawFrame(t) {
+    const imgIdx = Math.floor(t / perImg) % loaded.length;
+    const nextIdx = (imgIdx + 1) % loaded.length;
+    const progress = (t % perImg) / perImg; // 0–1 within current image
+
+    ctx.clearRect(0, 0, size, size);
+
+    if (effect === 'kenburnz') {
+      const img = loaded[imgIdx];
+      const scale = 1 + progress * 0.08;
+      const ox = (size * scale - size) / 2 * (progress < 0.5 ? -progress : progress - 1);
+      ctx.save();
+      ctx.translate(size/2, size/2);
+      ctx.scale(scale, scale);
+      ctx.translate(-size/2 + ox * 0.3, -size/2);
+      drawImageCover(ctx, img, 0, 0, size, size);
+      ctx.restore();
+
+    } else if (effect === 'crossfade') {
+      drawImageCover(ctx, loaded[imgIdx], 0, 0, size, size);
+      if (progress > 0.7) {
+        ctx.globalAlpha = (progress - 0.7) / 0.3;
+        drawImageCover(ctx, loaded[nextIdx], 0, 0, size, size);
+        ctx.globalAlpha = 1;
+      }
+
+    } else if (effect === 'slideshow') {
+      drawImageCover(ctx, loaded[imgIdx], 0, 0, size, size);
+
+    } else if (effect === 'zoom') {
+      const img = loaded[imgIdx];
+      const scale = 1 + progress * 0.12;
+      ctx.save();
+      ctx.translate(size/2, size/2);
+      ctx.scale(scale, scale);
+      ctx.translate(-size/2, -size/2);
+      drawImageCover(ctx, img, 0, 0, size, size);
+      ctx.restore();
+    }
+
+    // Subtle vignette
+    const grad = ctx.createRadialGradient(size/2, size/2, size*0.35, size/2, size/2, size*0.72);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+  }
+
+  function drawImageCover(ctx, img, x, y, w, h) {
+    const scale = Math.max(w/img.width, h/img.height);
+    const sw = img.width * scale, sh = img.height * scale;
+    ctx.drawImage(img, x + (w-sw)/2, y + (h-sh)/2, sw, sh);
+  }
+
+  function animate(now) {
+    const elapsed = (now - startTime) % duration;
+    drawFrame(elapsed);
+    document.getElementById('videoStatus').textContent = `Preview · ${(elapsed/1000).toFixed(1)}s / ${duration/1000}s`;
+    S.videoAnim = requestAnimationFrame(animate);
+  }
+
+  S.videoAnim = requestAnimationFrame(animate);
+  toast('Preview running ✓');
+}
+
+function stopVideo() {
+  if (S.videoAnim) { cancelAnimationFrame(S.videoAnim); S.videoAnim = null; }
+  document.getElementById('videoStatus').textContent = 'Preview stopped';
+}
+
+async function renderVideo() {
+  const imgs = getSelectedImages();
+  if (!imgs.length) { toast('Select images first'); return; }
+
+  const canvas = document.getElementById('videoCanvas');
+  if (!canvas.width) { await previewVideo(); await new Promise(r => setTimeout(r, 200)); }
+
+  if (!window.MediaRecorder) { toast('MediaRecorder not supported in this browser'); return; }
+
+  const btn = document.getElementById('btnRender');
+  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span> Rendering…';
+  btn.disabled = true;
+
+  const fps = parseInt(document.getElementById('videoFPS').value);
+  const duration = parseInt(document.getElementById('videoDuration').value) * 1000;
+  const stream = canvas.captureStream(fps);
+  const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 8000000});
+  S.videoChunks = [];
+
+  recorder.ondataavailable = e => { if (e.data.size > 0) S.videoChunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(S.videoChunks, {type: 'video/webm'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Reel.webm'; a.click();
+    toast('Video exported ✓');
+    btn.innerHTML = 'Export Video';
+    btn.disabled = false;
+  };
+
+  recorder.start();
+  await previewVideo();
+  setTimeout(() => { recorder.stop(); stopVideo(); }, duration + 500);
+  toast(`Recording ${duration/1000}s…`);
+}
+
+async function generateVideoCaption() {
+  const imgs = getSelectedImages();
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  const hashtags = S.settings.hashtags || '#luxuryphotography';
+  const effect = S.effect;
+  try {
+    const caption = await claudeCall(
+      `You write Instagram Reels captions for Kshetej Sareen Studios, a luxury commercial photography studio. Short, cinematic, from the photographer's POV.`,
+      `Write a Reels caption for a ${effect}-style video showing ${imgs.length} images. Studio: ${handle}. End with: ${hashtags}`
+    );
+    document.getElementById('videoCaption').value = caption.replace(/```/g,'').trim();
+    toast('Caption written ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+/* ============================================================
+   SCHEDULER
+============================================================ */
+function renderCalendar() {
+  const grid = document.getElementById('calGrid');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  grid.innerHTML = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(start.getDate() - start.getDay() + 1); // Start from Monday
+
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const dateStr = d.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
+    const postsToday = S.queue.filter(p => p.date === dateStr);
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (postsToday.length ? ' has-post' : '');
+    cell.innerHTML = `
+      <div class="cal-day-num">${d.getDate()}</div>
+      ${postsToday.map(p => `<div class="cal-post-dot" title="${p.caption.substring(0,60)}">· ${p.time}</div>`).join('')}
+    `;
+    grid.appendChild(cell);
+  }
+}
+
+function renderQueue() {
+  const el = document.getElementById('postQueue');
+  const mini = document.getElementById('queueMini');
+  const summary = document.getElementById('queueSummary');
+
+  summary.textContent = S.queue.length ? `${S.queue.length} post${S.queue.length !== 1 ? 's' : ''} queued` : 'No posts queued';
+
+  if (!S.queue.length) {
+    el.innerHTML = '<div class="small mute">No posts queued yet. Generate a plan or add from Design/Video tabs.</div>';
+    mini.innerHTML = '';
+    return;
+  }
+
+  el.innerHTML = S.queue.map((p, i) => `
+    <div class="queue-item">
+      <img class="queue-thumb" src="${p.imageDataUrl || ''}" onerror="this.style.background='var(--surface3)'"/>
+      <div class="queue-info">
+        <div class="queue-caption">${p.caption.substring(0, 80)}…</div>
+        <div class="queue-meta">
+          <input type="text" value="${p.date}" placeholder="Date" onchange="S.queue[${i}].date=this.value;saveQueue();renderCalendar();"
+            style="background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;width:80px;outline:none;cursor:pointer;"/>
+          ·
+          <input type="time" value="${p.time}" onchange="S.queue[${i}].time=this.value;saveQueue();"
+            style="background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;width:58px;outline:none;cursor:pointer;"/>
+          · <span class="plan-type-badge ${p.type === 'carousel' ? 'badge-carousel' : p.type === 'reel' ? 'badge-reel' : 'badge-single'}">${p.type}</span>
+        </div>
+      </div>
+      <div class="queue-actions">
+        <button class="btn btn-ghost btn-sm" onclick="publishPost(${i})" title="Publish now">↑</button>
+        <button class="btn btn-danger btn-sm" onclick="removeFromQueue(${i})" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('');
+
+  mini.innerHTML = S.queue.slice(0, 3).map(p =>
+    `<div class="small" style="color:var(--mute2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">· ${p.date || 'unscheduled'} ${p.time}</div>`
+  ).join('') + (S.queue.length > 3 ? `<div class="small mute">+${S.queue.length - 3} more</div>` : '');
+
+  renderCalendar();
+}
+
+function removeFromQueue(i) { S.queue.splice(i, 1); saveQueue(); renderQueue(); }
+function clearQueue() { if (confirm('Clear all queued posts?')) { S.queue = []; saveQueue(); renderQueue(); } }
+function saveQueue() { localStorage.setItem('kss_queue', JSON.stringify(S.queue)); }
+
+async function publishPost(i) {
+  const post = S.queue[i];
+  const token = S.settings.metaToken;
+  const igId = S.settings.igId;
+
+  if (!token || !igId) { toast('Add Meta credentials in Settings'); return; }
+  if (!post.imageDataUrl) { toast('No image for this post'); return; }
+
+  toast('Publishing to Instagram…');
+
+  try {
+    // Step 1: Need a public image URL — in production use Cloudinary upload
+    // For now, guide user
+    toast('Upload image to Cloudinary first, then use its URL for publishing.');
+    // Full flow: upload to Cloudinary → get URL → POST to /media → POST to /media_publish
+  } catch(e) {
+    toast('Publish error: ' + e.message);
+  }
+}
+
+async function publishAll() {
+  const scheduled = S.queue.filter(p => p.date && p.status === 'queued');
+  if (!scheduled.length) { toast('No scheduled posts in queue'); return; }
+  toast(`${scheduled.length} posts ready — Meta publishing requires public image URLs (upload to Cloudinary first)`);
+}
+
+/* ============================================================
+   GOOGLE DRIVE PICKER
+============================================================ */
+const DS = { files: [], selected: [], folderName: '' };
+
+function openDriveModal() {
+  document.getElementById('driveModal').style.display = 'flex';
+  const key = S.settings.googleApiKey;
+  document.getElementById('driveNoKeyWarning').style.display = key ? 'none' : 'block';
+  // Restore last URL
+  const lastUrl = localStorage.getItem('kss_last_drive_url');
+  if (lastUrl && !document.getElementById('driveUrl').value) {
+    document.getElementById('driveUrl').value = lastUrl;
+  }
+}
+
+function closeDriveModal() {
+  document.getElementById('driveModal').style.display = 'none';
+}
+
+function extractFolderId(url) {
+  // handles /folders/ID and ?id=ID formats
+  let m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function setDriveStatus(msg) {
+  document.getElementById('driveStatus').textContent = msg;
+}
+
+function showActiveFolderTag(url) {
+  const id = extractFolderId(url);
+  if (!id) return;
+  const tag = document.getElementById('driveActiveFolderTag');
+  tag.style.display = 'block';
+  tag.innerHTML = `<div class="drive-folder-tag">
+    <svg width="10" height="10" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
+    Drive connected · <span class="mute" style="font-size:9px;">${id.substring(0,12)}…</span>
+    <span onclick="openDriveModal()" style="cursor:pointer;text-decoration:underline;font-size:9px;">reload</span>
+  </div>`;
+}
+
+async function loadDriveFolder() {
+  const url = document.getElementById('driveUrl').value.trim();
+  const folderId = extractFolderId(url);
+  const key = S.settings.googleApiKey;
+
+  if (!folderId) { setDriveStatus('⚠ Invalid URL — must contain /folders/...'); return; }
+  if (!key) { setDriveStatus('⚠ No Google API Key — add it in Settings'); return; }
+
+  const btn = document.getElementById('btnLoadDrive');
+  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span>';
+  btn.disabled = true;
+  document.getElementById('driveLoadingSpinner').style.display = 'block';
+  document.getElementById('driveCountBar').style.display = 'none';
+  document.getElementById('driveGrid').innerHTML = '';
+  DS.files = [];
+  DS.selected = [];
+  setDriveStatus('Connecting to Drive…');
+
+  try {
+    // Fetch folder name
+    try {
+      const metaR = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}?fields=name&key=${key}`);
+      const meta = await metaR.json();
+      DS.folderName = meta.name || 'Drive Folder';
+    } catch(e) { DS.folderName = 'Drive Folder'; }
+
+    setDriveStatus(`Scanning "${DS.folderName}"…`);
+    await fetchDriveFilesRecursive(folderId, key, null);
+
+    if (!DS.files.length) {
+      document.getElementById('driveGrid').innerHTML = '<div class="drive-empty">No images found in this folder.<br/><span style="font-size:10px;color:var(--mute)">Make sure the folder is shared as "Anyone with the link"</span></div>';
+      setDriveStatus('');
+    } else {
+      renderDriveGrid();
+      document.getElementById('driveCountBar').style.display = 'flex';
+      document.getElementById('driveFileCount').textContent = `${DS.files.length} image${DS.files.length !== 1 ? 's' : ''} in "${DS.folderName}"`;
+      setDriveStatus('');
+      localStorage.setItem('kss_last_drive_url', url);
+    }
+  } catch(e) {
+    const msg = e.message.includes('403') ? 'Access denied — make sure folder is shared publicly'
+      : e.message.includes('404') ? 'Folder not found — check the URL'
+      : e.message.includes('400') ? 'Invalid API key or request'
+      : 'Error: ' + e.message;
+    setDriveStatus('⚠ ' + msg);
+    console.error(e);
+  } finally {
+    btn.innerHTML = 'Browse Folder';
+    btn.disabled = false;
+    document.getElementById('driveLoadingSpinner').style.display = 'none';
+  }
+}
+
+async function fetchDriveFilesRecursive(folderId, key, pageToken) {
+  const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+  let apiUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,mimeType,thumbnailLink,imageMediaMetadata)&pageSize=100&key=${key}&orderBy=name`;
+  if (pageToken) apiUrl += `&pageToken=${pageToken}`;
+
+  const r = await fetch(apiUrl);
+  if (!r.ok) { const err = await r.json(); throw new Error(err.error?.message || `HTTP ${r.status}`); }
+  const d = await r.json();
+
+  const imageFiles = (d.files || []).filter(f => f.mimeType && f.mimeType.startsWith('image/'));
+  DS.files.push(...imageFiles);
+
+  // Paginate
+  if (d.nextPageToken) await fetchDriveFilesRecursive(folderId, key, d.nextPageToken);
+}
+
+function renderDriveGrid() {
+  const grid = document.getElementById('driveGrid');
+  grid.innerHTML = DS.files.map((f) => {
+    const thumb = f.thumbnailLink
+      ? f.thumbnailLink.replace(/=s\d+/, '=s320')
+      : `https://lh3.googleusercontent.com/d/${f.id}=s320`;
+    const sel = DS.selected.includes(f.id);
+    const ext = f.name.split('.').pop().toLowerCase();
+    return `
+      <div class="drive-item ${sel ? 'selected' : ''}" onclick="toggleDriveItem('${f.id}')" data-id="${f.id}" title="${f.name}">
+        <img src="${thumb}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.previousElementSibling.textContent='${ext.toUpperCase()}'"/>
+        <div class="drive-item-name">${f.name}</div>
+        <div class="drive-check">✓</div>
+      </div>
+    `;
+  }).join('');
+  updateDriveSelCount();
+}
+
+function toggleDriveItem(id) {
+  const i = DS.selected.indexOf(id);
+  if (i === -1) DS.selected.push(id); else DS.selected.splice(i, 1);
+  const el = document.querySelector(`.drive-item[data-id="${id}"]`);
+  if (el) el.classList.toggle('selected', DS.selected.includes(id));
+  updateDriveSelCount();
+}
+
+function driveSelectAll() {
+  DS.selected = DS.files.map(f => f.id);
+  document.querySelectorAll('.drive-item').forEach(el => el.classList.add('selected'));
+  updateDriveSelCount();
+}
+
+function driveClearAll() {
+  DS.selected = [];
+  document.querySelectorAll('.drive-item').forEach(el => el.classList.remove('selected'));
+  updateDriveSelCount();
+}
+
+function updateDriveSelCount() {
+  const n = DS.selected.length;
+  document.getElementById('driveSelCountBadge').textContent = n ? `${n} selected` : '';
+  document.getElementById('driveImportCount').textContent = n;
+  document.getElementById('btnDriveImport').disabled = n === 0;
+  document.getElementById('driveFooterNote').textContent = n
+    ? `${n} image${n !== 1 ? 's' : ''} ready to import`
+    : 'Select images to import into the studio.';
+}
+
+async function importFromDrive() {
+  if (!DS.selected.length) return;
+
+  const btn = document.getElementById('btnDriveImport');
+  btn.disabled = true;
+  const progressEl = document.getElementById('driveImportProgress');
+  const barEl = document.getElementById('driveProgressBar');
+  const labelEl = document.getElementById('driveProgressLabel');
+  progressEl.style.display = 'block';
+
+  let imported = 0;
+  const total = DS.selected.length;
+
+  for (const id of DS.selected) {
+    const file = DS.files.find(f => f.id === id);
+    if (!file) continue;
+
+    labelEl.textContent = `Loading ${imported + 1} of ${total} — ${file.name}`;
+    barEl.style.width = `${((imported) / total) * 100}%`;
+
+    // Skip if already loaded
+    if (S.images.find(i => i.driveId === id)) { imported++; continue; }
+
+    try {
+      // Try high-res via lh3 (works for public files with CORS)
+      const hiResUrl = file.thumbnailLink
+        ? file.thumbnailLink.replace(/=s\d+/, '=s1600')
+        : `https://lh3.googleusercontent.com/d/${id}=s1600`;
+
+      const dataUrl = await urlToBase64(hiResUrl);
+      S.images.push({ id: 'drive_' + id, name: file.name, dataUrl, driveId: id, source: 'drive' });
+    } catch(e) {
+      // CORS fallback — store URL directly (works for img tags, not canvas)
+      const fallbackUrl = file.thumbnailLink
+        ? file.thumbnailLink.replace(/=s\d+/, '=s1200')
+        : `https://lh3.googleusercontent.com/d/${id}=s1200`;
+      S.images.push({ id: 'drive_' + id, name: file.name, dataUrl: fallbackUrl, driveId: id, source: 'drive-url' });
+    }
+    imported++;
+  }
+
+  barEl.style.width = '100%';
+  labelEl.textContent = `Done — ${imported} image${imported !== 1 ? 's' : ''} imported`;
+
+  setTimeout(() => {
+    progressEl.style.display = 'none';
+    renderImageGrid();
+    showActiveFolderTag(document.getElementById('driveUrl').value);
+    closeDriveModal();
+    toast(`${imported} image${imported !== 1 ? 's' : ''} imported from Drive ✓`);
+    btn.disabled = false;
+    updateDriveSelCount();
+  }, 600);
+}
+
+// Convert a URL to base64 via canvas (requires CORS-friendly URL)
+function urlToBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const timeout = setTimeout(() => reject(new Error('timeout')), 12000);
+    img.onload = () => {
+      clearTimeout(timeout);
+      try {
+        const canvas = document.createElement('canvas');
+        const MAX = 1600;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { const s = MAX / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.88));
+      } catch(e) { reject(e); }
+    };
+    img.onerror = () => { clearTimeout(timeout); reject(new Error('load failed')); };
+    img.src = url;
+  });
+}
+let toastTimer;
+function toast(msg, dur = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+}
+</script>
+</body>
+</html>
