@@ -797,7 +797,8 @@ async function claudeCall(systemPrompt, userPrompt) {
     toast('Add your Anthropic API key in Settings');
     throw new Error('No API key');
   }
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
+  const PROXY = 'https://kss-proxy.kshetej-sareen.workers.dev';
+  const r = await fetch(PROXY, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
