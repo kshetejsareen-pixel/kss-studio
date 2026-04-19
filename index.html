@@ -3,47 +3,39 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>KSS · Instagram Studio v3</title>
+<title>KSS · Instagram Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#0a0908;--surface:#111009;--surface2:#181610;--surface3:#1f1d14;
   --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
   --text:#e6dfd4;--mute:#6b6355;--mute2:#8a7f6e;
   --gold:#c9a55a;--gold2:#e8c97a;--gold-dim:rgba(201,165,90,.15);
-  --red:#c84a2a;--green:#4a8c5c;
+  --red:#c84a2a;--green:#4a8c5c;--blue:#4a7abf;
   --r:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;}
 body{font-family:'DM Mono',monospace;font-size:12px;font-weight:300;-webkit-font-smoothing:antialiased;}
-
-/* GRAIN */
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
   opacity:.5;}
 
-/* LAYOUT */
 .shell{display:grid;grid-template-rows:52px 1fr;height:100vh;}
-
-/* TOPBAR */
 .topbar{display:flex;align-items:center;padding:0 24px;gap:32px;border-bottom:1px solid var(--border);background:var(--surface);}
 .logo{font-family:'Fraunces',serif;font-size:16px;font-weight:300;color:var(--gold);letter-spacing:.02em;white-space:nowrap;}
 .logo span{font-style:italic;color:var(--mute2);}
 .nav{display:flex;gap:2px;flex:1;}
-.nav-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:11px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s;}
+.nav-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s;}
 .nav-btn:hover{color:var(--text);background:var(--surface3);}
 .nav-btn.active{color:var(--gold);background:var(--gold-dim);}
 .topbar-right{display:flex;align-items:center;gap:12px;}
 .status-dot{width:6px;height:6px;border-radius:50%;background:var(--mute);}
 .status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);}
 
-/* MAIN */
 .main{display:grid;grid-template-columns:280px 1fr;overflow:hidden;}
-
-/* SIDEBAR */
 .sidebar{border-right:1px solid var(--border);overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:12px;}
 .sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
 .sidebar-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;}
@@ -56,21 +48,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .img-thumb{aspect-ratio:1;border-radius:4px;overflow:hidden;cursor:pointer;position:relative;border:2px solid transparent;transition:border-color .2s;}
 .img-thumb.selected{border-color:var(--gold);}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
-.img-thumb .sel-badge{position:absolute;top:3px;right:3px;background:var(--gold);color:#000;width:16px;height:16px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:500;display:none;}
+.img-thumb .sel-badge{position:absolute;top:3px;right:3px;background:var(--gold);color:#000;width:16px;height:16px;border-radius:50%;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:500;}
 .img-thumb.selected .sel-badge{display:flex;}
 .img-count{font-size:10px;color:var(--mute);text-align:center;margin-top:4px;}
+.drive-folder-tag{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,165,90,.3);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--gold);}
 
-/* CONTENT AREA */
 .content{overflow-y:auto;display:flex;flex-direction:column;}
 .tab-panel{display:none;flex:1;padding:24px;}
 .tab-panel.active{display:flex;flex-direction:column;gap:20px;}
-
-/* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
 .card-title{font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:var(--text);margin-bottom:4px;}
 .card-sub{font-size:11px;color:var(--mute);margin-bottom:16px;}
 
-/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:5px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:400;letter-spacing:.06em;transition:all .2s;}
 .btn-primary{background:var(--gold);color:#000;}
 .btn-primary:hover{background:var(--gold2);}
@@ -78,11 +67,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
 .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(200,74,42,.3);}
-.btn-sm{padding:6px 12px;font-size:10px;}
+.btn-danger:hover{background:rgba(200,74,42,.1);}
+.btn-sm{padding:5px 10px;font-size:10px;}
+.btn-xs{padding:3px 7px;font-size:9px;letter-spacing:.04em;}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;}
+.spin-gold{border-color:rgba(201,165,90,.2);border-top-color:var(--gold);}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* FORM ELEMENTS */
 .field{display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
 .field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;width:100%;}
@@ -90,83 +81,167 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .field select option{background:var(--surface2);}
 .field textarea{resize:vertical;min-height:80px;}
 
-/* GRID PREVIEW */
-.grid-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:8px;overflow:hidden;}
-.grid-cell{aspect-ratio:1;position:relative;background:var(--surface2);cursor:pointer;overflow:hidden;}
-.grid-cell img{width:100%;height:100%;object-fit:cover;}
-.grid-cell-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.8));opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;}
-.grid-cell:hover .grid-cell-overlay{opacity:1;}
-.grid-cell-date{font-size:9px;color:var(--gold);letter-spacing:.1em;}
-.grid-cell-type{font-size:10px;color:var(--text);}
-.grid-cell-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:var(--gold);font-size:9px;padding:2px 6px;border-radius:3px;}
+/* PLAN VIEW TOGGLE */
+.view-toggle{display:flex;gap:2px;background:var(--surface2);border-radius:5px;padding:3px;}
+.view-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;padding:5px 12px;border-radius:3px;cursor:pointer;transition:all .2s;}
+.view-btn.active{background:var(--surface3);color:var(--gold);}
 
-/* PLAN CARDS */
-.plan-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:start;}
-.plan-num{font-family:'Fraunces',serif;font-size:22px;color:var(--gold);line-height:1;}
-.plan-date{font-size:10px;color:var(--mute);margin-bottom:4px;}
-.plan-caption{font-size:11px;color:var(--text);line-height:1.6;}
-.plan-type-badge{font-size:9px;padding:3px 8px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;}
+/* GRID VIEW */
+.grid-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:8px;overflow:hidden;}
+.grid-cell{aspect-ratio:1;position:relative;background:var(--surface2);cursor:grab;overflow:hidden;border:2px solid transparent;transition:border-color .2s;}
+.grid-cell:active{cursor:grabbing;}
+.grid-cell.drag-over{border-color:var(--gold);}
+.grid-cell img{width:100%;height:100%;object-fit:cover;display:block;}
+.grid-cell-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.65);color:var(--gold);font-size:9px;padding:2px 6px;border-radius:3px;font-weight:500;}
+.grid-cell-type{position:absolute;top:6px;right:6px;font-size:9px;padding:2px 6px;border-radius:3px;}
+.type-single{background:rgba(201,165,90,.8);color:#000;}
+.type-carousel{background:rgba(74,140,92,.8);color:#fff;}
+.type-reel{background:rgba(200,74,42,.8);color:#fff;}
+.grid-cell-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 40%,transparent 50%,rgba(0,0,0,.85) 100%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;gap:4px;}
+.grid-cell:hover .grid-cell-overlay{opacity:1;}
+.grid-cell-date{font-size:9px;color:var(--gold);letter-spacing:.08em;}
+.grid-cell-actions{display:flex;gap:4px;}
+.gcell-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:9px;padding:3px 7px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;backdrop-filter:blur(4px);transition:background .2s;}
+.gcell-btn:hover{background:rgba(201,165,90,.8);color:#000;}
+.gcell-btn.gold{background:rgba(201,165,90,.85);color:#000;}
+.grid-cell-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mute);height:100%;font-size:10px;cursor:pointer;}
+.slide-count-badge{position:absolute;bottom:6px;left:6px;background:rgba(74,140,92,.85);color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;display:flex;align-items:center;gap:3px;}
+
+/* PLAN LIST */
+.plan-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;transition:border-color .2s;}
+.plan-item:hover{border-color:var(--border2);}
+.plan-thumb{width:44px;height:44px;border-radius:4px;overflow:hidden;cursor:pointer;position:relative;flex-shrink:0;}
+.plan-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.plan-thumb-swap{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:9px;color:#fff;}
+.plan-thumb:hover .plan-thumb-swap{opacity:1;}
+.plan-body{min-width:0;}
+.plan-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.plan-date-input{background:none;border:none;color:var(--gold);font-family:'DM Mono',monospace;font-size:10px;outline:none;cursor:pointer;width:auto;}
+.plan-time-input{background:none;border:none;color:var(--mute2);font-family:'DM Mono',monospace;font-size:10px;outline:none;cursor:pointer;width:60px;}
+.plan-caption-preview{font-size:11px;color:var(--text);line-height:1.6;cursor:pointer;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.plan-caption-preview:hover{color:var(--gold);}
+.plan-notes{font-size:10px;color:var(--mute);font-style:italic;margin-top:3px;cursor:pointer;}
+.plan-notes:hover{color:var(--mute2);}
+.plan-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.type-toggle{display:flex;gap:2px;background:var(--surface);border-radius:4px;padding:2px;}
+.type-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:9px;padding:3px 7px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.type-btn.active-single{background:rgba(201,165,90,.2);color:var(--gold);}
+.type-btn.active-carousel{background:rgba(74,140,92,.2);color:var(--green);}
+.type-btn.active-reel{background:rgba(200,74,42,.2);color:var(--red);}
+
+/* PLAN BADGES */
+.plan-type-badge{font-size:9px;padding:2px 7px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
 .badge-single{background:rgba(201,165,90,.15);color:var(--gold);}
 .badge-carousel{background:rgba(74,140,92,.15);color:var(--green);}
 .badge-reel{background:rgba(200,74,42,.15);color:var(--red);}
 
-/* DESIGN STUDIO */
-.design-workspace{display:grid;grid-template-columns:1fr 320px;gap:16px;height:100%;}
+/* TIMELINE VIEW */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.timeline-week{margin-bottom:16px;}
+.timeline-week-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.timeline-day{display:flex;align-items:stretch;gap:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.timeline-day-label{width:80px;flex-shrink:0;padding-top:4px;}
+.timeline-day-date{font-size:11px;color:var(--text);}
+.timeline-day-dow{font-size:9px;color:var(--mute);}
+.timeline-post{flex:1;background:var(--surface2);border-radius:5px;padding:10px;display:flex;gap:10px;align-items:center;cursor:pointer;transition:border-color .2s;border:1px solid var(--border);}
+.timeline-post:hover{border-color:var(--border2);}
+.timeline-empty{flex:1;border:1px dashed var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;height:40px;color:var(--mute);font-size:10px;cursor:pointer;}
+.timeline-empty:hover{border-color:var(--border2);color:var(--mute2);}
+
+/* DESIGN */
+.design-workspace{display:grid;grid-template-columns:1fr 320px;gap:16px;}
 .design-canvas{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:400px;}
-.design-canvas-inner{width:320px;height:320px;position:relative;border-radius:4px;overflow:hidden;}
 .design-placeholder{text-align:center;color:var(--mute);}
-.design-placeholder-icon{font-size:40px;margin-bottom:8px;}
 .design-controls{display:flex;flex-direction:column;gap:12px;}
 .style-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .style-opt{padding:10px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;text-align:center;transition:all .2s;font-size:10px;letter-spacing:.06em;}
 .style-opt:hover{border-color:var(--gold);color:var(--gold);}
 .style-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
 
-/* VIDEO STUDIO */
+/* VIDEO */
 .video-workspace{display:grid;grid-template-columns:1fr 300px;gap:16px;}
 .video-preview{background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:1;position:relative;display:flex;align-items:center;justify-content:center;}
-.video-preview canvas{max-width:100%;max-height:100%;}
-.video-placeholder{color:var(--mute);text-align:center;}
 .effect-list{display:flex;flex-direction:column;gap:6px;}
 .effect-opt{padding:10px 12px;border:1px solid var(--border);border-radius:5px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
-.effect-opt:hover{border-color:var(--gold);}
-.effect-opt.active{border-color:var(--gold);background:var(--gold-dim);}
-.effect-icon{font-size:16px;}
+.effect-opt:hover,.effect-opt.active{border-color:var(--gold);background:var(--gold-dim);}
 .effect-name{font-size:11px;color:var(--text);}
 .effect-desc{font-size:10px;color:var(--mute);}
 
-/* SCHEDULER */
+/* SCHEDULE */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-header{font-size:9px;text-align:center;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;padding:4px;}
-.cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;min-height:70px;cursor:pointer;transition:border-color .2s;position:relative;}
-.cal-day:hover{border-color:var(--border2);}
+.cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;min-height:70px;transition:border-color .2s;}
 .cal-day.has-post{border-color:rgba(201,165,90,.3);}
 .cal-day-num{font-size:10px;color:var(--mute);margin-bottom:4px;}
 .cal-post-dot{width:100%;background:var(--gold-dim);border:1px solid var(--gold);border-radius:3px;padding:3px 5px;margin-top:2px;font-size:9px;color:var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .queue-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;}
 .queue-thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;}
-.queue-info{overflow:hidden;}
-.queue-caption{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.queue-meta{font-size:10px;color:var(--mute);margin-top:2px;}
-.queue-actions{display:flex;gap:6px;}
-
-/* META STATUS */
 .meta-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);}
-.meta-status-icon{font-size:16px;}
-.meta-status-text{font-size:11px;color:var(--mute);}
-
-/* OUTPUT */
-.output-box{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:14px;font-size:11px;line-height:1.8;color:var(--text);max-height:300px;overflow-y:auto;white-space:pre-wrap;}
-.output-box:empty::before{content:'Output will appear here...';color:var(--mute);}
 
 /* SETTINGS */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);padding:10px 16px;border-radius:6px;font-size:11px;color:var(--text);z-index:10000;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;}
-.toast.show{opacity:1;transform:translateY(0);}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:min(960px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+.modal-sm{width:min(600px,100%);}
+.modal-lg{width:min(1100px,100%);}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.modal-title{font-family:'Fraunces',serif;font-size:20px;font-weight:300;flex:1;}
+.modal-body{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-shrink:0;}
 
-/* ROW/COL UTILITIES */
+/* CAROUSEL EDITOR */
+.carousel-slides-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;min-height:120px;align-items:center;}
+.carousel-slide{flex-shrink:0;width:100px;height:100px;border-radius:6px;overflow:hidden;position:relative;border:2px solid var(--border2);cursor:grab;transition:border-color .2s;}
+.carousel-slide:active{cursor:grabbing;}
+.carousel-slide.drag-active{opacity:.4;border-color:var(--gold);}
+.carousel-slide.drop-target{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);}
+.carousel-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.carousel-slide-num{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.7);color:var(--gold);font-size:9px;padding:1px 5px;border-radius:3px;}
+.carousel-slide-cover{position:absolute;top:4px;right:4px;background:var(--gold);color:#000;font-size:8px;padding:1px 5px;border-radius:3px;}
+.carousel-slide-remove{position:absolute;bottom:4px;right:4px;background:rgba(200,74,42,.85);border:none;color:#fff;font-size:10px;width:18px;height:18px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.carousel-slide:hover .carousel-slide-remove{opacity:1;}
+.carousel-add-btn{flex-shrink:0;width:100px;height:100px;border:2px dashed var(--border2);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--mute);font-size:10px;gap:4px;transition:all .2s;}
+.carousel-add-btn:hover{border-color:var(--gold);color:var(--gold);}
+.carousel-img-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;max-height:240px;overflow-y:auto;}
+.cipick-item{aspect-ratio:1;border-radius:4px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .2s;position:relative;}
+.cipick-item:hover{border-color:var(--gold);}
+.cipick-item img{width:100%;height:100%;object-fit:cover;}
+
+/* CAPTION EDITOR */
+.caption-textarea{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;outline:none;width:100%;resize:vertical;min-height:200px;transition:border-color .2s;}
+.caption-textarea:focus{border-color:var(--gold);}
+.char-counter{font-size:10px;text-align:right;transition:color .2s;}
+.char-ok{color:var(--mute);}
+.char-warn{color:var(--gold);}
+.char-over{color:var(--red);}
+.notes-input{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px 12px;color:var(--mute2);font-family:'DM Mono',monospace;font-size:11px;font-style:italic;outline:none;width:100%;transition:border-color .2s;}
+.notes-input:focus{border-color:var(--border2);color:var(--text);}
+
+/* DRIVE PICKER */
+.drive-hint{font-size:10px;color:var(--mute);line-height:1.6;padding:10px 12px;background:var(--surface2);border-radius:5px;border-left:2px solid var(--gold);}
+.drive-url-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;}
+.drive-count-bar{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.drive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.drive-item{border:2px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;aspect-ratio:1;background:var(--surface2);}
+.drive-item:hover{border-color:var(--border2);transform:scale(1.02);}
+.drive-item.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.drive-item img{width:100%;height:100%;object-fit:cover;}
+.drive-item-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:4px 6px 6px;font-size:9px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.drive-check{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:10px;display:none;align-items:center;justify-content:center;font-weight:700;}
+.drive-item.selected .drive-check{display:flex;}
+.drive-import-progress{background:var(--surface2);border-radius:5px;overflow:hidden;height:3px;}
+.drive-import-bar{height:100%;background:var(--gold);transition:width .3s;}
+
+/* IMG PICKER GRID */
+.img-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;}
+.ipick-item{aspect-ratio:1;border-radius:5px;overflow:hidden;cursor:pointer;border:2px solid var(--border);transition:all .2s;position:relative;}
+.ipick-item:hover{border-color:var(--gold);transform:scale(1.03);}
+.ipick-item img{width:100%;height:100%;object-fit:cover;}
+.ipick-item-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:3px 5px 5px;font-size:8px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* UTILS */
 .row{display:flex;gap:10px;align-items:center;}
 .col{display:flex;flex-direction:column;gap:8px;}
 .flex1{flex:1;}
@@ -177,49 +252,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .gold{color:var(--gold);}
 .mute{color:var(--mute);}
 .small{font-size:10px;}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
-
-/* DRIVE MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:min(960px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);}
-.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0;}
-.modal-title{font-family:'Fraunces',serif;font-size:20px;font-weight:300;flex:1;}
-.modal-body{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-shrink:0;}
-.drive-url-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;}
-.drive-hint{font-size:10px;color:var(--mute);line-height:1.6;padding:10px 12px;background:var(--surface2);border-radius:5px;border-left:2px solid var(--gold);}
-.drive-count-bar{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-.drive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:4px;}
-.drive-item{border:2px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;aspect-ratio:1;background:var(--surface2);}
-.drive-item:hover{border-color:var(--border2);transform:scale(1.02);}
-.drive-item.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
-.drive-item img{width:100%;height:100%;object-fit:cover;transition:opacity .2s;}
-.drive-item-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:4px 6px 6px;font-size:9px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em;}
-.drive-check{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:10px;display:none;align-items:center;justify-content:center;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.4);}
-.drive-item.selected .drive-check{display:flex;}
-.drive-empty{text-align:center;padding:40px;color:var(--mute);}
-.drive-import-progress{background:var(--surface2);border-radius:5px;overflow:hidden;height:3px;margin-top:6px;}
-.drive-import-bar{height:100%;background:var(--gold);transition:width .3s;}
-.drive-folder-tag{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,165,90,.3);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--gold);}
-.drive-status-row{display:flex;align-items:center;gap:10px;}
-
-/* LOADING OVERLAY */
 .loading-overlay{position:absolute;inset:0;background:rgba(10,9,8,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:100;border-radius:var(--r);}
 .loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 .loading-text{font-size:11px;color:var(--mute2);}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);padding:10px 16px;border-radius:6px;font-size:11px;color:var(--text);z-index:10000;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;max-width:300px;}
+.toast.show{opacity:1;transform:translateY(0);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
 </style>
 </head>
 <body>
-
 <div class="shell">
-
-  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="logo">KSS <span>·</span> Instagram Studio <span>v3</span></div>
+    <div class="logo">KSS <span>·</span> Instagram Studio</div>
     <nav class="nav">
       <button class="nav-btn active" onclick="switchTab('plan')">Plan</button>
       <button class="nav-btn" onclick="switchTab('design')">Design</button>
@@ -228,13 +274,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
     </nav>
     <div class="topbar-right">
-      <div id="metaDot" class="status-dot" title="Meta API not connected"></div>
+      <div id="metaDot" class="status-dot" title="Meta API"></div>
       <span class="small mute" id="metaStatusLabel">Meta: not connected</span>
     </div>
   </div>
 
   <div class="main">
-
     <!-- SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-section">
@@ -242,23 +287,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
         <div class="upload-zone" id="uploadZone">
           <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFiles(this.files)"/>
           <div class="upload-zone-icon">⌃</div>
-          <div class="upload-zone-text">Drop images here<br/><span class="gold">or click to upload</span></div>
+          <div class="upload-zone-text">Drop images or <span class="gold">click to upload</span></div>
         </div>
         <div class="img-grid" id="imgGrid"></div>
         <div class="img-count" id="imgCount"></div>
         <button class="btn btn-ghost btn-sm" onclick="openDriveModal()" style="width:100%;margin-top:8px;gap:6px;">
-          <svg width="13" height="13" viewBox="0 0 87.3 78" fill="currentColor"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
+          <svg width="13" height="11" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
           Import from Google Drive
         </button>
         <div id="driveActiveFolderTag" style="display:none;margin-top:6px;"></div>
       </div>
-
       <div class="sidebar-section">
         <div class="sidebar-label">Queue</div>
         <div class="small mute" id="queueSummary">No posts queued</div>
-        <div class="mt-sm" id="queueMini"></div>
+        <div id="queueMini" style="margin-top:8px;"></div>
       </div>
-
       <div class="sidebar-section">
         <div class="sidebar-label">Selected</div>
         <div id="selectedInfo" class="small mute">None selected</div>
@@ -272,7 +315,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <!-- CONTENT -->
     <div class="content">
 
-      <!-- ── PLAN TAB ── -->
+      <!-- PLAN TAB -->
       <div class="tab-panel active" id="tab-plan">
         <div class="card">
           <div class="card-title serif">Content Planner</div>
@@ -282,19 +325,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
               <label>Brand Voice</label>
               <select id="planVoice">
                 <option value="editorial">Editorial — restrained, elegant</option>
-                <option value="warm">Warm — personal, behind-the-scenes</option>
+                <option value="warm">Warm — personal, BTS</option>
                 <option value="bold">Bold — campaign energy</option>
                 <option value="documentary">Documentary — story-driven</option>
               </select>
             </div>
             <div class="field flex1">
               <label>Posting Frequency</label>
-              <select id="planFreq">
-                <option value="daily">Daily (14 posts)</option>
-                <option value="5pw">5× per week (10 posts)</option>
-                <option value="3pw" selected>3× per week (6 posts)</option>
-                <option value="2pw">2× per week (4 posts)</option>
-              </select>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <select id="planFreq" onchange="toggleCustomFreq(this)" style="flex:1;">
+                  <option value="daily">Daily (14 posts)</option>
+                  <option value="5pw">5× per week (10 posts)</option>
+                  <option value="3pw" selected>3× per week (6 posts)</option>
+                  <option value="2pw">2× per week (4 posts)</option>
+                  <option value="custom">Custom…</option>
+                </select>
+                <div id="customFreqWrap" style="display:none;align-items:center;gap:4px;">
+                  <input type="number" id="customPostCount" min="1" max="30" value="6"
+                    style="width:52px;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;text-align:center;"/>
+                  <span class="small mute">posts</span>
+                </div>
+              </div>
             </div>
             <div class="field flex1">
               <label>Content Mix</label>
@@ -311,43 +362,50 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
             </div>
           </div>
           <div class="mt row">
-            <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">
-              <span>Plan 2 Weeks with Claude</span>
-            </button>
+            <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">Plan with Claude</button>
+            <button class="btn btn-ghost btn-sm" onclick="queueAll()">Queue All</button>
             <button class="btn btn-ghost btn-sm" onclick="exportPlan()">Export Plan</button>
+            <div style="flex:1;"></div>
+            <div class="view-toggle">
+              <button class="view-btn active" id="btnViewGrid" onclick="setView('grid')">Grid</button>
+              <button class="view-btn" id="btnViewTimeline" onclick="setView('timeline')">Timeline</button>
+              <button class="view-btn" id="btnViewList" onclick="setView('list')">List</button>
+            </div>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div id="planViewGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div>
-            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Grid Preview</div>
+            <div class="serif" style="font-size:14px;margin-bottom:10px;">Grid Preview <span class="mute small" style="font-family:'DM Mono',monospace;font-size:10px;">drag to reorder</span></div>
             <div class="grid-preview" id="gridPreview">
-              <!-- filled by JS -->
-              <div class="grid-cell" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>
+              <div class="grid-cell" style="display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>
             </div>
           </div>
           <div>
-            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Generated Plan</div>
-            <div class="col" id="planItems" style="max-height:320px;overflow-y:auto;gap:8px;">
+            <div class="serif" style="font-size:14px;margin-bottom:10px;">Post List</div>
+            <div class="col" id="planItems" style="max-height:480px;overflow-y:auto;gap:8px;">
               <div class="small mute">Generate a plan to see posts here.</div>
             </div>
           </div>
         </div>
+
+        <div id="planViewTimeline" style="display:none;">
+          <div id="timelineView" class="timeline"></div>
+        </div>
       </div>
 
-      <!-- ── DESIGN TAB ── -->
+      <!-- DESIGN TAB -->
       <div class="tab-panel" id="tab-design">
         <div class="card">
           <div class="card-title serif">Claude Design Studio</div>
-          <div class="card-sub">Select an image, pick a style, and Claude generates a branded graphic</div>
+          <div class="card-sub">Select an image, pick a style, Claude generates a branded graphic</div>
         </div>
-
         <div class="design-workspace">
           <div style="display:flex;flex-direction:column;gap:12px;">
             <div class="design-canvas" id="designCanvas" style="min-height:380px;">
               <div class="design-placeholder" id="designPlaceholder">
-                <div class="design-placeholder-icon">◫</div>
-                <div class="small mute">Select an image from sidebar<br/>then generate a design</div>
+                <div style="font-size:40px;margin-bottom:8px;">◫</div>
+                <div class="small mute">Select an image from sidebar then generate</div>
               </div>
               <div id="designOutput" style="width:100%;height:100%;display:none;position:relative;"></div>
               <div class="loading-overlay" id="designLoading" style="display:none;">
@@ -361,52 +419,38 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
               <button class="btn btn-ghost btn-sm" onclick="downloadDesign()">Download</button>
             </div>
           </div>
-
           <div class="design-controls">
             <div class="field">
               <label>Style</label>
               <div class="style-grid">
-                <div class="style-opt active" onclick="setStyle(this,'editorial')" data-style="editorial">Editorial</div>
-                <div class="style-opt" onclick="setStyle(this,'campaign')" data-style="campaign">Campaign</div>
-                <div class="style-opt" onclick="setStyle(this,'minimal')" data-style="minimal">Minimal</div>
-                <div class="style-opt" onclick="setStyle(this,'bts')" data-style="bts">BTS Frame</div>
-                <div class="style-opt" onclick="setStyle(this,'quote')" data-style="quote">Quote Card</div>
-                <div class="style-opt" onclick="setStyle(this,'location')" data-style="location">Location</div>
+                <div class="style-opt active" onclick="setStyle(this,'editorial')">Editorial</div>
+                <div class="style-opt" onclick="setStyle(this,'campaign')">Campaign</div>
+                <div class="style-opt" onclick="setStyle(this,'minimal')">Minimal</div>
+                <div class="style-opt" onclick="setStyle(this,'bts')">BTS Frame</div>
+                <div class="style-opt" onclick="setStyle(this,'quote')">Quote Card</div>
+                <div class="style-opt" onclick="setStyle(this,'location')">Location</div>
               </div>
             </div>
-            <div class="field">
-              <label>Design Prompt (optional)</label>
-              <textarea id="designPrompt" rows="3" placeholder="e.g. Leela Gurgaon lobby, evening light, add location tag bottom-right…"></textarea>
-            </div>
-            <div class="field">
-              <label>Text Overlay</label>
-              <input type="text" id="designText" placeholder="e.g. Where light meets luxury."/>
-            </div>
-            <div class="field">
-              <label>Sub-text / Location</label>
-              <input type="text" id="designSub" placeholder="e.g. The Leela, Gurgaon"/>
-            </div>
-            <div class="field">
-              <label>Caption (auto-generated)</label>
-              <textarea id="designCaption" rows="4" placeholder="Claude will write a caption for this graphic…"></textarea>
-            </div>
+            <div class="field"><label>Design Prompt</label><textarea id="designPrompt" rows="3" placeholder="e.g. Leela lobby, evening light, add location tag…"></textarea></div>
+            <div class="field"><label>Text Overlay</label><input type="text" id="designText" placeholder="e.g. Where light meets luxury."/></div>
+            <div class="field"><label>Sub-text / Location</label><input type="text" id="designSub" placeholder="e.g. The Leela, Gurgaon"/></div>
+            <div class="field"><label>Caption (auto-generated)</label><textarea id="designCaption" rows="4" placeholder="Claude will write a caption…"></textarea></div>
           </div>
         </div>
       </div>
 
-      <!-- ── VIDEO TAB ── -->
+      <!-- VIDEO TAB -->
       <div class="tab-panel" id="tab-video">
         <div class="card">
           <div class="card-title serif">Video Generator</div>
-          <div class="card-sub">Turn your stills into motion — Ken Burns, crossfades, and cinematic loops</div>
+          <div class="card-sub">Turn your stills into motion — Ken Burns, crossfades, cinematic loops</div>
         </div>
-
         <div class="video-workspace">
           <div style="display:flex;flex-direction:column;gap:12px;">
             <div class="video-preview" id="videoPreview">
-              <div class="video-placeholder">
+              <div style="color:var(--mute);text-align:center;">
                 <div style="font-size:32px;margin-bottom:8px;">▶</div>
-                <div class="small mute">Select images + effect<br/>then preview</div>
+                <div class="small mute">Select images + effect then preview</div>
               </div>
               <canvas id="videoCanvas" style="display:none;max-width:100%;max-height:100%;"></canvas>
             </div>
@@ -417,152 +461,105 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
             </div>
             <div class="small mute" id="videoStatus">No preview active</div>
           </div>
-
           <div class="design-controls">
-            <div class="field">
-              <label>Effect</label>
+            <div class="field"><label>Effect</label>
               <div class="effect-list">
-                <div class="effect-opt active" onclick="setEffect(this,'kenburnz')" data-effect="kenburnz">
-                  <span class="effect-icon">⟱</span>
-                  <div><div class="effect-name">Ken Burns</div><div class="effect-desc">Pan & zoom on single image</div></div>
-                </div>
-                <div class="effect-opt" onclick="setEffect(this,'crossfade')" data-effect="crossfade">
-                  <span class="effect-icon">⇄</span>
-                  <div><div class="effect-name">Crossfade</div><div class="effect-desc">Dissolve between images</div></div>
-                </div>
-                <div class="effect-opt" onclick="setEffect(this,'slideshow')" data-effect="slideshow">
-                  <span class="effect-icon">≡</span>
-                  <div><div class="effect-name">Slideshow</div><div class="effect-desc">Cut between frames</div></div>
-                </div>
-                <div class="effect-opt" onclick="setEffect(this,'zoom')" data-effect="zoom">
-                  <span class="effect-icon">⊕</span>
-                  <div><div class="effect-name">Slow Zoom</div><div class="effect-desc">Gentle push in</div></div>
-                </div>
+                <div class="effect-opt active" onclick="setEffect(this,'kenburnz')"><span style="font-size:16px;">⟱</span><div><div class="effect-name">Ken Burns</div><div class="effect-desc">Pan & zoom on single image</div></div></div>
+                <div class="effect-opt" onclick="setEffect(this,'crossfade')"><span style="font-size:16px;">⇄</span><div><div class="effect-name">Crossfade</div><div class="effect-desc">Dissolve between images</div></div></div>
+                <div class="effect-opt" onclick="setEffect(this,'slideshow')"><span style="font-size:16px;">≡</span><div><div class="effect-name">Slideshow</div><div class="effect-desc">Cut between frames</div></div></div>
+                <div class="effect-opt" onclick="setEffect(this,'zoom')"><span style="font-size:16px;">⊕</span><div><div class="effect-name">Slow Zoom</div><div class="effect-desc">Gentle push in</div></div></div>
               </div>
             </div>
-            <div class="field">
-              <label>Duration (seconds)</label>
+            <div class="field"><label>Duration</label>
               <input type="range" id="videoDuration" min="5" max="60" value="15" oninput="document.getElementById('durVal').textContent=this.value+'s'"/>
               <span id="durVal" class="small gold">15s</span>
             </div>
-            <div class="field">
-              <label>Frame Rate</label>
+            <div class="field"><label>Frame Rate</label>
               <select id="videoFPS">
                 <option value="24">24fps — cinematic</option>
                 <option value="30" selected>30fps — standard</option>
                 <option value="60">60fps — smooth</option>
               </select>
             </div>
-            <div class="field">
-              <label>Caption for this Reel</label>
-              <textarea id="videoCaption" rows="3" placeholder="Add a caption for this video post…"></textarea>
-            </div>
+            <div class="field"><label>Caption</label><textarea id="videoCaption" rows="3" placeholder="Add a caption for this video post…"></textarea></div>
             <button class="btn btn-ghost btn-sm" onclick="generateVideoCaption()">Auto-write Caption</button>
           </div>
         </div>
       </div>
 
-      <!-- ── SCHEDULE TAB ── -->
+      <!-- SCHEDULE TAB -->
       <div class="tab-panel" id="tab-schedule">
         <div class="card">
           <div class="card-title serif">Post Scheduler</div>
           <div class="card-sub">Queue your posts and publish to Instagram via Meta Graph API</div>
           <div class="meta-status" id="metaStatusCard">
-            <span class="meta-status-icon">○</span>
-            <span class="meta-status-text">Meta API not connected — add credentials in Settings</span>
+            <span style="font-size:16px;">○</span>
+            <span class="small mute">Meta API not connected — add credentials in Settings</span>
           </div>
         </div>
-
         <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
           <div>
-            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">2-Week Calendar</div>
+            <div class="serif" style="font-size:14px;margin-bottom:10px;">2-Week Calendar</div>
             <div class="cal-grid" id="calGrid"></div>
           </div>
-
           <div>
-            <div class="card-title serif" style="font-size:14px;margin-bottom:10px;">Queue</div>
+            <div class="row" style="margin-bottom:10px;">
+              <div class="serif" style="font-size:14px;flex:1;">Queue</div>
+              <button class="btn btn-ghost btn-sm" onclick="clearQueue()">Clear</button>
+            </div>
             <div class="col" id="postQueue" style="gap:8px;max-height:400px;overflow-y:auto;">
-              <div class="small mute">No posts queued yet. Generate a plan or add from Design/Video tabs.</div>
+              <div class="small mute">No posts queued yet.</div>
             </div>
             <div class="mt row">
               <button class="btn btn-primary btn-sm" onclick="publishAll()" id="btnPublish">Publish All Scheduled</button>
-              <button class="btn btn-ghost btn-sm" onclick="clearQueue()">Clear Queue</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── SETTINGS TAB ── -->
+      <!-- SETTINGS TAB -->
       <div class="tab-panel" id="tab-settings">
         <div class="card">
           <div class="card-title serif">Settings</div>
-          <div class="card-sub">API credentials and studio preferences — saved locally in your browser</div>
+          <div class="card-sub">API credentials and studio preferences — saved in your browser</div>
         </div>
-
         <div class="settings-grid">
           <div class="card">
             <div class="sidebar-label" style="margin-bottom:12px;">Claude API</div>
             <div class="col">
-              <div class="field">
-                <label>Anthropic API Key</label>
-                <input type="password" id="settAnthropicKey" placeholder="sk-ant-…"/>
-              </div>
-              <div class="small mute">Required for AI-powered design, planning, and captions.</div>
+              <div class="field"><label>Anthropic API Key</label><input type="password" id="settAnthropicKey" placeholder="sk-ant-…"/></div>
+              <div class="small mute">Required for AI planning, design, and captions.</div>
             </div>
           </div>
-
           <div class="card">
             <div class="sidebar-label" style="margin-bottom:12px;">Google Drive</div>
             <div class="col">
-              <div class="field">
-                <label>Google API Key</label>
-                <input type="password" id="settGoogleKey" placeholder="AIza…"/>
-              </div>
-              <div class="small mute">Create a key at <span class="gold">console.cloud.google.com</span> → enable Drive API → Credentials → API Key. No OAuth needed for public folders.</div>
+              <div class="field"><label>Google API Key</label><input type="password" id="settGoogleKey" placeholder="AIza…"/></div>
+              <div class="small mute">Enable Drive API → Credentials → API Key. No OAuth needed for public folders.</div>
             </div>
           </div>
-
           <div class="card">
             <div class="sidebar-label" style="margin-bottom:12px;">Meta / Instagram</div>
             <div class="col">
-              <div class="field">
-                <label>Access Token</label>
-                <input type="password" id="settMetaToken" placeholder="EAA…"/>
-              </div>
-              <div class="field">
-                <label>Instagram Account ID</label>
-                <input type="text" id="settIgId" placeholder="17841400…"/>
-              </div>
-              <div class="small mute">From Meta Business Suite → Instagram → Account ID. Token needs <code>instagram_basic</code>, <code>instagram_content_publish</code> scopes.</div>
+              <div class="field"><label>Access Token</label><input type="password" id="settMetaToken" placeholder="EAA…"/></div>
+              <div class="field"><label>Instagram Account ID</label><input type="text" id="settIgId" placeholder="17841400…"/></div>
+              <div class="small mute">Token needs instagram_basic, instagram_content_publish scopes.</div>
             </div>
           </div>
-
           <div class="card">
             <div class="sidebar-label" style="margin-bottom:12px;">Cloudinary</div>
             <div class="col">
-              <div class="field">
-                <label>Cloud Name</label>
-                <input type="text" id="settCloudName" placeholder="dsouvrzlr" value="dsouvrzlr"/>
-              </div>
-              <div class="small mute">Used to pull images from your library for scheduling.</div>
+              <div class="field"><label>Cloud Name</label><input type="text" id="settCloudName" placeholder="dsouvrzlr" value="dsouvrzlr"/></div>
             </div>
           </div>
-
-          <div class="card">
+          <div class="card" style="grid-column:1/-1;">
             <div class="sidebar-label" style="margin-bottom:12px;">Studio Brand</div>
-            <div class="col">
-              <div class="field">
-                <label>Studio Handle</label>
-                <input type="text" id="settHandle" placeholder="@kshetejsareenstudios" value="@kshetejsareenstudios"/>
-              </div>
-              <div class="field">
-                <label>Default Hashtags</label>
-                <textarea id="settHashtags" rows="3" placeholder="#luxuryphotography #hospitality…">#luxuryphotography #hospitalityphotography #architecturephotography #fnbphotography #commercialphotography #delhiphotographer #bangalorephotographer #interiorphotography #kshetejsareenstudios</textarea>
-              </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="field"><label>Studio Handle</label><input type="text" id="settHandle" placeholder="@kshetejsareenstudios" value="@kshetejsareenstudios"/></div>
+              <div class="field"><label>Default Hashtags</label><textarea id="settHashtags" rows="3">#luxuryphotography #hospitalityphotography #architecturephotography #fnbphotography #commercialphotography #delhiphotographer #bangalorephotographer #interiorphotography #kshetejsareenstudios</textarea></div>
             </div>
           </div>
         </div>
-
         <div class="row mt">
           <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
           <button class="btn btn-ghost btn-sm" onclick="testMetaConnection()">Test Meta Connection</button>
@@ -573,79 +570,117 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   </div><!-- /main -->
 </div><!-- /shell -->
 
+<!-- CAPTION EDITOR MODAL -->
+<div class="modal-overlay" id="captionModal" style="display:none;" onclick="if(event.target===this)closeCaptionModal()">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title serif">Edit Caption</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeCaptionModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Caption & Hashtags</label>
+        <textarea class="caption-textarea" id="captionEditorText" oninput="updateCharCount()" rows="10"></textarea>
+        <div class="char-counter char-ok" id="charCounter">0 / 2200</div>
+      </div>
+      <div class="field">
+        <label>Internal Notes (not published)</label>
+        <input class="notes-input" type="text" id="captionNotesInput" placeholder="e.g. Client approval needed, wait for hotel tag confirmation…"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeCaptionModal()">Cancel</button>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" onclick="rewriteCaptionWithClaude()" id="btnRewriteCaption">Rewrite with Claude</button>
+        <button class="btn btn-primary" onclick="saveCaptionEdit()">Save Caption</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAROUSEL EDITOR MODAL -->
+<div class="modal-overlay" id="carouselModal" style="display:none;" onclick="if(event.target===this)closeCarouselModal()">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title serif">Carousel Editor</div>
+      <span class="small mute" id="carouselPostLabel"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeCarouselModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="small mute" style="margin-bottom:8px;">Drag slides to reorder · First slide = cover · Click + to add from library</div>
+        <div class="carousel-slides-strip" id="carouselStrip"></div>
+      </div>
+      <div id="carouselPickerSection" style="display:none;">
+        <div class="row" style="margin-bottom:8px;">
+          <div class="small" style="flex:1;">Select images to add as slides</div>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('carouselPickerSection').style.display='none'">✕ Close picker</button>
+        </div>
+        <div class="carousel-img-picker" id="carouselImgPicker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="small mute" id="carouselSlideCount"></div>
+      <button class="btn btn-primary" onclick="saveCarouselEdit()">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- IMAGE PICKER MODAL -->
 <div class="modal-overlay" id="imgPickerModal" style="display:none;" onclick="if(event.target===this)closeImagePicker()">
-  <div class="modal" style="width:min(700px,100%);max-height:80vh;">
+  <div class="modal modal-sm">
     <div class="modal-header">
-      <div class="modal-title serif">Swap Image</div>
+      <div class="modal-title serif">Swap Cover Image</div>
       <button class="btn btn-ghost btn-sm" onclick="closeImagePicker()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="small mute" style="margin-bottom:12px;">Select a replacement image from your loaded library</div>
-      <div id="imgPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;"></div>
+      <div class="small mute" style="margin-bottom:8px;">Click any image to use as the cover for this post</div>
+      <div class="img-picker-grid" id="imgPickerGrid"></div>
     </div>
     <div class="modal-footer">
-      <div class="small mute">Click any image to swap it into the selected grid slot</div>
       <button class="btn btn-ghost" onclick="closeImagePicker()">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- GOOGLE DRIVE PICKER MODAL -->
+<!-- DRIVE PICKER MODAL -->
 <div class="modal-overlay" id="driveModal" style="display:none;" onclick="if(event.target===this)closeDriveModal()">
   <div class="modal">
     <div class="modal-header">
-      <svg width="22" height="22" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
+      <svg width="22" height="19" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M43.65 25L57.4 1.2C56 .4 54.45 0 52.9 0H34.4c-1.55 0-3.1.4-4.5 1.2L43.65 25z" fill="#00832d"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
       <div class="modal-title">Import from Google Drive</div>
       <button class="btn btn-ghost btn-sm" onclick="closeDriveModal()">✕</button>
     </div>
-
     <div class="modal-body">
-      <div class="drive-hint">
-        The folder must be shared as <strong style="color:var(--gold)">Anyone with the link → Viewer</strong>. Paste the folder URL below. A Google API key is required (add it in Settings).
-      </div>
-
+      <div class="drive-hint">Folder must be shared as <strong style="color:var(--gold)">Anyone with the link → Viewer</strong>. A Google API key is required (add it in Settings).</div>
       <div id="driveNoKeyWarning" style="display:none;background:rgba(200,74,42,.1);border:1px solid rgba(200,74,42,.3);border-radius:5px;padding:10px 12px;font-size:11px;color:var(--red);">
-        ⚠ No Google API Key found. <a href="#" onclick="switchTab('settings');closeDriveModal()" style="color:var(--gold);text-decoration:underline;">Add it in Settings →</a>
+        ⚠ No Google API Key — <a href="#" onclick="switchTab('settings');closeDriveModal()" style="color:var(--gold);text-decoration:underline;">add it in Settings →</a>
       </div>
-
       <div class="drive-url-row">
-        <div class="field">
-          <label>Google Drive Folder URL</label>
-          <input type="text" id="driveUrl" placeholder="https://drive.google.com/drive/folders/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74olGrid…"
-            onkeydown="if(event.key==='Enter')loadDriveFolder()"/>
-        </div>
-        <button class="btn btn-primary" onclick="loadDriveFolder()" id="btnLoadDrive" style="white-space:nowrap;">Browse Folder</button>
+        <div class="field"><label>Google Drive Folder URL</label><input type="text" id="driveUrl" placeholder="https://drive.google.com/drive/folders/…" onkeydown="if(event.key==='Enter')loadDriveFolder()"/></div>
+        <button class="btn btn-primary" onclick="loadDriveFolder()" id="btnLoadDrive">Browse</button>
       </div>
-
-      <div class="drive-status-row">
+      <div class="row">
         <div id="driveStatus" class="small mute flex1"></div>
-        <div id="driveLoadingSpinner" style="display:none;" class="spin"></div>
+        <div id="driveLoadingSpinner" style="display:none;" class="spin spin-gold"></div>
       </div>
-
       <div id="driveImportProgress" style="display:none;">
         <div class="small mute" id="driveProgressLabel">Importing…</div>
         <div class="drive-import-progress mt-sm"><div class="drive-import-bar" id="driveProgressBar" style="width:0%"></div></div>
       </div>
-
       <div id="driveCountBar" class="drive-count-bar" style="display:none;">
-        <span id="driveFileCount" class="small mute2"></span>
-        <div class="flex1"></div>
+        <span id="driveFileCount" class="small mute2 flex1"></span>
         <button class="btn btn-ghost btn-sm" onclick="driveSelectAll()">Select All</button>
         <button class="btn btn-ghost btn-sm" onclick="driveClearAll()">Clear All</button>
         <span id="driveSelCountBadge" class="small gold"></span>
       </div>
-
       <div class="drive-grid" id="driveGrid"></div>
     </div>
-
     <div class="modal-footer">
-      <div class="small mute" id="driveFooterNote">Select images to import into the studio.</div>
+      <div class="small mute" id="driveFooterNote">Select images to import.</div>
       <div class="row">
         <button class="btn btn-ghost" onclick="closeDriveModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="importFromDrive()" id="btnDriveImport" disabled>
-          Import <span id="driveImportCount">0</span> Images
-        </button>
+        <button class="btn btn-primary" onclick="importFromDrive()" id="btnDriveImport" disabled>Import <span id="driveImportCount">0</span> Images</button>
       </div>
     </div>
   </div>
@@ -654,87 +689,68 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============================================================
-   STATE
-============================================================ */
+const PROXY = 'https://kss-proxy.kshetej-sareen.workers.dev';
+
+/* ── STATE ── */
 const S = {
-  images: [],        // {id, name, dataUrl, file}
-  selected: [],      // image ids
-  plan: [],          // generated plan items
-  queue: [],         // scheduled posts
-  effect: 'kenburnz',
-  designStyle: 'editorial',
-  videoAnim: null,
-  videoRecorder: null,
-  videoChunks: [],
-  settings: {}
+  images: [], selected: [], plan: [], queue: [],
+  effect: 'kenburnz', designStyle: 'editorial',
+  videoAnim: null, videoChunks: [], settings: {},
+  currentView: 'grid'
 };
+let captionEditIndex = null;
+let carouselEditIndex = null;
+let pickerTargetIndex = null;
 
-/* ============================================================
-   INIT
-============================================================ */
+/* ── INIT ── */
 window.addEventListener('DOMContentLoaded', () => {
-  loadSettings();
-  renderCalendar();
-  renderQueue();
-  updateMetaStatus();
-
-  // Drag & drop
+  loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus();
   const zone = document.getElementById('uploadZone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--gold)'; });
-  zone.addEventListener('dragleave', () => zone.style.borderColor = '');
-  zone.addEventListener('drop', e => { e.preventDefault(); zone.style.borderColor = ''; handleFiles(e.dataTransfer.files); });
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor='var(--gold)'; });
+  zone.addEventListener('dragleave', () => zone.style.borderColor='');
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.style.borderColor=''; handleFiles(e.dataTransfer.files); });
 });
 
-/* ============================================================
-   SETTINGS
-============================================================ */
+/* ── SETTINGS ── */
 function saveSettings() {
   S.settings = {
     anthropicKey: document.getElementById('settAnthropicKey').value,
     googleApiKey: document.getElementById('settGoogleKey').value,
     metaToken: document.getElementById('settMetaToken').value,
     igId: document.getElementById('settIgId').value,
-    cloudName: document.getElementById('settCloudName').value,
-    handle: document.getElementById('settHandle').value,
+    cloudName: document.getElementById('settCloudName').value || 'dsouvrzlr',
+    handle: document.getElementById('settHandle').value || '@kshetejsareenstudios',
     hashtags: document.getElementById('settHashtags').value
   };
   localStorage.setItem('kss_settings', JSON.stringify(S.settings));
-  updateMetaStatus();
-  toast('Settings saved ✓');
+  updateMetaStatus(); toast('Settings saved ✓');
 }
-
 function loadSettings() {
   const stored = localStorage.getItem('kss_settings');
   if (stored) {
     S.settings = JSON.parse(stored);
-    if (S.settings.anthropicKey) document.getElementById('settAnthropicKey').value = S.settings.anthropicKey;
-    if (S.settings.googleApiKey) document.getElementById('settGoogleKey').value = S.settings.googleApiKey;
-    if (S.settings.metaToken) document.getElementById('settMetaToken').value = S.settings.metaToken;
-    if (S.settings.igId) document.getElementById('settIgId').value = S.settings.igId;
-    if (S.settings.cloudName) document.getElementById('settCloudName').value = S.settings.cloudName || 'dsouvrzlr';
-    if (S.settings.handle) document.getElementById('settHandle').value = S.settings.handle || '@kshetejsareenstudios';
-    if (S.settings.hashtags) document.getElementById('settHashtags').value = S.settings.hashtags;
+    const set = (id, val) => { if (val) document.getElementById(id).value = val; };
+    set('settAnthropicKey', S.settings.anthropicKey);
+    set('settGoogleKey', S.settings.googleApiKey);
+    set('settMetaToken', S.settings.metaToken);
+    set('settIgId', S.settings.igId);
+    set('settCloudName', S.settings.cloudName || 'dsouvrzlr');
+    set('settHandle', S.settings.handle || '@kshetejsareenstudios');
+    set('settHashtags', S.settings.hashtags);
   }
-  const savedQueue = localStorage.getItem('kss_queue');
-  if (savedQueue) { S.queue = JSON.parse(savedQueue); renderQueue(); }
-  const savedDriveUrl = localStorage.getItem('kss_last_drive_url');
-  if (savedDriveUrl) {
-    document.getElementById('driveUrl').value = savedDriveUrl;
-    showActiveFolderTag(savedDriveUrl);
-  }
+  const sq = localStorage.getItem('kss_queue');
+  if (sq) { S.queue = JSON.parse(sq); renderQueue(); }
+  const du = localStorage.getItem('kss_last_drive_url');
+  if (du) { document.getElementById('driveUrl').value = du; showActiveFolderTag(du); }
 }
-
 function updateMetaStatus() {
-  const connected = S.settings.metaToken && S.settings.igId;
-  document.getElementById('metaDot').className = 'status-dot' + (connected ? ' live' : '');
-  document.getElementById('metaStatusLabel').textContent = connected ? 'Meta: connected' : 'Meta: not connected';
-  const card = document.getElementById('metaStatusCard');
-  card.innerHTML = connected
-    ? `<span class="meta-status-icon">●</span><span class="meta-status-text" style="color:var(--green)">Meta API connected · IG ID: ${S.settings.igId}</span>`
-    : `<span class="meta-status-icon">○</span><span class="meta-status-text">Meta API not connected — add credentials in Settings</span>`;
+  const ok = S.settings.metaToken && S.settings.igId;
+  document.getElementById('metaDot').className = 'status-dot' + (ok ? ' live' : '');
+  document.getElementById('metaStatusLabel').textContent = ok ? 'Meta: connected' : 'Meta: not connected';
+  document.getElementById('metaStatusCard').innerHTML = ok
+    ? `<span style="font-size:16px;">●</span><span class="small" style="color:var(--green)">Meta API connected · IG ID: ${S.settings.igId}</span>`
+    : `<span style="font-size:16px;">○</span><span class="small mute">Meta API not connected — add credentials in Settings</span>`;
 }
-
 async function testMetaConnection() {
   const token = document.getElementById('settMetaToken').value;
   const igId = document.getElementById('settIgId').value;
@@ -743,940 +759,791 @@ async function testMetaConnection() {
     const r = await fetch(`https://graph.facebook.com/v19.0/${igId}?fields=name,username&access_token=${token}`);
     const d = await r.json();
     if (d.username) toast(`Connected: @${d.username} ✓`);
-    else toast('Connection failed: ' + (d.error?.message || 'Unknown error'));
-  } catch (e) { toast('Network error — check token'); }
+    else toast('Failed: ' + (d.error?.message || 'Unknown error'));
+  } catch(e) { toast('Network error'); }
 }
 
-/* ============================================================
-   IMAGE HANDLING
-============================================================ */
+/* ── TABS ── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => { if (b.textContent.toLowerCase() === tab) b.classList.add('active'); });
+}
+
+/* ── IMAGES ── */
 function handleFiles(files) {
   Array.from(files).forEach(file => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = e => {
       const id = 'img_' + Date.now() + Math.random().toString(36).slice(2);
-      S.images.push({ id, name: file.name, dataUrl: e.target.result, file });
+      S.images.push({ id, name: file.name, dataUrl: e.target.result });
       renderImageGrid();
     };
     reader.readAsDataURL(file);
   });
 }
-
 function renderImageGrid() {
   const grid = document.getElementById('imgGrid');
   grid.innerHTML = S.images.map(img => `
     <div class="img-thumb ${S.selected.includes(img.id) ? 'selected' : ''}" onclick="toggleSelect('${img.id}')" title="${img.name}">
-      <img src="${img.dataUrl}" loading="lazy"/>
+      <img src="${img.dataUrl}" loading="lazy" onerror="this.style.background='var(--surface3)'"/>
       <div class="sel-badge">✓</div>
-    </div>
-  `).join('');
+    </div>`).join('');
   document.getElementById('imgCount').textContent = `${S.images.length} image${S.images.length !== 1 ? 's' : ''} loaded`;
   renderSelectedInfo();
 }
-
 function toggleSelect(id) {
   const i = S.selected.indexOf(id);
   if (i === -1) S.selected.push(id); else S.selected.splice(i, 1);
   renderImageGrid();
 }
-
 function clearSelected() { S.selected = []; renderImageGrid(); }
 function selectAll() { S.selected = S.images.map(i => i.id); renderImageGrid(); }
-
 function renderSelectedInfo() {
   document.getElementById('selectedInfo').textContent = S.selected.length
-    ? `${S.selected.length} image${S.selected.length !== 1 ? 's' : ''} selected`
-    : 'None selected';
+    ? `${S.selected.length} selected` : 'None selected';
 }
+function getSelectedImages() { return S.images.filter(i => S.selected.includes(i.id)); }
+function imgByIndex(idx) { return S.images[(idx - 1 + S.images.length) % S.images.length]; }
 
-function getSelectedImages() {
-  return S.images.filter(i => S.selected.includes(i.id));
-}
-
-/* ============================================================
-   TAB NAVIGATION
-============================================================ */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    if (b.textContent.toLowerCase() === tab) b.classList.add('active');
-  });
-}
-
-/* ============================================================
-   CLAUDE API HELPER
-============================================================ */
+/* ── CLAUDE API ── */
 async function claudeCall(systemPrompt, userPrompt) {
-  const key = S.settings.anthropicKey || localStorage.getItem('kss_settings') && JSON.parse(localStorage.getItem('kss_settings')).anthropicKey;
-  if (!key) {
-    toast('Add your Anthropic API key in Settings');
-    throw new Error('No API key');
-  }
-  const PROXY = 'https://kss-proxy.kshetej-sareen.workers.dev';
+  const key = S.settings.anthropicKey;
+  if (!key) { toast('Add your Anthropic API key in Settings'); throw new Error('No API key'); }
   const r = await fetch(PROXY, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: 'claude-opus-4-5',
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }]
-    })
+    body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 2000, system: systemPrompt, messages: [{ role: 'user', content: userPrompt }] })
   });
   if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || 'API error'); }
   const d = await r.json();
   return d.content[0].text;
 }
 
-/* ============================================================
-   CONTENT PLANNER
-============================================================ */
+/* ── PLAN VIEW TOGGLE ── */
+function setView(v) {
+  S.currentView = v;
+  ['grid','timeline','list'].forEach(n => {
+    document.getElementById('btnView' + n.charAt(0).toUpperCase() + n.slice(1)).classList.toggle('active', n === v);
+  });
+  document.getElementById('planViewGrid').style.display = (v === 'grid') ? 'grid' : 'none';
+  document.getElementById('planViewTimeline').style.display = (v === 'timeline' || v === 'list') ? 'block' : 'none';
+  if (S.plan.length) renderPlan();
+}
+function toggleCustomFreq(sel) {
+  document.getElementById('customFreqWrap').style.display = sel.value === 'custom' ? 'flex' : 'none';
+}
+
+/* ── CONTENT PLANNER ── */
 async function runContentPlan() {
-  if (S.images.length === 0) { toast('Upload images first'); return; }
+  if (!S.images.length) { toast('Upload images first'); return; }
   const btn = document.getElementById('btnPlan');
   btn.innerHTML = '<span class="spin"></span> Planning…';
   btn.disabled = true;
-
   const voice = document.getElementById('planVoice').value;
   const freq = document.getElementById('planFreq').value;
   const mix = document.getElementById('planMix').value;
   const context = document.getElementById('planContext').value;
   const handle = S.settings.handle || '@kshetejsareenstudios';
-  const hashtags = S.settings.hashtags || '#luxuryphotography #hospitalityphotography';
-  const count = freq === 'daily' ? 14 : freq === '5pw' ? 10 : freq === '3pw' ? 6 : 4;
-
+  const hashtags = S.settings.hashtags || '#luxuryphotography';
+  const count = freq === 'daily' ? 14 : freq === '5pw' ? 10 : freq === '3pw' ? 6 : freq === '2pw' ? 4
+    : parseInt(document.getElementById('customPostCount').value) || 6;
   const imageDescriptions = S.images.slice(0, 20).map((img, i) => `Image ${i+1}: ${img.name}`).join('\n');
 
-  const system = `You are a luxury commercial photography studio's Instagram content strategist. The studio is Kshetej Sareen Studios (${handle}) — a dual-city (Delhi + Bangalore) studio specialising in luxury hospitality, architectural, and F&B photography. Clients include Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. You write captions from the photographer's POV, never the client's. Always include the studio credit at the end.`;
+  const system = `You are a luxury commercial photography studio's Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, specialising in luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions are from the photographer's POV. Always end with the studio credit.`;
 
-  const prompt = `Plan a 2-week Instagram content calendar. I have ${S.images.length} images:
-
-${imageDescriptions}
-
-Requirements:
-- ${count} posts over 14 days
-- Mix: ${mix}
-- Context: ${context || 'None'}
-- Voice: ${voice}
-- Hashtags to append: ${hashtags}
-
-Return ONLY valid JSON array, no markdown, no explanation:
-[{
-  "day": 1,
-  "date": "Mon Apr 21",
-  "imageIndex": 1,
-  "type": "single|carousel|reel",
-  "time": "09:00",
-  "caption": "full caption text with hashtags",
-  "theme": "short theme label"
-}]`;
+  const prompt = `Plan a 2-week Instagram content calendar. I have ${S.images.length} images:\n${imageDescriptions}\n\nRequirements:\n- ${count} posts over 14 days\n- Mix: ${mix}\n- Context: ${context || 'None'}\n- Hashtags: ${hashtags}\n\nFor carousel posts, include a slides array with 3-6 image indices.\n\nReturn ONLY valid JSON array:\n[{\n  "day": 1,\n  "date": "Mon Apr 21",\n  "imageIndex": 1,\n  "slides": [1,3,5],\n  "type": "single|carousel|reel",\n  "time": "09:00",\n  "caption": "full caption with hashtags",\n  "theme": "short theme label",\n  "notes": ""\n}]`;
 
   try {
     const raw = await claudeCall(system, prompt);
-    const clean = raw.replace(/```json|```/g, '').trim();
-    S.plan = JSON.parse(clean);
+    S.plan = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    // Ensure slides array on all posts
+    S.plan.forEach(p => {
+      if (!p.slides) p.slides = [p.imageIndex];
+      if (!p.notes) p.notes = '';
+    });
     renderPlan();
-    toast(`Plan ready — ${S.plan.length} posts scheduled ✓`);
-  } catch (e) {
-    toast('Error: ' + e.message);
-    console.error(e);
-  } finally {
-    btn.innerHTML = 'Plan 2 Weeks with Claude';
-    btn.disabled = false;
-  }
+    toast(`Plan ready — ${S.plan.length} posts ✓`);
+  } catch(e) { toast('Error: ' + e.message); console.error(e); }
+  finally { btn.innerHTML = 'Plan with Claude'; btn.disabled = false; }
 }
 
 function renderPlan() {
-  // Grid preview
+  renderGridView();
+  renderListView();
+  if (S.currentView === 'timeline' || S.currentView === 'list') renderTimelineView();
+}
+
+function renderGridView() {
   const grid = document.getElementById('gridPreview');
   grid.innerHTML = '';
   S.plan.forEach((p, i) => {
-    const img = S.images[(p.imageIndex - 1) % S.images.length];
+    const img = imgByIndex(p.imageIndex);
     const cell = document.createElement('div');
     cell.className = 'grid-cell';
     cell.draggable = true;
     cell.dataset.index = i;
-    cell.style.cursor = 'grab';
-
-    const imgSrc = img ? img.dataUrl : '';
+    const typeClass = `type-${p.type}`;
+    const slideCount = p.slides ? p.slides.length : 1;
     cell.innerHTML = `
-      <img src="${imgSrc}" loading="lazy" crossorigin="anonymous"
+      <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" loading="lazy"
         style="width:100%;height:100%;object-fit:cover;display:block;"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:var(--surface3);">
-        <span style="font-size:20px;">◫</span>
-        <span class="small mute">Click to set image</span>
-      </div>
+        onerror="this.style.display='none'"/>
       <div class="grid-cell-num">${i+1}</div>
+      <div class="grid-cell-type ${typeClass}">${p.type}</div>
+      ${p.type === 'carousel' && slideCount > 1 ? `<div class="slide-count-badge">▤ ${slideCount}</div>` : ''}
       <div class="grid-cell-overlay">
         <div class="grid-cell-date">${p.date} · ${p.time}</div>
-        <div class="grid-cell-type">${p.theme || p.type}</div>
-        <div style="display:flex;gap:4px;margin-top:4px;">
-          <button onclick="event.stopPropagation();openImagePicker(${i})" 
-            style="background:rgba(201,165,90,.85);border:none;color:#000;font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;">swap image</button>
-          <button onclick="event.stopPropagation();editCaption(${i})"
-            style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;">edit</button>
+        <div class="grid-cell-actions">
+          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})">swap</button>
+          ${p.type === 'carousel' ? `<button class="gcell-btn" onclick="event.stopPropagation();openCarouselEditor(${i})">slides</button>` : ''}
+          <button class="gcell-btn" onclick="event.stopPropagation();openCaptionEditor(${i})">edit</button>
         </div>
-      </div>
-    `;
-
-    // Drag to reorder
-    cell.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', i);
-      cell.style.opacity = '0.4';
-    });
-    cell.addEventListener('dragend', () => cell.style.opacity = '1');
-    cell.addEventListener('dragover', e => { e.preventDefault(); cell.style.outline = '2px solid var(--gold)'; });
-    cell.addEventListener('dragleave', () => cell.style.outline = '');
+      </div>`;
+    cell.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); cell.style.opacity='.4'; });
+    cell.addEventListener('dragend', () => cell.style.opacity='1');
+    cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+    cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
     cell.addEventListener('drop', e => {
-      e.preventDefault();
-      cell.style.outline = '';
+      e.preventDefault(); cell.classList.remove('drag-over');
       const from = parseInt(e.dataTransfer.getData('text/plain'));
-      const to = i;
-      if (from !== to) {
-        const moved = S.plan.splice(from, 1)[0];
-        S.plan.splice(to, 0, moved);
-        renderPlan();
-        toast('Post reordered ✓');
-      }
+      if (from !== i) { const m = S.plan.splice(from,1)[0]; S.plan.splice(i,0,m); renderPlan(); toast('Reordered ✓'); }
     });
-
     grid.appendChild(cell);
   });
+}
 
-  // Plan items list
+function renderListView() {
   const items = document.getElementById('planItems');
   items.innerHTML = S.plan.map((p, i) => {
-    const img = S.images[(p.imageIndex - 1) % S.images.length];
-    const badgeClass = p.type === 'carousel' ? 'badge-carousel' : p.type === 'reel' ? 'badge-reel' : 'badge-single';
+    const img = imgByIndex(p.imageIndex);
+    const badgeClass = `badge-${p.type}`;
+    const slideCount = p.slides ? p.slides.length : 1;
     return `
-      <div class="plan-item" id="planItem${i}">
-        <div style="position:relative;cursor:pointer;" onclick="openImagePicker(${i})">
-          <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous"
-            style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--border2);display:block;"
-            onerror="this.style.background='var(--surface3)'"/>
-          <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;"
-            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
-            <span style="font-size:10px;color:#fff;">swap</span>
+      <div class="plan-item">
+        <div class="plan-thumb" onclick="openImagePicker(${i})">
+          <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+          <div class="plan-thumb-swap">swap</div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-meta">
+            <input class="plan-date-input" type="text" value="${p.date}" onchange="S.plan[${i}].date=this.value;renderQueue();" title="Edit date"/>
+            <span class="mute">·</span>
+            <input class="plan-time-input" type="time" value="${p.time}" onchange="S.plan[${i}].time=this.value;" title="Edit time"/>
+            <span class="plan-type-badge ${badgeClass}">${p.type}${p.type === 'carousel' ? ` · ${slideCount}` : ''}</span>
+          </div>
+          <div class="type-toggle">
+            <button class="type-btn ${p.type==='single'?'active-single':''}" onclick="setPostType(${i},'single')">single</button>
+            <button class="type-btn ${p.type==='carousel'?'active-carousel':''}" onclick="setPostType(${i},'carousel')">carousel</button>
+            <button class="type-btn ${p.type==='reel'?'active-reel':''}" onclick="setPostType(${i},'reel')">reel</button>
+          </div>
+          <div class="plan-caption-preview" onclick="openCaptionEditor(${i})" title="Click to edit full caption">${p.caption.substring(0,160)}…</div>
+          <div class="plan-notes" onclick="openCaptionEditor(${i})" title="Click to add notes">${p.notes || '+ add notes'}</div>
+          <div class="plan-actions">
+            ${p.type === 'carousel' ? `<button class="btn btn-ghost btn-xs" onclick="openCarouselEditor(${i})">▤ Edit slides</button>` : ''}
+            <button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})">⎘ Duplicate</button>
+            <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},-1)">↑</button>
+            <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)">↓</button>
+            <button class="btn btn-primary btn-xs" onclick="addPlanToQueue(${i})">+ Queue</button>
+            <button class="btn btn-danger btn-xs" onclick="deletePlanItem(${i})">✕</button>
           </div>
         </div>
-        <div style="flex:1;min-width:0;">
-          <div class="plan-date">${p.date} · ${p.time}</div>
-          <div class="plan-caption" id="caption${i}" onclick="editCaption(${i})" style="cursor:text;" title="Click to edit">${p.caption.substring(0, 120)}…</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0;">
-          <span class="plan-type-badge ${badgeClass}">${p.type}</span>
-          <div style="display:flex;gap:4px;">
-            <button class="btn btn-ghost btn-sm" onclick="movePlanItem(${i},-1)" title="Move up">↑</button>
-            <button class="btn btn-ghost btn-sm" onclick="movePlanItem(${i},1)" title="Move down">↓</button>
-            <button class="btn btn-ghost btn-sm" onclick="addPlanToQueue(${i})">+ Queue</button>
-          </div>
-        </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
+function renderTimelineView() {
+  const el = document.getElementById('timelineView');
+  // Group by week
+  const weeks = [[], []];
+  S.plan.forEach(p => { weeks[p.day <= 7 ? 0 : 1].push(p); });
+  el.innerHTML = weeks.map((week, wi) => {
+    if (!week.length) return '';
+    return `<div class="timeline-week">
+      <div class="timeline-week-label">Week ${wi+1}</div>
+      ${week.map(p => {
+        const img = imgByIndex(p.imageIndex);
+        const planIdx = S.plan.indexOf(p);
+        return `<div class="timeline-day">
+          <div class="timeline-day-label">
+            <div class="timeline-day-date">${p.date.split(' ').slice(1).join(' ')}</div>
+            <div class="timeline-day-dow">${p.date.split(' ')[0]}</div>
+          </div>
+          <div class="timeline-post" onclick="openCaptionEditor(${planIdx})">
+            <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" style="width:44px;height:44px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.background='var(--surface3)'"/>
+            <div style="flex:1;min-width:0;">
+              <div class="row" style="gap:6px;margin-bottom:3px;">
+                <span class="small mute">${p.time}</span>
+                <span class="plan-type-badge badge-${p.type}">${p.type}</span>
+              </div>
+              <div style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.caption.substring(0,100)}</div>
+              ${p.notes ? `<div class="plan-notes">${p.notes}</div>` : ''}
+            </div>
+            <div class="row" style="gap:4px;">
+              <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openImagePicker(${planIdx})">swap</button>
+              <button class="btn btn-primary btn-xs" onclick="event.stopPropagation();addPlanToQueue(${planIdx})">queue</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* ── PLAN ITEM ACTIONS ── */
+function setPostType(i, type) {
+  S.plan[i].type = type;
+  if (type === 'carousel' && (!S.plan[i].slides || S.plan[i].slides.length < 2)) {
+    S.plan[i].slides = [S.plan[i].imageIndex, ((S.plan[i].imageIndex) % S.images.length) + 1];
+  }
+  renderPlan();
+}
 function movePlanItem(i, dir) {
   const j = i + dir;
   if (j < 0 || j >= S.plan.length) return;
   [S.plan[i], S.plan[j]] = [S.plan[j], S.plan[i]];
   renderPlan();
 }
-
-function editCaption(i) {
-  const p = S.plan[i];
-  const newCap = prompt('Edit caption:', p.caption);
-  if (newCap !== null) {
-    S.plan[i].caption = newCap;
-    renderPlan();
-    toast('Caption updated ✓');
-  }
-}
-
-// Image picker for swapping grid images
-let pickerTargetIndex = null;
-function openImagePicker(planIndex) {
-  pickerTargetIndex = planIndex;
-  document.getElementById('imgPickerModal').style.display = 'flex';
-  renderImagePickerGrid();
-}
-
-function closeImagePicker() {
-  document.getElementById('imgPickerModal').style.display = 'none';
-  pickerTargetIndex = null;
-}
-
-function renderImagePickerGrid() {
-  const grid = document.getElementById('imgPickerGrid');
-  grid.innerHTML = S.images.map((img, i) => `
-    <div onclick="selectPickerImage(${i})" style="aspect-ratio:1;border-radius:5px;overflow:hidden;cursor:pointer;border:2px solid var(--border);transition:border-color .2s;position:relative;"
-      onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-      <img src="${img.dataUrl}" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.background='var(--surface3)'"/>
-      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:3px 5px;font-size:9px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${img.name}</div>
-    </div>
-  `).join('');
-}
-
-function selectPickerImage(imgIndex) {
-  if (pickerTargetIndex === null) return;
-  S.plan[pickerTargetIndex].imageIndex = imgIndex + 1;
-  closeImagePicker();
+function duplicatePlanItem(i) {
+  const clone = JSON.parse(JSON.stringify(S.plan[i]));
+  clone.date = 'TBD';
+  S.plan.splice(i + 1, 0, clone);
   renderPlan();
-  toast('Image updated ✓');
+  toast('Post duplicated ✓');
 }
-
-function addPlanToQueue(i) {
+function deletePlanItem(i) {
+  S.plan.splice(i, 1);
+  renderPlan();
+}
+function queueAll() {
+  if (!S.plan.length) { toast('Generate a plan first'); return; }
+  S.plan.forEach((p, i) => addPlanToQueue(i, true));
+  saveQueue(); renderQueue();
+  toast(`${S.plan.length} posts added to queue ✓`);
+}
+function addPlanToQueue(i, silent = false) {
   const p = S.plan[i];
-  const img = S.images[(p.imageIndex - 1) % S.images.length];
+  const img = imgByIndex(p.imageIndex);
   S.queue.push({
-    id: 'q_' + Date.now(),
+    id: 'q_' + Date.now() + Math.random(),
     imageDataUrl: img?.dataUrl || '',
-    caption: p.caption,
-    type: p.type,
-    date: p.date,
-    time: p.time,
-    status: 'queued'
+    caption: p.caption, type: p.type,
+    date: p.date, time: p.time, status: 'queued',
+    notes: p.notes || ''
   });
-  saveQueue();
-  renderQueue();
-  toast('Added to queue ✓');
+  if (!silent) { saveQueue(); renderQueue(); toast('Added to queue ✓'); }
 }
-
 function exportPlan() {
   if (!S.plan.length) { toast('Generate a plan first'); return; }
-  const text = S.plan.map(p => `${p.date} ${p.time} [${p.type.toUpperCase()}]\n${p.caption}\n`).join('\n---\n\n');
-  const blob = new Blob([text], {type: 'text/plain'});
+  const text = S.plan.map(p => `${p.date} ${p.time} [${p.type.toUpperCase()}]\n${p.caption}\n${p.notes ? 'Notes: ' + p.notes : ''}`).join('\n---\n\n');
+  const blob = new Blob([text], {type:'text/plain'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Content-Plan.txt'; a.click();
 }
 
-/* ============================================================
-   CLAUDE DESIGN
-============================================================ */
-function setStyle(el, style) {
-  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-  S.designStyle = style;
+/* ── CAPTION EDITOR ── */
+function openCaptionEditor(i) {
+  captionEditIndex = i;
+  document.getElementById('captionEditorText').value = S.plan[i].caption;
+  document.getElementById('captionNotesInput').value = S.plan[i].notes || '';
+  updateCharCount();
+  document.getElementById('captionModal').style.display = 'flex';
+}
+function closeCaptionModal() {
+  document.getElementById('captionModal').style.display = 'none';
+  captionEditIndex = null;
+}
+function updateCharCount() {
+  const len = document.getElementById('captionEditorText').value.length;
+  const el = document.getElementById('charCounter');
+  el.textContent = `${len} / 2200`;
+  el.className = 'char-counter ' + (len > 2200 ? 'char-over' : len > 1800 ? 'char-warn' : 'char-ok');
+}
+function saveCaptionEdit() {
+  if (captionEditIndex === null) return;
+  S.plan[captionEditIndex].caption = document.getElementById('captionEditorText').value;
+  S.plan[captionEditIndex].notes = document.getElementById('captionNotesInput').value;
+  closeCaptionModal();
+  renderPlan();
+  toast('Caption saved ✓');
+}
+async function rewriteCaptionWithClaude() {
+  if (captionEditIndex === null) return;
+  const btn = document.getElementById('btnRewriteCaption');
+  btn.innerHTML = '<span class="spin"></span>';
+  btn.disabled = true;
+  const p = S.plan[captionEditIndex];
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  const hashtags = S.settings.hashtags || '';
+  try {
+    const caption = await claudeCall(
+      `You write Instagram captions for Kshetej Sareen Studios (${handle}), a luxury commercial photography studio. Captions are from the photographer's POV. Poetic, atmospheric, never clichéd.`,
+      `Rewrite this caption for a ${p.type} post with theme "${p.theme}". Keep it authentic, luxury hospitality tone. End with: ${hashtags}\n\nCurrent caption:\n${p.caption}`
+    );
+    document.getElementById('captionEditorText').value = caption.trim();
+    updateCharCount();
+    toast('Caption rewritten ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally { btn.innerHTML = 'Rewrite with Claude'; btn.disabled = false; }
 }
 
+/* ── CAROUSEL EDITOR ── */
+function openCarouselEditor(i) {
+  carouselEditIndex = i;
+  const p = S.plan[i];
+  document.getElementById('carouselPostLabel').textContent = `Post ${i+1} · ${p.date}`;
+  document.getElementById('carouselPickerSection').style.display = 'none';
+  renderCarouselStrip();
+  document.getElementById('carouselModal').style.display = 'flex';
+}
+function closeCarouselModal() {
+  document.getElementById('carouselModal').style.display = 'none';
+  carouselEditIndex = null;
+}
+function renderCarouselStrip() {
+  if (carouselEditIndex === null) return;
+  const p = S.plan[carouselEditIndex];
+  const slides = p.slides || [p.imageIndex];
+  const strip = document.getElementById('carouselStrip');
+  strip.innerHTML = slides.map((imgIdx, si) => {
+    const img = imgByIndex(imgIdx);
+    return `
+      <div class="carousel-slide" draggable="true" data-si="${si}"
+        ondragstart="cslideDragStart(event,${si})" ondragover="cslideDragOver(event)" ondrop="cslideDrop(event,${si})" ondragleave="cslideDragLeave(event)">
+        <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+        <div class="carousel-slide-num">${si+1}</div>
+        ${si === 0 ? '<div class="carousel-slide-cover">cover</div>' : ''}
+        ${slides.length > 1 ? `<button class="carousel-slide-remove" onclick="removeCarouselSlide(${si})">✕</button>` : ''}
+      </div>`;
+  }).join('') +
+  `<div class="carousel-add-btn" onclick="showCarouselPicker()">
+    <span style="font-size:20px;">+</span>
+    <span>add slide</span>
+  </div>`;
+  document.getElementById('carouselSlideCount').textContent = `${slides.length} slide${slides.length !== 1 ? 's' : ''} · first slide is the cover`;
+}
+function removeCarouselSlide(si) {
+  if (carouselEditIndex === null) return;
+  const slides = S.plan[carouselEditIndex].slides;
+  if (slides.length <= 1) { toast('Carousel needs at least 1 slide'); return; }
+  slides.splice(si, 1);
+  renderCarouselStrip();
+}
+let cDragSrc = null;
+function cslideDragStart(e, si) { cDragSrc = si; e.target.closest('.carousel-slide').classList.add('drag-active'); }
+function cslideDragOver(e) { e.preventDefault(); e.target.closest('.carousel-slide')?.classList.add('drop-target'); }
+function cslideDragLeave(e) { e.target.closest('.carousel-slide')?.classList.remove('drop-target'); }
+function cslideDrop(e, si) {
+  e.preventDefault();
+  e.target.closest('.carousel-slide')?.classList.remove('drop-target');
+  if (cDragSrc === null || cDragSrc === si || carouselEditIndex === null) return;
+  const slides = S.plan[carouselEditIndex].slides;
+  const moved = slides.splice(cDragSrc, 1)[0];
+  slides.splice(si, 0, moved);
+  S.plan[carouselEditIndex].imageIndex = slides[0];
+  cDragSrc = null;
+  renderCarouselStrip();
+}
+function showCarouselPicker() {
+  const sec = document.getElementById('carouselPickerSection');
+  sec.style.display = 'block';
+  document.getElementById('carouselImgPicker').innerHTML = S.images.map((img, i) => `
+    <div class="cipick-item" onclick="addCarouselSlide(${i+1})">
+      <img src="${img.dataUrl}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+    </div>`).join('');
+}
+function addCarouselSlide(imgIdx) {
+  if (carouselEditIndex === null) return;
+  if (!S.plan[carouselEditIndex].slides) S.plan[carouselEditIndex].slides = [];
+  if (S.plan[carouselEditIndex].slides.length >= 10) { toast('Max 10 slides per carousel'); return; }
+  S.plan[carouselEditIndex].slides.push(imgIdx);
+  renderCarouselStrip();
+  toast('Slide added ✓');
+}
+function saveCarouselEdit() {
+  if (carouselEditIndex !== null && S.plan[carouselEditIndex].slides?.length) {
+    S.plan[carouselEditIndex].imageIndex = S.plan[carouselEditIndex].slides[0];
+  }
+  closeCarouselModal();
+  renderPlan();
+  toast('Carousel saved ✓');
+}
+
+/* ── IMAGE PICKER (cover swap) ── */
+function openImagePicker(planIndex) {
+  pickerTargetIndex = planIndex;
+  document.getElementById('imgPickerGrid').innerHTML = S.images.map((img, i) => `
+    <div class="ipick-item" onclick="selectPickerImage(${i+1})">
+      <img src="${img.dataUrl}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+      <div class="ipick-item-name">${img.name}</div>
+    </div>`).join('');
+  document.getElementById('imgPickerModal').style.display = 'flex';
+}
+function closeImagePicker() { document.getElementById('imgPickerModal').style.display = 'none'; pickerTargetIndex = null; }
+function selectPickerImage(imgIdx) {
+  if (pickerTargetIndex === null) return;
+  S.plan[pickerTargetIndex].imageIndex = imgIdx;
+  if (S.plan[pickerTargetIndex].slides?.length) S.plan[pickerTargetIndex].slides[0] = imgIdx;
+  closeImagePicker(); renderPlan(); toast('Image updated ✓');
+}
+
+/* ── DESIGN STUDIO ── */
+function setStyle(el, style) {
+  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active'); S.designStyle = style;
+}
 async function runDesign() {
   const imgs = getSelectedImages();
   if (!imgs.length) { toast('Select an image from sidebar'); return; }
-
   const img = imgs[0];
   const btn = document.getElementById('btnDesign');
-  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span> Designing…';
-  btn.disabled = true;
-
+  btn.innerHTML = '<span class="spin"></span> Designing…'; btn.disabled = true;
   document.getElementById('designPlaceholder').style.display = 'none';
   document.getElementById('designOutput').style.display = 'none';
   document.getElementById('designLoading').style.display = 'flex';
-
   const style = S.designStyle;
   const prompt = document.getElementById('designPrompt').value;
   const overlayText = document.getElementById('designText').value;
   const subText = document.getElementById('designSub').value;
   const handle = S.settings.handle || '@kshetejsareenstudios';
-
-  const system = `You are Claude Design — a luxury visual design AI for Kshetej Sareen Studios, a premium commercial photography studio. You generate self-contained HTML/CSS graphic layouts for Instagram posts (1:1 square, 1080×1080px equivalent). The aesthetic is editorial luxury: Fraunces serif, DM Mono, dark or warm paper tones, gold accents. No purple gradients. No generic AI aesthetics. Every design should feel like it could appear in Cereal magazine or an Aman Resorts campaign. Return ONLY the HTML/CSS code. No explanation, no markdown fences.`;
-
   const styleGuides = {
-    editorial: 'Editorial magazine style. Full-bleed image with a thin serif caption at bottom on a dark semi-transparent strip. Gold rule line. Studio credit bottom-right in 8px mono.',
-    campaign: 'Bold campaign frame. Image fills 80% of canvas. Large italic serif headline overlaid top-left with slight transparency. Thick border frame in warm paper tone.',
-    minimal: 'Pure minimalism. White or off-white canvas. Image takes up 60% centered. Caption below in light grey mono, 11px. Studio mark in corner. Maximum breathing room.',
-    bts: 'Behind-the-scenes documentary feel. Slight vignette on image. Raw mono font. "Behind the frame" label top-left. Date stamp bottom-left. Film grain overlay.',
-    quote: 'Quote card. Blurred or dark image as background. Large italic serif quote centered. Attribution line below. Studio mark bottom-right.',
-    location: 'Location card. Full image with gradient overlay bottom 40%. Location pin icon. Place name in large serif. City in small mono above. Date below.'
+    editorial:'Full-bleed image with thin serif caption at bottom on dark strip. Gold rule line. Studio credit bottom-right in 8px mono.',
+    campaign:'Image fills 80%. Large italic serif headline overlaid top-left. Thick border frame in warm paper tone.',
+    minimal:'White canvas. Image centered at 60%. Caption below in light grey mono. Maximum breathing room.',
+    bts:'Documentary feel. Slight vignette. Raw mono font. "Behind the frame" label top-left. Date stamp bottom-left.',
+    quote:'Dark/blurred background. Large italic serif quote centered. Attribution line. Studio mark bottom-right.',
+    location:'Full image with gradient overlay bottom 40%. Location name in large serif. City in small mono above.'
   };
-
-  const userPrompt = `Create an Instagram post graphic (1080×1080px, use width:1080px height:1080px or use a square container) for Kshetej Sareen Studios.
-
-Style: ${style} — ${styleGuides[style]}
-Image: Use this as background/main image: <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;"/>
-Overlay text: "${overlayText || 'Kshetej Sareen Studios'}"
-Sub-text: "${subText || ''}"
-Studio handle: ${handle}
-Additional direction: ${prompt || 'Make it feel premium and editorial.'}
-
-Requirements:
-- Self-contained HTML with embedded CSS
-- Use Google Fonts: Fraunces (serif) and DM Mono
-- Gold accent: #c9a55a
-- The image must be embedded using the img tag I gave you
-- Output must be a complete HTML snippet (no <html> or <body> tags, just the styled div)
-- Exactly 1080×1080 logical pixels, scale to fit with transform if needed`;
-
   try {
-    const html = await claudeCall(system, userPrompt);
-    const clean = html.replace(/```html|```/g, '').trim();
-
-    // Render in output div
+    const html = await claudeCall(
+      `You are Claude Design — a luxury visual design AI for Kshetej Sareen Studios. Generate self-contained HTML/CSS Instagram graphics (1080×1080px). Aesthetic: editorial luxury. Use Fraunces serif + DM Mono. Gold accent #c9a55a. No generic AI aesthetics. Return ONLY the HTML snippet, no markdown.`,
+      `Create an Instagram graphic for Kshetej Sareen Studios.\nStyle: ${style} — ${styleGuides[style]}\nImage: <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;"/>\nText: "${overlayText || 'Kshetej Sareen Studios'}"\nSub: "${subText}"\nHandle: ${handle}\nDirection: ${prompt || 'Premium editorial aesthetic.'}\nOutput: Complete HTML div, exactly 1080×1080px.`
+    );
     const out = document.getElementById('designOutput');
     out.style.display = 'block';
-    out.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;">${clean}</div>`;
-
-    // Scale to preview
+    out.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;">${html.replace(/```html|```/g,'').trim()}</div>`;
     const inner = out.querySelector('div > *');
-    if (inner) {
-      const pw = document.getElementById('designCanvas').clientWidth;
-      const scale = (pw - 40) / 1080;
-      inner.style.transform = `scale(${scale})`;
-      inner.style.transformOrigin = 'top left';
-    }
-
-    // Generate caption
+    if (inner) { const s = (document.getElementById('designCanvas').clientWidth - 40) / 1080; inner.style.transform = `scale(${s})`; inner.style.transformOrigin = 'top left'; }
     generateDesignCaption(overlayText, subText, style);
     toast('Design ready ✓');
-  } catch (e) {
-    toast('Error: ' + e.message);
-    document.getElementById('designPlaceholder').style.display = 'block';
-  } finally {
-    document.getElementById('designLoading').style.display = 'none';
-    btn.innerHTML = 'Generate Design';
-    btn.disabled = false;
-  }
+  } catch(e) { toast('Error: ' + e.message); document.getElementById('designPlaceholder').style.display = 'block'; }
+  finally { document.getElementById('designLoading').style.display = 'none'; btn.innerHTML = 'Generate Design'; btn.disabled = false; }
 }
-
 async function generateDesignCaption(text, sub, style) {
   const handle = S.settings.handle || '@kshetejsareenstudios';
   const hashtags = S.settings.hashtags || '#luxuryphotography';
   try {
     const caption = await claudeCall(
-      `You write Instagram captions for Kshetej Sareen Studios, a luxury commercial photography studio. Captions are from the photographer's POV. Short, poetic, atmospheric. Never clichéd. 3-4 lines max + hashtags.`,
-      `Write a caption for a ${style}-style Instagram post. Text on the graphic: "${text}". Location/context: "${sub}". Studio: ${handle}. End with: ${hashtags}`
+      `You write Instagram captions for Kshetej Sareen Studios, luxury commercial photography studio. Short, poetic, from photographer's POV.`,
+      `Caption for a ${style}-style Instagram post. Text: "${text}". Location: "${sub}". Studio: ${handle}. End with: ${hashtags}`
     );
     document.getElementById('designCaption').value = caption.replace(/```/g,'').trim();
-  } catch(e) { /* silent */ }
+  } catch(e) {}
 }
-
 function addDesignToQueue() {
   const caption = document.getElementById('designCaption').value;
   if (!caption) { toast('Generate a design first'); return; }
   const imgs = getSelectedImages();
-  S.queue.push({
-    id: 'q_' + Date.now(),
-    imageDataUrl: imgs[0]?.dataUrl || '',
-    caption,
-    type: 'single',
-    date: '',
-    time: '09:00',
-    status: 'queued'
-  });
-  saveQueue();
-  renderQueue();
-  toast('Added to queue ✓');
+  S.queue.push({ id:'q_'+Date.now(), imageDataUrl: imgs[0]?.dataUrl||'', caption, type:'single', date:'', time:'09:00', status:'queued', notes:'' });
+  saveQueue(); renderQueue(); toast('Added to queue ✓');
 }
-
 function downloadDesign() {
   const out = document.getElementById('designOutput');
   if (!out.innerHTML) { toast('Generate a design first'); return; }
-  const blob = new Blob([out.querySelector('div').innerHTML], {type: 'text/html'});
+  const blob = new Blob([out.querySelector('div').innerHTML], {type:'text/html'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Design.html'; a.click();
 }
 
-/* ============================================================
-   VIDEO GENERATOR
-============================================================ */
+/* ── VIDEO ── */
 function setEffect(el, effect) {
   document.querySelectorAll('.effect-opt').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-  S.effect = effect;
+  el.classList.add('active'); S.effect = effect;
 }
-
 async function previewVideo() {
   const imgs = getSelectedImages();
   if (!imgs.length) { toast('Select images from sidebar'); return; }
   stopVideo();
-
   const canvas = document.getElementById('videoCanvas');
   const preview = document.getElementById('videoPreview');
   canvas.style.display = 'block';
-  preview.querySelector('.video-placeholder')?.remove();
-
+  preview.querySelector('div')?.style && (preview.querySelector('div').style.display = 'none');
   const size = Math.min(preview.clientWidth, preview.clientHeight) || 480;
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
-
   const duration = parseInt(document.getElementById('videoDuration').value) * 1000;
-  const fps = parseInt(document.getElementById('videoFPS').value);
-  const effect = S.effect;
-
-  // Load images
-  const loaded = await Promise.all(imgs.slice(0, 8).map(img => new Promise(res => {
-    const i = new Image(); i.onload = () => res(i); i.src = img.dataUrl;
+  const loaded = await Promise.all(imgs.slice(0,8).map(img => new Promise(res => {
+    const i = new Image(); i.crossOrigin='anonymous'; i.onload = () => res(i); i.onerror = () => res(i); i.src = img.dataUrl;
   })));
-
   const startTime = performance.now();
   const perImg = duration / loaded.length;
-
-  function drawFrame(t) {
-    const imgIdx = Math.floor(t / perImg) % loaded.length;
-    const nextIdx = (imgIdx + 1) % loaded.length;
-    const progress = (t % perImg) / perImg; // 0–1 within current image
-
-    ctx.clearRect(0, 0, size, size);
-
-    if (effect === 'kenburnz') {
-      const img = loaded[imgIdx];
-      const scale = 1 + progress * 0.08;
-      const ox = (size * scale - size) / 2 * (progress < 0.5 ? -progress : progress - 1);
-      ctx.save();
-      ctx.translate(size/2, size/2);
-      ctx.scale(scale, scale);
-      ctx.translate(-size/2 + ox * 0.3, -size/2);
-      drawImageCover(ctx, img, 0, 0, size, size);
-      ctx.restore();
-
-    } else if (effect === 'crossfade') {
-      drawImageCover(ctx, loaded[imgIdx], 0, 0, size, size);
-      if (progress > 0.7) {
-        ctx.globalAlpha = (progress - 0.7) / 0.3;
-        drawImageCover(ctx, loaded[nextIdx], 0, 0, size, size);
-        ctx.globalAlpha = 1;
-      }
-
-    } else if (effect === 'slideshow') {
-      drawImageCover(ctx, loaded[imgIdx], 0, 0, size, size);
-
-    } else if (effect === 'zoom') {
-      const img = loaded[imgIdx];
-      const scale = 1 + progress * 0.12;
-      ctx.save();
-      ctx.translate(size/2, size/2);
-      ctx.scale(scale, scale);
-      ctx.translate(-size/2, -size/2);
-      drawImageCover(ctx, img, 0, 0, size, size);
-      ctx.restore();
+  function drawCover(img, x, y, w, h) {
+    if (!img?.width) return;
+    const s = Math.max(w/img.width, h/img.height);
+    ctx.drawImage(img, x+(w-img.width*s)/2, y+(h-img.height*s)/2, img.width*s, img.height*s);
+  }
+  function frame(now) {
+    const t = (now - startTime) % duration;
+    const idx = Math.floor(t/perImg) % loaded.length;
+    const next = (idx+1) % loaded.length;
+    const prog = (t%perImg)/perImg;
+    ctx.clearRect(0,0,size,size);
+    if (S.effect === 'kenburnz') {
+      const sc = 1 + prog*.08;
+      ctx.save(); ctx.translate(size/2,size/2); ctx.scale(sc,sc); ctx.translate(-size/2,0); drawCover(loaded[idx],0,0,size,size); ctx.restore();
+    } else if (S.effect === 'crossfade') {
+      drawCover(loaded[idx],0,0,size,size);
+      if (prog>.7) { ctx.globalAlpha=(prog-.7)/.3; drawCover(loaded[next],0,0,size,size); ctx.globalAlpha=1; }
+    } else if (S.effect === 'slideshow') {
+      drawCover(loaded[idx],0,0,size,size);
+    } else {
+      const sc = 1+prog*.12; ctx.save(); ctx.translate(size/2,size/2); ctx.scale(sc,sc); ctx.translate(-size/2,-size/2); drawCover(loaded[idx],0,0,size,size); ctx.restore();
     }
-
-    // Subtle vignette
-    const grad = ctx.createRadialGradient(size/2, size/2, size*0.35, size/2, size/2, size*0.72);
-    grad.addColorStop(0, 'transparent');
-    grad.addColorStop(1, 'rgba(0,0,0,0.3)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
+    const g = ctx.createRadialGradient(size/2,size/2,size*.35,size/2,size/2,size*.72);
+    g.addColorStop(0,'transparent'); g.addColorStop(1,'rgba(0,0,0,.3)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+    document.getElementById('videoStatus').textContent = `Preview · ${(t/1000).toFixed(1)}s / ${duration/1000}s`;
+    S.videoAnim = requestAnimationFrame(frame);
   }
-
-  function drawImageCover(ctx, img, x, y, w, h) {
-    const scale = Math.max(w/img.width, h/img.height);
-    const sw = img.width * scale, sh = img.height * scale;
-    ctx.drawImage(img, x + (w-sw)/2, y + (h-sh)/2, sw, sh);
-  }
-
-  function animate(now) {
-    const elapsed = (now - startTime) % duration;
-    drawFrame(elapsed);
-    document.getElementById('videoStatus').textContent = `Preview · ${(elapsed/1000).toFixed(1)}s / ${duration/1000}s`;
-    S.videoAnim = requestAnimationFrame(animate);
-  }
-
-  S.videoAnim = requestAnimationFrame(animate);
+  S.videoAnim = requestAnimationFrame(frame);
   toast('Preview running ✓');
 }
-
-function stopVideo() {
-  if (S.videoAnim) { cancelAnimationFrame(S.videoAnim); S.videoAnim = null; }
-  document.getElementById('videoStatus').textContent = 'Preview stopped';
-}
-
+function stopVideo() { if (S.videoAnim) { cancelAnimationFrame(S.videoAnim); S.videoAnim=null; } document.getElementById('videoStatus').textContent='Preview stopped'; }
 async function renderVideo() {
   const imgs = getSelectedImages();
   if (!imgs.length) { toast('Select images first'); return; }
-
-  const canvas = document.getElementById('videoCanvas');
-  if (!canvas.width) { await previewVideo(); await new Promise(r => setTimeout(r, 200)); }
-
-  if (!window.MediaRecorder) { toast('MediaRecorder not supported in this browser'); return; }
-
+  if (!window.MediaRecorder) { toast('MediaRecorder not supported'); return; }
   const btn = document.getElementById('btnRender');
-  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span> Rendering…';
-  btn.disabled = true;
-
+  btn.innerHTML = '<span class="spin"></span> Rendering…'; btn.disabled = true;
+  const duration = parseInt(document.getElementById('videoDuration').value)*1000;
   const fps = parseInt(document.getElementById('videoFPS').value);
-  const duration = parseInt(document.getElementById('videoDuration').value) * 1000;
+  const canvas = document.getElementById('videoCanvas');
+  if (!canvas.width) { await previewVideo(); await new Promise(r=>setTimeout(r,200)); }
   const stream = canvas.captureStream(fps);
-  const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 8000000});
+  const recorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9', videoBitsPerSecond:8000000});
   S.videoChunks = [];
-
-  recorder.ondataavailable = e => { if (e.data.size > 0) S.videoChunks.push(e.data); };
+  recorder.ondataavailable = e => { if (e.data.size>0) S.videoChunks.push(e.data); };
   recorder.onstop = () => {
-    const blob = new Blob(S.videoChunks, {type: 'video/webm'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Reel.webm'; a.click();
-    toast('Video exported ✓');
-    btn.innerHTML = 'Export Video';
-    btn.disabled = false;
+    const blob = new Blob(S.videoChunks,{type:'video/webm'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='KSS-Reel.webm'; a.click();
+    toast('Video exported ✓'); btn.innerHTML='Export Video'; btn.disabled=false;
   };
-
-  recorder.start();
-  await previewVideo();
-  setTimeout(() => { recorder.stop(); stopVideo(); }, duration + 500);
+  recorder.start(); await previewVideo();
+  setTimeout(() => { recorder.stop(); stopVideo(); }, duration+500);
   toast(`Recording ${duration/1000}s…`);
 }
-
 async function generateVideoCaption() {
   const imgs = getSelectedImages();
-  const handle = S.settings.handle || '@kshetejsareenstudios';
-  const hashtags = S.settings.hashtags || '#luxuryphotography';
-  const effect = S.effect;
+  const handle = S.settings.handle||'@kshetejsareenstudios';
+  const hashtags = S.settings.hashtags||'#luxuryphotography';
   try {
-    const caption = await claudeCall(
-      `You write Instagram Reels captions for Kshetej Sareen Studios, a luxury commercial photography studio. Short, cinematic, from the photographer's POV.`,
-      `Write a Reels caption for a ${effect}-style video showing ${imgs.length} images. Studio: ${handle}. End with: ${hashtags}`
-    );
-    document.getElementById('videoCaption').value = caption.replace(/```/g,'').trim();
+    const c = await claudeCall('You write Instagram Reels captions for Kshetej Sareen Studios. Short, cinematic, photographer POV.',
+      `Reels caption for ${S.effect}-style video, ${imgs.length} images. Studio: ${handle}. End: ${hashtags}`);
+    document.getElementById('videoCaption').value = c.replace(/```/g,'').trim();
     toast('Caption written ✓');
-  } catch(e) { toast('Error: ' + e.message); }
+  } catch(e) { toast('Error: '+e.message); }
 }
 
-/* ============================================================
-   SCHEDULER
-============================================================ */
+/* ── SCHEDULER ── */
 function renderCalendar() {
   const grid = document.getElementById('calGrid');
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  grid.innerHTML = days.map(d => `<div class="cal-header">${d}</div>`).join('');
-
-  const today = new Date();
-  const start = new Date(today);
-  start.setDate(start.getDate() - start.getDay() + 1); // Start from Monday
-
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const dateStr = d.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
-    const postsToday = S.queue.filter(p => p.date === dateStr);
-
+  grid.innerHTML = days.map(d=>`<div class="cal-header">${d}</div>`).join('');
+  const today = new Date(); const start = new Date(today);
+  start.setDate(start.getDate()-start.getDay()+1);
+  for (let i=0;i<14;i++) {
+    const d = new Date(start); d.setDate(start.getDate()+i);
+    const dateStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const posts = S.queue.filter(p=>p.date===dateStr);
     const cell = document.createElement('div');
-    cell.className = 'cal-day' + (postsToday.length ? ' has-post' : '');
-    cell.innerHTML = `
-      <div class="cal-day-num">${d.getDate()}</div>
-      ${postsToday.map(p => `<div class="cal-post-dot" title="${p.caption.substring(0,60)}">· ${p.time}</div>`).join('')}
-    `;
+    cell.className = 'cal-day' + (posts.length?' has-post':'');
+    cell.innerHTML = `<div class="cal-day-num">${d.getDate()}</div>${posts.map(p=>`<div class="cal-post-dot" title="${p.caption.substring(0,60)}">· ${p.time}</div>`).join('')}`;
     grid.appendChild(cell);
   }
 }
-
 function renderQueue() {
   const el = document.getElementById('postQueue');
   const mini = document.getElementById('queueMini');
   const summary = document.getElementById('queueSummary');
-
-  summary.textContent = S.queue.length ? `${S.queue.length} post${S.queue.length !== 1 ? 's' : ''} queued` : 'No posts queued';
-
-  if (!S.queue.length) {
-    el.innerHTML = '<div class="small mute">No posts queued yet. Generate a plan or add from Design/Video tabs.</div>';
-    mini.innerHTML = '';
-    return;
-  }
-
-  el.innerHTML = S.queue.map((p, i) => `
+  summary.textContent = S.queue.length ? `${S.queue.length} post${S.queue.length!==1?'s':''} queued` : 'No posts queued';
+  if (!S.queue.length) { el.innerHTML='<div class="small mute">No posts queued yet.</div>'; mini.innerHTML=''; renderCalendar(); return; }
+  el.innerHTML = S.queue.map((p,i)=>`
     <div class="queue-item">
-      <img class="queue-thumb" src="${p.imageDataUrl || ''}" onerror="this.style.background='var(--surface3)'"/>
-      <div class="queue-info">
-        <div class="queue-caption">${p.caption.substring(0, 80)}…</div>
-        <div class="queue-meta">
+      <img class="queue-thumb" src="${p.imageDataUrl}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+      <div style="min-width:0;">
+        <div style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.caption.substring(0,70)}…</div>
+        <div style="font-size:10px;color:var(--mute);margin-top:2px;display:flex;gap:6px;">
           <input type="text" value="${p.date}" placeholder="Date" onchange="S.queue[${i}].date=this.value;saveQueue();renderCalendar();"
             style="background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;width:80px;outline:none;cursor:pointer;"/>
-          ·
           <input type="time" value="${p.time}" onchange="S.queue[${i}].time=this.value;saveQueue();"
-            style="background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;width:58px;outline:none;cursor:pointer;"/>
-          · <span class="plan-type-badge ${p.type === 'carousel' ? 'badge-carousel' : p.type === 'reel' ? 'badge-reel' : 'badge-single'}">${p.type}</span>
+            style="background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;width:56px;outline:none;cursor:pointer;"/>
         </div>
+        ${p.notes?`<div class="plan-notes">${p.notes}</div>`:''}
       </div>
-      <div class="queue-actions">
-        <button class="btn btn-ghost btn-sm" onclick="publishPost(${i})" title="Publish now">↑</button>
-        <button class="btn btn-danger btn-sm" onclick="removeFromQueue(${i})" title="Remove">✕</button>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="btn btn-ghost btn-xs" onclick="publishPost(${i})">↑ Post</button>
+        <button class="btn btn-danger btn-xs" onclick="removeFromQueue(${i})">✕</button>
       </div>
-    </div>
-  `).join('');
-
-  mini.innerHTML = S.queue.slice(0, 3).map(p =>
-    `<div class="small" style="color:var(--mute2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">· ${p.date || 'unscheduled'} ${p.time}</div>`
-  ).join('') + (S.queue.length > 3 ? `<div class="small mute">+${S.queue.length - 3} more</div>` : '');
-
+    </div>`).join('');
+  mini.innerHTML = S.queue.slice(0,3).map(p=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <img src="${p.imageDataUrl}" crossorigin="anonymous" style="width:22px;height:22px;object-fit:cover;border-radius:3px;flex-shrink:0;" onerror="this.style.background='var(--surface3)'"/>
+      <span class="small mute" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${p.date||'unscheduled'} · ${p.time}</span>
+    </div>`).join('') + (S.queue.length>3?`<div class="small mute">+${S.queue.length-3} more</div>`:'');
   renderCalendar();
 }
-
-function removeFromQueue(i) { S.queue.splice(i, 1); saveQueue(); renderQueue(); }
-function clearQueue() { if (confirm('Clear all queued posts?')) { S.queue = []; saveQueue(); renderQueue(); } }
+function removeFromQueue(i) { S.queue.splice(i,1); saveQueue(); renderQueue(); }
+function clearQueue() { if (confirm('Clear all queued posts?')) { S.queue=[]; saveQueue(); renderQueue(); } }
 function saveQueue() { localStorage.setItem('kss_queue', JSON.stringify(S.queue)); }
-
 async function publishPost(i) {
-  const post = S.queue[i];
-  const token = S.settings.metaToken;
-  const igId = S.settings.igId;
-
-  if (!token || !igId) { toast('Add Meta credentials in Settings'); return; }
-  if (!post.imageDataUrl) { toast('No image for this post'); return; }
-
-  toast('Publishing to Instagram…');
-
-  try {
-    // Step 1: Need a public image URL — in production use Cloudinary upload
-    // For now, guide user
-    toast('Upload image to Cloudinary first, then use its URL for publishing.');
-    // Full flow: upload to Cloudinary → get URL → POST to /media → POST to /media_publish
-  } catch(e) {
-    toast('Publish error: ' + e.message);
-  }
+  if (!S.settings.metaToken||!S.settings.igId) { toast('Add Meta credentials in Settings'); return; }
+  toast('Upload image to Cloudinary first to get a public URL, then publishing will work.');
 }
-
 async function publishAll() {
-  const scheduled = S.queue.filter(p => p.date && p.status === 'queued');
-  if (!scheduled.length) { toast('No scheduled posts in queue'); return; }
-  toast(`${scheduled.length} posts ready — Meta publishing requires public image URLs (upload to Cloudinary first)`);
+  const scheduled = S.queue.filter(p=>p.date&&p.status==='queued');
+  if (!scheduled.length) { toast('No scheduled posts'); return; }
+  toast(`${scheduled.length} posts queued — connect Cloudinary to enable auto-publish`);
 }
 
-/* ============================================================
-   GOOGLE DRIVE PICKER
-============================================================ */
-const DS = { files: [], selected: [], folderName: '' };
-
+/* ── GOOGLE DRIVE PICKER ── */
+const DS = { files:[], selected:[], folderName:'' };
 function openDriveModal() {
   document.getElementById('driveModal').style.display = 'flex';
-  const key = S.settings.googleApiKey;
-  document.getElementById('driveNoKeyWarning').style.display = key ? 'none' : 'block';
-  // Restore last URL
+  document.getElementById('driveNoKeyWarning').style.display = S.settings.googleApiKey ? 'none' : 'block';
   const lastUrl = localStorage.getItem('kss_last_drive_url');
-  if (lastUrl && !document.getElementById('driveUrl').value) {
-    document.getElementById('driveUrl').value = lastUrl;
-  }
+  if (lastUrl && !document.getElementById('driveUrl').value) document.getElementById('driveUrl').value = lastUrl;
 }
-
-function closeDriveModal() {
-  document.getElementById('driveModal').style.display = 'none';
-}
-
+function closeDriveModal() { document.getElementById('driveModal').style.display='none'; }
 function extractFolderId(url) {
-  // handles /folders/ID and ?id=ID formats
   let m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
   if (m) return m[1];
   m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   return m ? m[1] : null;
 }
-
-function setDriveStatus(msg) {
-  document.getElementById('driveStatus').textContent = msg;
-}
-
+function setDriveStatus(msg) { document.getElementById('driveStatus').textContent = msg; }
 function showActiveFolderTag(url) {
-  const id = extractFolderId(url);
-  if (!id) return;
+  const id = extractFolderId(url); if (!id) return;
   const tag = document.getElementById('driveActiveFolderTag');
   tag.style.display = 'block';
-  tag.innerHTML = `<div class="drive-folder-tag">
-    <svg width="10" height="10" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
-    Drive connected · <span class="mute" style="font-size:9px;">${id.substring(0,12)}…</span>
-    <span onclick="openDriveModal()" style="cursor:pointer;text-decoration:underline;font-size:9px;">reload</span>
-  </div>`;
+  tag.innerHTML = `<div class="drive-folder-tag"><svg width="10" height="9" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/></svg> Drive · <span class="mute" style="font-size:9px;">${id.substring(0,12)}…</span> <span onclick="openDriveModal()" style="cursor:pointer;text-decoration:underline;font-size:9px;">reload</span></div>`;
 }
-
 async function loadDriveFolder() {
   const url = document.getElementById('driveUrl').value.trim();
   const folderId = extractFolderId(url);
   const key = S.settings.googleApiKey;
-
-  if (!folderId) { setDriveStatus('⚠ Invalid URL — must contain /folders/...'); return; }
-  if (!key) { setDriveStatus('⚠ No Google API Key — add it in Settings'); return; }
-
+  if (!folderId) { setDriveStatus('⚠ Invalid URL'); return; }
+  if (!key) { setDriveStatus('⚠ Add Google API Key in Settings'); return; }
   const btn = document.getElementById('btnLoadDrive');
-  btn.innerHTML = '<span class="spin" style="border-top-color:#000"></span>';
-  btn.disabled = true;
-  document.getElementById('driveLoadingSpinner').style.display = 'block';
-  document.getElementById('driveCountBar').style.display = 'none';
-  document.getElementById('driveGrid').innerHTML = '';
-  DS.files = [];
-  DS.selected = [];
-  setDriveStatus('Connecting to Drive…');
-
+  btn.innerHTML='<span class="spin" style="border-top-color:#000"></span>'; btn.disabled=true;
+  document.getElementById('driveLoadingSpinner').style.display='block';
+  document.getElementById('driveCountBar').style.display='none';
+  document.getElementById('driveGrid').innerHTML='';
+  DS.files=[]; DS.selected=[]; setDriveStatus('Connecting…');
   try {
-    // Fetch folder name
-    try {
-      const metaR = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}?fields=name&key=${key}`);
-      const meta = await metaR.json();
-      DS.folderName = meta.name || 'Drive Folder';
-    } catch(e) { DS.folderName = 'Drive Folder'; }
-
+    try { const mr = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}?fields=name&key=${key}`); const md = await mr.json(); DS.folderName = md.name||'Drive Folder'; } catch(e) { DS.folderName='Drive Folder'; }
     setDriveStatus(`Scanning "${DS.folderName}"…`);
     await fetchDriveFilesRecursive(folderId, key, null);
-
-    if (!DS.files.length) {
-      document.getElementById('driveGrid').innerHTML = '<div class="drive-empty">No images found in this folder.<br/><span style="font-size:10px;color:var(--mute)">Make sure the folder is shared as "Anyone with the link"</span></div>';
-      setDriveStatus('');
-    } else {
-      renderDriveGrid();
-      document.getElementById('driveCountBar').style.display = 'flex';
-      document.getElementById('driveFileCount').textContent = `${DS.files.length} image${DS.files.length !== 1 ? 's' : ''} in "${DS.folderName}"`;
-      setDriveStatus('');
-      localStorage.setItem('kss_last_drive_url', url);
-    }
+    if (!DS.files.length) { document.getElementById('driveGrid').innerHTML='<div style="text-align:center;padding:40px;color:var(--mute);">No images found. Make sure the folder is shared publicly.</div>'; }
+    else { renderDriveGrid(); document.getElementById('driveCountBar').style.display='flex'; document.getElementById('driveFileCount').textContent=`${DS.files.length} images in "${DS.folderName}"`; localStorage.setItem('kss_last_drive_url',url); }
+    setDriveStatus('');
   } catch(e) {
-    const msg = e.message.includes('403') ? 'Access denied — make sure folder is shared publicly'
-      : e.message.includes('404') ? 'Folder not found — check the URL'
-      : e.message.includes('400') ? 'Invalid API key or request'
-      : 'Error: ' + e.message;
-    setDriveStatus('⚠ ' + msg);
-    console.error(e);
-  } finally {
-    btn.innerHTML = 'Browse Folder';
-    btn.disabled = false;
-    document.getElementById('driveLoadingSpinner').style.display = 'none';
-  }
+    const msg = e.message.includes('403')?'Access denied — share folder publicly':e.message.includes('404')?'Folder not found':'Error: '+e.message;
+    setDriveStatus('⚠ '+msg);
+  } finally { btn.innerHTML='Browse'; btn.disabled=false; document.getElementById('driveLoadingSpinner').style.display='none'; }
 }
-
 async function fetchDriveFilesRecursive(folderId, key, pageToken) {
   const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
-  let apiUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,mimeType,thumbnailLink,imageMediaMetadata)&pageSize=100&key=${key}&orderBy=name`;
-  if (pageToken) apiUrl += `&pageToken=${pageToken}`;
-
-  const r = await fetch(apiUrl);
-  if (!r.ok) { const err = await r.json(); throw new Error(err.error?.message || `HTTP ${r.status}`); }
+  let url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,mimeType,thumbnailLink)&pageSize=100&key=${key}&orderBy=name`;
+  if (pageToken) url += `&pageToken=${pageToken}`;
+  const r = await fetch(url);
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
   const d = await r.json();
-
-  const imageFiles = (d.files || []).filter(f => f.mimeType && f.mimeType.startsWith('image/'));
-  DS.files.push(...imageFiles);
-
-  // Paginate
-  if (d.nextPageToken) await fetchDriveFilesRecursive(folderId, key, d.nextPageToken);
+  DS.files.push(...(d.files||[]).filter(f=>f.mimeType?.startsWith('image/')));
+  if (d.nextPageToken && DS.files.length<500) await fetchDriveFilesRecursive(folderId,key,d.nextPageToken);
 }
-
 function renderDriveGrid() {
-  const grid = document.getElementById('driveGrid');
-  grid.innerHTML = DS.files.map((f) => {
-    const thumb = f.thumbnailLink
-      ? f.thumbnailLink.replace(/=s\d+/, '=s320')
-      : `https://lh3.googleusercontent.com/d/${f.id}=s320`;
-    const sel = DS.selected.includes(f.id);
-    const ext = f.name.split('.').pop().toLowerCase();
-    return `
-      <div class="drive-item ${sel ? 'selected' : ''}" onclick="toggleDriveItem('${f.id}')" data-id="${f.id}" title="${f.name}">
-        <img src="${thumb}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.previousElementSibling.textContent='${ext.toUpperCase()}'"/>
-        <div class="drive-item-name">${f.name}</div>
-        <div class="drive-check">✓</div>
-      </div>
-    `;
+  document.getElementById('driveGrid').innerHTML = DS.files.map(f => {
+    const thumb = f.thumbnailLink ? f.thumbnailLink.replace(/=s\d+/,'=s320') : `https://lh3.googleusercontent.com/d/${f.id}=s320`;
+    return `<div class="drive-item ${DS.selected.includes(f.id)?'selected':''}" onclick="toggleDriveItem('${f.id}')" data-id="${f.id}" title="${f.name}">
+      <img src="${thumb}" loading="lazy" onerror="this.style.display='none'"/>
+      <div class="drive-item-name">${f.name}</div>
+      <div class="drive-check">✓</div>
+    </div>`;
   }).join('');
   updateDriveSelCount();
 }
-
 function toggleDriveItem(id) {
   const i = DS.selected.indexOf(id);
-  if (i === -1) DS.selected.push(id); else DS.selected.splice(i, 1);
+  if (i===-1) DS.selected.push(id); else DS.selected.splice(i,1);
   const el = document.querySelector(`.drive-item[data-id="${id}"]`);
   if (el) el.classList.toggle('selected', DS.selected.includes(id));
   updateDriveSelCount();
 }
-
-function driveSelectAll() {
-  DS.selected = DS.files.map(f => f.id);
-  document.querySelectorAll('.drive-item').forEach(el => el.classList.add('selected'));
-  updateDriveSelCount();
-}
-
-function driveClearAll() {
-  DS.selected = [];
-  document.querySelectorAll('.drive-item').forEach(el => el.classList.remove('selected'));
-  updateDriveSelCount();
-}
-
+function driveSelectAll() { DS.selected=DS.files.map(f=>f.id); document.querySelectorAll('.drive-item').forEach(el=>el.classList.add('selected')); updateDriveSelCount(); }
+function driveClearAll() { DS.selected=[]; document.querySelectorAll('.drive-item').forEach(el=>el.classList.remove('selected')); updateDriveSelCount(); }
 function updateDriveSelCount() {
   const n = DS.selected.length;
-  document.getElementById('driveSelCountBadge').textContent = n ? `${n} selected` : '';
+  document.getElementById('driveSelCountBadge').textContent = n?`${n} selected`:'';
   document.getElementById('driveImportCount').textContent = n;
-  document.getElementById('btnDriveImport').disabled = n === 0;
-  document.getElementById('driveFooterNote').textContent = n
-    ? `${n} image${n !== 1 ? 's' : ''} ready to import`
-    : 'Select images to import into the studio.';
+  document.getElementById('btnDriveImport').disabled = n===0;
+  document.getElementById('driveFooterNote').textContent = n?`${n} image${n!==1?'s':''} ready to import`:'Select images to import.';
 }
-
 async function importFromDrive() {
   if (!DS.selected.length) return;
-
   const btn = document.getElementById('btnDriveImport');
-  btn.disabled = true;
-  const progressEl = document.getElementById('driveImportProgress');
-  const barEl = document.getElementById('driveProgressBar');
-  const labelEl = document.getElementById('driveProgressLabel');
-  progressEl.style.display = 'block';
-
-  let imported = 0;
-  const total = DS.selected.length;
-
+  btn.disabled=true;
+  const prog = document.getElementById('driveImportProgress');
+  const bar = document.getElementById('driveProgressBar');
+  const label = document.getElementById('driveProgressLabel');
+  prog.style.display='block';
+  let imported=0; const total=DS.selected.length;
   for (const id of DS.selected) {
-    const file = DS.files.find(f => f.id === id);
-    if (!file) continue;
-
-    labelEl.textContent = `Loading ${imported + 1} of ${total} — ${file.name}`;
-    barEl.style.width = `${((imported) / total) * 100}%`;
-
-    // Skip if already loaded
-    if (S.images.find(i => i.driveId === id)) { imported++; continue; }
-
+    const file = DS.files.find(f=>f.id===id); if (!file) continue;
+    if (S.images.find(i=>i.driveId===id)) { imported++; continue; }
+    label.textContent = `Loading ${imported+1} of ${total} — ${file.name}`;
+    bar.style.width = `${(imported/total)*100}%`;
     try {
-      // Try high-res via lh3 (works for public files with CORS)
-      const hiResUrl = file.thumbnailLink
-        ? file.thumbnailLink.replace(/=s\d+/, '=s1600')
-        : `https://lh3.googleusercontent.com/d/${id}=s1600`;
-
-      const dataUrl = await urlToBase64(hiResUrl);
-      S.images.push({ id: 'drive_' + id, name: file.name, dataUrl, driveId: id, source: 'drive' });
+      const hiRes = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/,'=s1600') : `https://lh3.googleusercontent.com/d/${id}=s1600`;
+      const dataUrl = await urlToBase64(hiRes);
+      S.images.push({id:'drive_'+id, name:file.name, dataUrl, driveId:id, source:'drive'});
     } catch(e) {
-      // CORS fallback — store URL directly (works for img tags, not canvas)
-      const fallbackUrl = file.thumbnailLink
-        ? file.thumbnailLink.replace(/=s\d+/, '=s1200')
-        : `https://lh3.googleusercontent.com/d/${id}=s1200`;
-      S.images.push({ id: 'drive_' + id, name: file.name, dataUrl: fallbackUrl, driveId: id, source: 'drive-url' });
+      const fallback = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/,'=s1200') : `https://lh3.googleusercontent.com/d/${id}=s1200`;
+      S.images.push({id:'drive_'+id, name:file.name, dataUrl:fallback, driveId:id, source:'drive-url'});
     }
     imported++;
   }
-
-  barEl.style.width = '100%';
-  labelEl.textContent = `Done — ${imported} image${imported !== 1 ? 's' : ''} imported`;
-
-  setTimeout(() => {
-    progressEl.style.display = 'none';
-    renderImageGrid();
-    showActiveFolderTag(document.getElementById('driveUrl').value);
-    closeDriveModal();
-    toast(`${imported} image${imported !== 1 ? 's' : ''} imported from Drive ✓`);
-    btn.disabled = false;
-    updateDriveSelCount();
-  }, 600);
+  bar.style.width='100%'; label.textContent=`Done — ${imported} imported`;
+  setTimeout(()=>{
+    prog.style.display='none'; renderImageGrid(); showActiveFolderTag(document.getElementById('driveUrl').value);
+    closeDriveModal(); toast(`${imported} image${imported!==1?'s':''} imported ✓`);
+    btn.disabled=false; updateDriveSelCount();
+  },500);
 }
-
-// Convert a URL to base64 via canvas (requires CORS-friendly URL)
 function urlToBase64(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    const timeout = setTimeout(() => reject(new Error('timeout')), 12000);
-    img.onload = () => {
-      clearTimeout(timeout);
+  return new Promise((resolve,reject)=>{
+    const img = new Image(); img.crossOrigin='anonymous';
+    const t = setTimeout(()=>reject(new Error('timeout')),12000);
+    img.onload=()=>{
+      clearTimeout(t);
       try {
-        const canvas = document.createElement('canvas');
-        const MAX = 1600;
-        let w = img.width, h = img.height;
-        if (w > MAX || h > MAX) { const s = MAX / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.88));
-      } catch(e) { reject(e); }
+        const c = document.createElement('canvas');
+        const MAX=1600; let w=img.width,h=img.height;
+        if (w>MAX||h>MAX) { const s=MAX/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+        c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',0.88));
+      } catch(e){reject(e);}
     };
-    img.onerror = () => { clearTimeout(timeout); reject(new Error('load failed')); };
-    img.src = url;
+    img.onerror=()=>{clearTimeout(t);reject(new Error('load failed'));};
+    img.src=url;
   });
 }
+
+/* ── TOAST ── */
 let toastTimer;
-function toast(msg, dur = 2800) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+function toast(msg,dur=2800){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),dur);
 }
 </script>
 </body>
