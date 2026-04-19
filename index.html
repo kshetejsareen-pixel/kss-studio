@@ -363,6 +363,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
           </div>
           <div class="mt row">
             <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">Plan with Claude</button>
+            <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()">↺ Reshuffle</button>
             <button class="btn btn-ghost btn-sm" onclick="queueAll()">Queue All</button>
             <button class="btn btn-ghost btn-sm" onclick="exportPlan()">Export Plan</button>
             <div style="flex:1;"></div>
@@ -854,7 +855,7 @@ async function runContentPlan() {
 
   const system = `You are a luxury commercial photography studio's Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, specialising in luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions are from the photographer's POV. Always end with the studio credit.`;
 
-  const prompt = `Plan a 2-week Instagram content calendar. I have ${S.images.length} images:\n${imageDescriptions}\n\nRequirements:\n- ${count} posts over 14 days\n- Mix: ${mix}\n- Context: ${context || 'None'}\n- Hashtags: ${hashtags}\n\nFor carousel posts, include a slides array with 3-6 image indices.\n\nReturn ONLY valid JSON array:\n[{\n  "day": 1,\n  "date": "Mon Apr 21",\n  "imageIndex": 1,\n  "slides": [1,3,5],\n  "type": "single|carousel|reel",\n  "time": "09:00",\n  "caption": "full caption with hashtags",\n  "theme": "short theme label",\n  "notes": ""\n}]`;
+  const prompt = `Plan a 2-week Instagram content calendar. I have ${S.images.length} images:\n${imageDescriptions}\n\nRequirements:\n- ${count} posts over 14 days\n- Mix: ${mix}\n- Context: ${context || 'None'}\n- Hashtags: ${hashtags}\n\nCRITICAL VISUAL DIVERSITY RULES:\n- Never use the same imageIndex twice\n- Never place visually similar images adjacent to each other in the 3-column grid (two close-up portraits, two interior shots, two warm-tone images in a row = all bad)\n- Every row of 3 in the grid must feel varied: mix wide shots with close-ups, people with spaces, warm with cool, horizontal energy with vertical\n- Alternate subject matter aggressively across the full plan\n- For carousels, choose images that tell a progression, not repetitions of same subject\n\nFor carousel posts, include a slides array with 3-5 varied image indices.\n\nReturn ONLY valid JSON array:\n[{\n  "day": 1,\n  "date": "Mon Apr 21",\n  "imageIndex": 1,\n  "slides": [1,3,5],\n  "type": "single|carousel|reel",\n  "time": "09:00",\n  "caption": "full caption with hashtags",\n  "theme": "short theme label",\n  "notes": ""\n}]`;
 
   try {
     const raw = await claudeCall(system, prompt);
@@ -1040,6 +1041,48 @@ function exportPlan() {
   const text = S.plan.map(p => `${p.date} ${p.time} [${p.type.toUpperCase()}]\n${p.caption}\n${p.notes ? 'Notes: ' + p.notes : ''}`).join('\n---\n\n');
   const blob = new Blob([text], {type:'text/plain'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'KSS-Content-Plan.txt'; a.click();
+}
+
+function reshuffleGrid() {
+  if (!S.plan.length) { toast('Generate a plan first'); return; }
+  if (!S.images.length) { toast('No images loaded'); return; }
+  // Shuffle image assignments while keeping captions/dates intact
+  // Build a pool of image indices, avoiding repeats and adjacent duplicates
+  const total = S.images.length;
+  const used = new Set();
+  S.plan.forEach((p, i) => {
+    // Pick an image that's not the same as neighbours
+    const prevIdx = i > 0 ? S.plan[i-1].imageIndex : -1;
+    const nextIdx = i < S.plan.length-1 ? S.plan[i+1].imageIndex : -1;
+    let candidates = [];
+    for (let n = 1; n <= total; n++) {
+      if (n !== prevIdx && n !== nextIdx && !used.has(n)) candidates.push(n);
+    }
+    // If all used, reset pool but still avoid neighbours
+    if (!candidates.length) {
+      used.clear();
+      for (let n = 1; n <= total; n++) {
+        if (n !== prevIdx && n !== nextIdx) candidates.push(n);
+      }
+    }
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    p.imageIndex = pick;
+    p.slides = p.type === 'carousel' ? buildDiverseSlides(pick, total, 3) : [pick];
+    used.add(pick);
+  });
+  renderPlan();
+  toast('Grid reshuffled ✓');
+}
+
+function buildDiverseSlides(coverIdx, total, count) {
+  const slides = [coverIdx];
+  const used = new Set([coverIdx]);
+  while (slides.length < count && used.size < total) {
+    let pick;
+    do { pick = Math.floor(Math.random() * total) + 1; } while (used.has(pick));
+    slides.push(pick); used.add(pick);
+  }
+  return slides;
 }
 
 /* ── CAPTION EDITOR ── */
