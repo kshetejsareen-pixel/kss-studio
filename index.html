@@ -21,8 +21,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;}
 body{font-family:'DM Mono',monospace;font-size:12px;font-weight:300;-webkit-font-smoothing:antialiased;}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");opacity:.5;}
 
-.shell{display:grid;grid-template-rows:52px 1fr;height:100vh;}
+.shell{display:grid;grid-template-rows:52px 44px 1fr;height:100vh;}
 .topbar{display:flex;align-items:center;padding:0 20px;gap:24px;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+
+/* GLOBAL CONTEXT BAR */
+.context-bar{display:flex;align-items:center;gap:10px;padding:0 20px;background:rgba(138,90,191,.06);border-bottom:1px solid rgba(138,90,191,.2);overflow:hidden;}
+.context-bar-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#b088e8;white-space:nowrap;flex-shrink:0;}
+.context-bar-input{background:transparent;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;flex:1;padding:0;min-width:0;}
+.context-bar-input::placeholder{color:var(--mute);}
+.context-bar-indicator{flex-shrink:0;font-size:9px;color:rgba(138,90,191,.6);white-space:nowrap;}
 .logo{font-family:'Fraunces',serif;font-size:15px;font-weight:300;color:var(--gold);white-space:nowrap;}
 .nav{display:flex;gap:2px;flex:1;}
 .nav-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;}
@@ -134,6 +141,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 /* DESIGN CANVAS — fixed sizing */
 .design-workspace{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;}
 .design-canvas-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.design-canvas-wrap.drag-over-canvas{border-color:var(--gold);background:var(--gold-dim);}
+.design-active-img{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;}
+.design-active-thumb{width:36px;height:36px;border-radius:3px;object-fit:cover;flex-shrink:0;border:1px solid var(--border2);}
+.design-active-info{flex:1;min-width:0;}
+.design-active-name{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+.design-active-orient{font-size:9px;color:var(--mute);}
+.design-drop-hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;pointer-events:none;opacity:0;transition:opacity .2s;}
+.design-canvas-wrap.drag-over-canvas .design-drop-hint{opacity:1;}
+.design-drop-hint-icon{font-size:32px;}
+.design-drop-hint-text{font-size:11px;color:var(--gold);}
+.img-thumb-draggable{cursor:grab;}
+.img-thumb-draggable:active{cursor:grabbing;}
 .design-canvas-inner{position:relative;overflow:hidden;border-radius:3px;}
 .design-placeholder{text-align:center;color:var(--mute);padding:40px;}
 .design-controls{display:flex;flex-direction:column;gap:10px;}
@@ -291,7 +310,64 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .best-time-tag{font-size:8px;background:rgba(74,140,92,.15);color:var(--green);border-radius:3px;padding:1px 5px;margin-left:4px;}
 .loading-overlay{position:absolute;inset:0;background:rgba(10,9,8,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:100;border-radius:var(--r);}
 .loading-spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
-/* HASHTAG MANAGER */
+/* ── NATIVE-STYLE TOOLTIPS ── */
+[data-tip]{position:relative;}
+[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:#1a1916;color:#e6dfd4;font-family:'DM Mono',monospace;font-size:10px;
+  padding:5px 9px;border-radius:4px;white-space:nowrap;pointer-events:none;
+  border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 16px rgba(0,0,0,.5);
+  opacity:0;transition:opacity .15s;transition-delay:0s;z-index:9000;
+  max-width:220px;white-space:normal;text-align:center;line-height:1.4;
+}
+[data-tip]:hover::after{opacity:1;transition-delay:.7s;}
+[data-tip][data-tip-left]::after{left:0;transform:none;}
+[data-tip][data-tip-right]::after{left:auto;right:0;transform:none;}
+
+/* ── ORIENTATION BADGES IN CAROUSEL ── */
+.cs-orient{position:absolute;bottom:3px;left:3px;font-size:7px;padding:1px 4px;border-radius:2px;font-weight:500;}
+.cs-portrait{background:rgba(201,165,90,.8);color:#000;}
+.cs-landscape{background:rgba(74,122,191,.8);color:#fff;}
+.cs-square{background:rgba(74,140,92,.8);color:#fff;}
+
+/* ── UNASSIGNED IMAGES PANEL ── */
+.unassigned-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.unassigned-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.unassigned-title{font-family:'Fraunces',serif;font-size:14px;flex:1;}
+.unassigned-count{background:rgba(200,74,42,.2);color:var(--red);border-radius:3px;padding:1px 7px;font-size:10px;}
+.unassigned-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:5px;}
+.unassigned-img{aspect-ratio:1;border-radius:4px;overflow:hidden;cursor:grab;position:relative;border:1px solid var(--border2);}
+.unassigned-img:active{cursor:grabbing;}
+.unassigned-img img{width:100%;height:100%;object-fit:cover;}
+.unassigned-img .orient-pip{position:absolute;top:3px;right:3px;font-size:7px;padding:1px 4px;border-radius:2px;}
+.unassigned-empty{font-size:11px;color:var(--green);text-align:center;padding:12px;}
+/* HEADLINE OPTIONS */
+.headline-option{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .2s;position:relative;}
+.headline-option:hover{border-color:var(--gold);background:var(--gold-dim);}
+.headline-option.selected-headline{border-color:var(--gold);background:var(--gold-dim);}
+.headline-option-head{font-size:12px;color:var(--text);margin-bottom:3px;line-height:1.4;font-weight:400;}
+.headline-option-sub{font-size:10px;color:var(--mute);line-height:1.4;}
+.headline-use-btn{position:absolute;top:6px;right:6px;background:var(--gold);color:#000;font-size:8px;padding:2px 6px;border-radius:3px;font-family:'DM Mono',monospace;border:none;cursor:pointer;opacity:0;transition:opacity .15s;}
+.headline-option:hover .headline-use-btn,.headline-option.selected-headline .headline-use-btn{opacity:1;}
+
+/* CLAUDE BRIEF FIELD */
+.claude-brief-wrap{background:rgba(138,90,191,.07);border:1px solid rgba(138,90,191,.2);border-radius:6px;padding:10px 12px;margin-bottom:4px;}
+.claude-brief-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#b088e8;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.claude-brief-input{background:transparent;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;width:100%;resize:none;line-height:1.5;min-height:32px;}
+.claude-brief-input::placeholder{color:var(--mute);}
+
+/* STORY DROP ZONE */
+.story-preview-wrap.drag-over-story{outline:2px solid var(--gold);outline-offset:-2px;}
+.story-active-img-bar{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;}
+
+/* REF UPLOAD COMPACT — shared by design and stories */
+.ref-upload-compact{border:1px dashed var(--border2);border-radius:4px;padding:6px 10px;cursor:pointer;position:relative;font-size:10px;color:var(--mute);text-align:center;transition:all .15s;}
+.ref-upload-compact:hover{border-color:var(--gold);color:var(--gold);}
+.ref-upload-compact input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.ref-preview-compact{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--surface2);border-radius:4px;border:1px solid var(--border);}
+.ref-preview-compact img{width:28px;height:28px;object-fit:cover;border-radius:2px;flex-shrink:0;}
+
 .htag-set{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:9px 11px;display:flex;align-items:center;gap:8px;transition:border-color .15s;}
 .htag-set:hover{border-color:var(--border2);}
 .htag-set-name{font-size:11px;flex:1;font-weight:400;}
@@ -337,6 +413,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
       <div id="metaDot" class="status-dot"></div>
       <span class="small mute" id="metaStatusLabel">Meta: off</span>
     </div>
+  </div>
+
+  <!-- GLOBAL CONTEXT BAR — always visible, syncs across all tabs -->
+  <div class="context-bar">
+    <span class="context-bar-label">✦ Project Brief</span>
+    <input type="text" id="globalContextBar" class="context-bar-input"
+      placeholder="Describe your project — e.g. RAVOH luxury furniture brand launch, Delhi, two founders, editorial tone, avoid repeating same person…"
+      oninput="syncGlobalContext(this.value)"
+      data-tip="This brief is shared across Plan, Captions, Design and Stories. Claude reads it for every generation."/>
+    <span class="context-bar-indicator" id="contextBarIndicator">✓ synced</span>
   </div>
 
   <div class="main">
@@ -448,11 +534,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
           </div>
 
           <div class="row mt">
-            <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">Plan with Claude</button>
-            <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()">↺ Reshuffle</button>
-            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()">⏰ Best Times</button>
-            <button class="btn btn-ghost btn-sm" onclick="queueAll()">Queue All</button>
-            <button class="btn btn-ghost btn-sm" onclick="exportPlan()">Export</button>
+            <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan" data-tip="Generates post layout with dates, times, image assignments and themes — captions generated separately after locking">Plan with Claude</button>
+            <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()" data-tip="Randomly reassigns images to posts. Locked posts are skipped. Captions update to match new images.">↺ Reshuffle</button>
+            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()" data-tip="Applies India IST research-based optimal posting times (Tue/Thu/Sat 9am & 7pm)">⏰ Best Times</button>
+            <button class="btn btn-ghost btn-sm" onclick="queueAll()" data-tip="Adds all posts to the Schedule queue">Queue All</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportPlan()" data-tip="Export plan as text file">Export</button>
             <div class="flex1"></div>
             <div class="view-toggle">
               <button class="view-btn active" id="btnViewGrid" onclick="setView('grid')">Grid</button>
@@ -461,17 +547,42 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
           </div>
         </div>
 
+        <!-- Caption generation banner — shown after plan is ready -->
+        <div id="captionBanner" style="display:none;background:rgba(138,90,191,.08);border:1px solid rgba(138,90,191,.25);border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="font-size:12px;color:#b088e8;font-weight:400;">Layout ready — generate captions now</div>
+            <div class="small mute" style="margin-top:2px;">Captions are written based on the actual images assigned to each post. Lock posts first for best results.</div>
+          </div>
+          <button class="btn btn-purple" onclick="generateAllCaptions()" id="btnGenCaptions" data-tip="Generates captions based on the actual images now assigned to each post">✦ Generate Captions</button>
+        </div>
+
         <div id="planViewGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
           <div>
-            <div class="serif" style="font-size:13px;margin-bottom:8px;">Grid Preview <span class="mute small" style="font-family:'DM Mono',monospace;">drag to reorder</span></div>
+            <div class="row" style="margin-bottom:8px;">
+              <div class="serif" style="font-size:13px;flex:1;">Grid Preview <span class="mute small" style="font-family:'DM Mono',monospace;">drag to reorder · Instagram order: bottom-right = post 1</span></div>
+            </div>
             <div class="grid-preview" id="gridPreview" style="aspect-ratio:1;">
               <div class="grid-cell" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>
             </div>
           </div>
-          <div>
-            <div class="serif" style="font-size:13px;margin-bottom:8px;">Post List</div>
-            <div class="col" id="planItems" style="max-height:440px;overflow-y:auto;gap:7px;">
-              <div class="small mute">Generate a plan to see posts here.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div class="row" style="margin-bottom:8px;">
+                <div class="serif" style="font-size:13px;flex:1;">Post List</div>
+                <span class="small mute" id="igOrderNote" style="display:none;">№ = Instagram feed order</span>
+              </div>
+              <div class="col" id="planItems" style="max-height:380px;overflow-y:auto;gap:7px;">
+                <div class="small mute">Generate a plan to see posts here.</div>
+              </div>
+            </div>
+            <!-- Unassigned images panel fills negative space -->
+            <div class="unassigned-panel" id="unassignedPanel" style="display:none;">
+              <div class="unassigned-header">
+                <div class="unassigned-title serif">Unassigned Images</div>
+                <span class="unassigned-count" id="unassignedCount">0</span>
+                <span class="small mute" data-tip="Drag any image onto a post in the list above to assign it as that post's cover">drag onto posts ↑</span>
+              </div>
+              <div class="unassigned-grid" id="unassignedGrid"></div>
             </div>
           </div>
         </div>
@@ -506,19 +617,42 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
       <div class="tab-panel" id="tab-design">
         <div class="card">
           <div class="card-title serif">Claude Design Studio</div>
-          <div class="card-sub">Select an image, pick a style, Claude generates a branded graphic</div>
+          <div class="card-sub">Drag an image onto the canvas, describe what you want, Claude does the rest</div>
+          <div class="claude-brief-wrap">
+            <div class="claude-brief-label">✦ Design Brief <span style="color:var(--mute);font-size:8px;font-style:italic;text-transform:none;letter-spacing:0;">auto-pulled from project brief · edit to specialise for this design</span></div>
+            <textarea id="designBrief" class="claude-brief-input" rows="2" placeholder="Describe what you want Claude to create — e.g. 'editorial luxury, text bottom-left, location tag, Leela Gurgaon lobby, warm evening light, make the composition breathe'…"></textarea>
+          </div>
         </div>
         <div class="design-workspace">
           <div class="col">
-            <div class="design-canvas-wrap" id="designCanvasWrap" style="min-height:340px;">
+            <!-- Active image indicator -->
+            <div id="designActiveImgBar" style="display:none;" class="design-active-img">
+              <img id="designActiveThumb" class="design-active-thumb" src="" alt=""/>
+              <div class="design-active-info">
+                <div class="design-active-name" id="designActiveName">No image selected</div>
+                <div class="design-active-orient" id="designActiveOrient"></div>
+              </div>
+              <button class="btn btn-ghost btn-xs" onclick="clearDesignImage()" data-tip="Clear selected image">✕</button>
+            </div>
+
+            <div class="design-canvas-wrap" id="designCanvasWrap" style="min-height:340px;"
+              ondragover="onDesignCanvasDragOver(event)"
+              ondragleave="onDesignCanvasDragLeave(event)"
+              ondrop="onDesignCanvasDrop(event)">
               <div class="design-placeholder" id="designPlaceholder">
                 <div style="font-size:36px;margin-bottom:8px;">◫</div>
-                <div class="small mute">Select an image from sidebar then generate</div>
+                <div class="small mute" style="margin-bottom:6px;">Drag an image from the sidebar</div>
+                <div class="small mute" style="opacity:.6;">or select one and click Generate</div>
               </div>
               <div id="designOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
               <div class="loading-overlay" id="designLoading" style="display:none;">
                 <div class="loading-spinner"></div>
                 <div style="font-size:11px;color:var(--mute2);" id="designLoadingText">Claude is designing…</div>
+              </div>
+              <!-- Drop hint overlay -->
+              <div class="design-drop-hint">
+                <div class="design-drop-hint-icon">◫</div>
+                <div class="design-drop-hint-text">Drop to use this image</div>
               </div>
             </div>
             <div class="row">
@@ -667,28 +801,53 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
         <div class="card">
           <div class="card-title serif">Stories Studio</div>
           <div class="card-sub">Design and post Instagram Stories — 9:16 format</div>
+          <!-- Claude Brief for stories — auto-pulls from global context -->
+          <div class="claude-brief-wrap">
+            <div class="claude-brief-label">✦ Claude Brief <span style="color:var(--mute);font-size:8px;font-style:italic;text-transform:none;letter-spacing:0;">auto-pulled from project brief above · edit to specialise</span></div>
+            <textarea id="storyBrief" class="claude-brief-input" rows="2" placeholder="Tell Claude what this story is about and what it should feel like…"></textarea>
+          </div>
         </div>
+
         <div class="stories-workspace">
-          <!-- Story design -->
+          <!-- LEFT: Story design canvas -->
           <div class="col">
-            <div class="serif" style="font-size:13px;">Design a Story</div>
-            <div class="story-preview-wrap" id="storyPreviewWrap" style="height:320px;">
-              <div class="design-placeholder" id="storyPlaceholder">
-                <div style="font-size:36px;margin-bottom:8px;">📱</div>
-                <div class="small mute">Select image + style → Generate</div>
+            <!-- Active image indicator -->
+            <div id="storyActiveImgBar" style="display:none;" class="story-active-img-bar">
+              <img id="storyActiveThumb" style="width:32px;height:32px;object-fit:cover;border-radius:3px;flex-shrink:0;" src="" alt=""/>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="storyActiveName">No image</div>
+                <div style="font-size:9px;color:var(--mute);" id="storyActiveOrient"></div>
+              </div>
+              <button class="btn btn-ghost btn-xs" onclick="clearStoryImage()" data-tip="Clear selected story image">✕</button>
+            </div>
+
+            <div class="story-preview-wrap" id="storyPreviewWrap" style="height:340px;"
+              ondragover="onStoryCanvasDragOver(event)"
+              ondragleave="onStoryCanvasDragLeave(event)"
+              ondrop="onStoryCanvasDrop(event)">
+              <div id="storyPlaceholder" class="design-placeholder" style="display:flex;flex-direction:column;align-items:center;">
+                <div style="font-size:32px;margin-bottom:6px;">📱</div>
+                <div class="small mute" style="margin-bottom:4px;">Drag an image from the right</div>
+                <div class="small mute" style="opacity:.5;">or click one to select it</div>
               </div>
               <div id="storyOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
               <div class="loading-overlay" id="storyLoading" style="display:none;">
                 <div class="loading-spinner"></div>
-                <div class="small mute">Designing story…</div>
+                <div class="small mute">Claude is designing your story…</div>
+              </div>
+              <div class="design-drop-hint">
+                <div class="design-drop-hint-icon">📱</div>
+                <div class="design-drop-hint-text">Drop to use as story background</div>
               </div>
             </div>
+
             <div class="row">
-              <button class="btn btn-primary btn-sm" onclick="runStoryDesign()">Generate Story</button>
-              <button class="btn btn-ghost btn-sm" onclick="addStoryToQueue()">+ Queue</button>
-              <button class="btn btn-ghost btn-sm" onclick="downloadStory()">Download</button>
+              <button class="btn btn-primary btn-sm" onclick="runStoryDesign()" id="btnStoryGenerate" data-tip="Generate a designed story with Claude — uses the image, brief and style settings">Generate Story</button>
+              <button class="btn btn-ghost btn-sm" onclick="addStoryToQueue()" data-tip="Add to story queue">+ Queue</button>
+              <button class="btn btn-ghost btn-sm" onclick="downloadStory()" data-tip="Download as HTML">Download</button>
             </div>
-            <div class="col" style="gap:7px;">
+
+            <div class="col" style="gap:8px;">
               <div class="field">
                 <label>Story Style</label>
                 <select id="storyStyle" class="finput">
@@ -700,36 +859,64 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
                   <option value="fullbleed">Full bleed — image only</option>
                 </select>
               </div>
+
+              <!-- Headline options with Generate Similar -->
               <div class="field">
-                <label>Text / Headline</label>
-                <div class="overlay-row">
-                  <input type="text" id="storyText" class="finput flex1" placeholder="e.g. New project dropping soon."/>
-                  <button class="btn btn-purple btn-sm" onclick="suggestStoryText()">✦ AI</button>
+                <div class="row" style="margin-bottom:4px;">
+                  <label style="flex:1;">Headline Options</label>
+                  <button class="btn btn-purple btn-xs" onclick="generateHeadlineOptions()" id="btnGenHeadlines" data-tip="Generate 3 headline + subtext options based on your image and brief">✦ Suggest 3</button>
+                </div>
+                <div id="headlineOptions" class="col" style="gap:5px;display:none;"></div>
+                <div class="row" style="margin-top:5px;gap:5px;" id="headlineInputRow">
+                  <input type="text" id="storyText" class="finput flex1" placeholder="Headline (or click Suggest 3 above)"/>
+                </div>
+                <div id="btnGenSimilarWrap" style="display:none;margin-top:4px;">
+                  <button class="btn btn-ghost btn-xs" onclick="generateSimilarHeadlines()" data-tip="Generate 3 more options in the same style as your selected headline">↻ Generate Similar</button>
                 </div>
               </div>
+
               <div class="field">
                 <label>Sub-text</label>
                 <input type="text" id="storySub" class="finput" placeholder="e.g. @kshetejsareenstudios"/>
+                <div id="storySubOptions" style="display:none;margin-top:4px;" class="col" style="gap:3px;"></div>
+              </div>
+
+              <!-- Reference screenshot -->
+              <div class="field">
+                <label>Reference Screenshot <span class="small mute" style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <div id="storyRefUploadZone" class="ref-upload-compact">
+                  <input type="file" accept="image/*" onchange="loadStoryRefImage(this)"/>
+                  ↑ Upload a design reference to guide Claude's style
+                </div>
+                <div id="storyRefPreview" style="display:none;margin-top:4px;" class="ref-preview-compact">
+                  <img id="storyRefImg" src=""/>
+                  <span class="small mute flex1" id="storyRefName"></span>
+                  <button class="btn btn-ghost btn-xs" onclick="clearStoryRef()">✕</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Caption</label>
+                <textarea id="storyCaption" class="finput" rows="2" placeholder="Add a caption or CTA…"></textarea>
+                <button class="btn btn-purple btn-xs" style="margin-top:4px;" onclick="generateStoryCaption()">✦ Write with AI</button>
               </div>
             </div>
           </div>
 
-          <!-- Drive images as stories -->
+          <!-- RIGHT: Image picker -->
           <div class="col">
-            <div class="serif" style="font-size:13px;">Post Images as Stories</div>
-            <div class="small mute">Select images from your loaded library to post directly as stories</div>
-            <div class="img-picker-grid" id="storyImgPicker" style="max-height:280px;overflow-y:auto;"></div>
-            <div id="storyImgSelected" class="small gold"></div>
-            <div class="context-box">
-              <div class="context-box-label">Story Caption (optional)</div>
-              <textarea id="storyCaption" class="finput" rows="2" placeholder="Add a caption or CTA for this story…"></textarea>
-              <button class="btn btn-purple btn-sm" style="margin-top:6px;" onclick="generateStoryCaption()">✦ Write with AI</button>
-            </div>
+            <div class="serif" style="font-size:13px;margin-bottom:6px;">Select Image</div>
+            <div class="small mute" style="margin-bottom:8px;">Click to preview · Drag onto canvas to set as background</div>
+            <div class="img-picker-grid" id="storyImgPicker" style="max-height:420px;overflow-y:auto;"></div>
+            <div id="storyImgSelected" class="small gold" style="margin-top:5px;"></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"/>
+            <div class="serif" style="font-size:12px;margin-bottom:6px;">Post Images Directly as Stories</div>
+            <div class="small mute" style="margin-bottom:6px;">Select multiple and add to story queue without designing</div>
             <div class="row">
-              <button class="btn btn-ghost btn-sm" onclick="renderStoryImgPicker()">Refresh Images</button>
+              <button class="btn btn-ghost btn-sm" onclick="renderStoryImgPicker()">Refresh</button>
               <button class="btn btn-primary btn-sm" onclick="addSelectedImagesToStoryQueue()">Add to Story Queue</button>
             </div>
-            <div class="small mute">Story queue: <span id="storyQueueCount" class="gold">0</span> stories</div>
+            <div class="small mute" style="margin-top:5px;">Story queue: <span id="storyQueueCount" class="gold">0</span> stories</div>
           </div>
         </div>
       </div>
@@ -838,7 +1025,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
             </div>
           </div>
           <div class="card"><div class="sidebar-label" style="margin-bottom:10px;">Cloudinary</div>
-            <div class="field"><label>Cloud Name</label><input type="text" id="settCloudName" class="finput" value="dsouvrzlr"/></div>
+            <div class="col">
+              <div class="field"><label>Cloud Name</label><input type="text" id="settCloudName" class="finput" value="dsouvrzlr"/></div>
+              <div class="field"><label>Upload Preset</label><input type="text" id="settCloudPreset" class="finput" placeholder="ml_default" value="ml_default"/></div>
+              <div class="small mute">Cloudinary → Settings → Upload → Add upload preset → Unsigned → copy name</div>
+            </div>
           </div>
           <div class="card" style="grid-column:1/-1;"><div class="sidebar-label" style="margin-bottom:10px;">Studio Brand</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -1010,7 +1201,8 @@ const S = {
   postW:1080, postH:1350,
   videoAnim:null, videoChunks:[],
   settings:{}, currentView:'grid',
-  refImageDataUrl:null, refImageName:''
+  refImageDataUrl:null, refImageName:'',
+  designActiveImgId:null  // tracks which image is loaded into design canvas
 };
 let captionEditIndex=null, carouselEditIndex=null, pickerTargetIndex=null;
 let storyImgSelected=[];
@@ -1018,7 +1210,7 @@ let storyImgSelected=[];
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded',()=>{
   loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus();
-  renderHtagSets(); renderStoryImgPicker();
+  renderHtagSets(); renderStoryImgPicker(); initGlobalContext();
   const z=document.getElementById('fileInput').parentElement;
   z.addEventListener('dragover',e=>{e.preventDefault();z.style.borderColor='var(--gold)';});
   z.addEventListener('dragleave',()=>z.style.borderColor='');
@@ -1033,6 +1225,7 @@ function saveSettings(){
     metaToken:document.getElementById('settMetaToken').value,
     igId:document.getElementById('settIgId').value,
     cloudName:document.getElementById('settCloudName').value||'dsouvrzlr',
+    cloudinaryPreset:document.getElementById('settCloudPreset').value||'ml_default',
     handle:document.getElementById('settHandle').value||'@kshetejsareenstudios',
     hashtags:document.getElementById('settHashtags').value
   };
@@ -1103,6 +1296,7 @@ function loadSettings(){
     set('settMetaToken',S.settings.metaToken);
     set('settIgId',S.settings.igId);
     set('settCloudName',S.settings.cloudName||'dsouvrzlr');
+    set('settCloudPreset',S.settings.cloudinaryPreset||'ml_default');
     set('settHandle',S.settings.handle||'@kshetejsareenstudios');
     set('settHashtags',S.settings.hashtags);
   }
@@ -1214,9 +1408,16 @@ function checkDominantOrientation(){
 }
 function renderImageGrid(){
   document.getElementById('imgGrid').innerHTML=S.images.map(img=>`
-    <div class="img-thumb ${S.selected.includes(img.id)?'selected':''}" onclick="toggleSelect('${img.id}')" title="${img.name}">
+    <div class="img-thumb img-thumb-draggable ${S.selected.includes(img.id)?'selected':''}"
+      onclick="toggleSelect('${img.id}')"
+      draggable="true"
+      ondragstart="onSidebarImgDragStart(event,'${img.id}')"
+      ondragend="this.style.opacity='1'"
+      title="${img.name}"
+      data-tip="${img.name} · ${img.orientation||'portrait'} · drag to Design canvas">
       <img src="${img.dataUrl}" loading="lazy" onerror="this.style.background='var(--surface3)'"/>
       <div class="sel-badge">✓</div>
+      ${img.orientation==='landscape'?'<div style="position:absolute;bottom:2px;left:2px;background:rgba(74,122,191,.8);color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;">L</div>':''}
     </div>`).join('');
   document.getElementById('imgCount').textContent=`${S.images.length} loaded`;
   document.getElementById('selectedInfo').textContent=S.selected.length?`${S.selected.length} selected`:'None';
@@ -1363,41 +1564,55 @@ async function runContentPlan(){
   const btn=document.getElementById('btnPlan');
   btn.innerHTML='<span class="spin"></span> Planning…';btn.disabled=true;
   const voice=document.getElementById('planVoice').value;
-  const globalCtx=document.getElementById('globalContext').value;
+  const globalCtx=getGlobalContext();
   const handle=S.settings.handle||'@kshetejsareenstudios';
   const hashtags=S.settings.hashtags||'#luxuryphotography';
   const count=getPostCount();
   const totalImgs=S.images.length;
   const ratio=`${S.postW}×${S.postH}`;
-  const imgDesc=S.images.slice(0,30).map((img,i)=>`Image ${i+1}: ${img.name}`).join('\n');
+
+  // Build orientation-aware image list
+  const imgDesc=S.images.slice(0,30).map((img,i)=>`Image ${i+1}: ${img.name} [${img.orientation||'portrait'}]`).join('\n');
+  const landscapes=S.images.filter(i=>i.orientation==='landscape').length;
+  const portraits=S.images.filter(i=>i.orientation==='portrait').length;
 
   // Smart distribution
   const perPost=totalImgs/count;
   let distributionNote='';
-  let suggestedMix='mixed';
   if(perPost>=2){
     const slidesEach=Math.ceil(perPost);
-    distributionNote=`SMART DISTRIBUTION: There are ${totalImgs} images across ${count} posts (${slidesEach} per post). Make most posts CAROUSELS with ~${slidesEach} slides each so every image is used. Distribute all ${totalImgs} images across the posts — use each image exactly once if possible.`;
-    suggestedMix='carousels';
+    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images across ${count} posts (~${slidesEach} slides each). Use CAROUSELS to cover all images.`;
   } else if(perPost>=1.2){
-    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts. Mix carousels (2-3 slides) and singles to cover all images. Each image should appear in the plan.`;
-    suggestedMix='mixed';
+    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts. Mix carousels (2-3 slides) and singles.`;
   } else {
-    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts — 1 image per post. Use the most visually diverse images for maximum grid variety.`;
-    suggestedMix='stills';
+    distributionNote=`SMART DISTRIBUTION: ${totalImgs} images, ${count} posts — 1 image per post.`;
   }
 
-  const capLenGuide=getCaptionLengthGuide();
-  const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions from photographer's POV. Caption length style: ${capLenGuide} Always end with studio credit.`;
+  const orientNote=landscapes>0&&portraits>0
+    ?`ORIENTATION GROUPING — CRITICAL: There are ${landscapes} landscape images and ${portraits} portrait images. NEVER mix landscape and portrait images in the same carousel — they will destroy each other's composition. Group landscape images together into landscape-only carousels. Group portrait images into portrait-only carousels. Single posts can be any orientation.`
+    :'';
 
-  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images available:\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\nHashtags: ${hashtags}\n\n${distributionNote}\n\nCAPTION LENGTH RULE: ${capLenGuide}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed, 09:00 and 18:00 on Sun/Fri.\n\nVISUAL DIVERSITY — CRITICAL:\n- Never place similar images adjacent in the 3-column grid\n- Every row of 3 must mix: wide shot / close-up / detail, person / space / object, warm / cool tone\n- Carousels: images must tell a progression, not repeat the same subject\n- No imageIndex should appear in two different posts' cover images\n\nReturn ONLY valid JSON array:\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3,5],"type":"single|carousel|reel","time":"09:00","caption":"full caption with hashtags","theme":"short theme","notes":""}]`;
+  const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}). Voice: ${voice}. You plan image assignments and themes ONLY — captions will be generated separately after layout is approved. Always respond with valid JSON only.`;
+
+  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed.\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","time":"09:00","caption":"","theme":"short theme label","notes":""}]`;
 
   try{
     const raw=await claudeCall(system,prompt);
     S.plan=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    S.plan.forEach(p=>{if(!p.slides)p.slides=[p.imageIndex];if(!p.notes)p.notes='';});
-    renderPlan(); renderCaptionsTab();
-    toast(`Plan ready — ${S.plan.length} posts ✓`);
+    S.plan.forEach(p=>{
+      if(!p.slides)p.slides=[p.imageIndex];
+      if(!p.notes)p.notes='';
+      p.caption=p.caption||''; // captions empty until generated
+      p.locked=false;
+    });
+    renderPlan();
+    renderCaptionsTab();
+    renderUnassignedPanel();
+    // Show caption generation banner
+    const banner=document.getElementById('captionBanner');
+    if(banner)banner.style.display='flex';
+    document.getElementById('igOrderNote').style.display='block';
+    toast(`Layout ready — ${S.plan.length} posts. Now generate captions when ready ✓`);
   }catch(e){toast('Error: '+e.message);console.error(e);}
   finally{btn.innerHTML='Plan with Claude';btn.disabled=false;}
 }
@@ -1417,47 +1632,64 @@ function setView(v){
 
 function renderGridView(){
   const grid=document.getElementById('gridPreview');
-  // Set aspect ratio based on post size
   grid.innerHTML='';
   grid.style.aspectRatio=`${S.postW}/${S.postH}`;
+  const total=S.plan.length;
+  // Instagram feed order: newest post = top-left of feed = LAST posted
+  // Grid in tool: left-to-right, top-to-bottom = index 0,1,2,3,4,5
+  // Instagram actual order: bottom-right = post 1 (first on feed chronologically last)
+  // So Instagram post number = total - index (reversed)
+  // For a 6-post grid: tool index 0=top-left=Instagram post 6, index 5=bottom-right=Instagram post 1
   S.plan.forEach((p,i)=>{
     const img=imgByIdx(p.imageIndex);
     const orientation=img?.orientation||'portrait';
     const cell=document.createElement('div');
     cell.className='grid-cell';
-    cell.draggable=true;
-    // Landscape images show with landscape ratio in grid
+    cell.draggable=!p.locked;
     cell.style.aspectRatio=orientation==='landscape'?'16/9':orientation==='square'?'1/1':`${S.postW}/${S.postH}`;
     const slides=p.slides?p.slides.length:1;
     const isLocked=p.locked||false;
-    const qualTag=img?.qualityFlag==='warn'?'<span class="quality-warn">⚠ low res</span>':img?.qualityFlag==='err'?'<span class="quality-err">✕ too small</span>':'';
+    const igNum=total-i; // Instagram post order number
+    const hasCap=p.caption&&p.caption.trim().length>0;
     if(isLocked)cell.classList.add('locked-cell');
     cell.innerHTML=`
       <img src="${img?img.dataUrl:''}" crossorigin="anonymous" loading="lazy"
         style="width:100%;height:100%;object-fit:cover;display:block;transform:${getImgTransform(img)};"
         onerror="this.style.display='none'"/>
-      <div class="grid-cell-num">${i+1}${isLocked?' 🔒':''}</div>
+      <div class="grid-cell-num" data-tip="Instagram post #${igNum} · Tool position ${i+1}">${igNum}${isLocked?' 🔒':''}</div>
       <div class="grid-cell-type type-${p.type}">${p.type}</div>
       ${p.type==='carousel'&&slides>1?`<div class="slide-count">▤ ${slides}</div>`:''}
+      ${!hasCap?'<div style="position:absolute;bottom:5px;left:5px;background:rgba(200,74,42,.7);color:#fff;font-size:7px;padding:1px 5px;border-radius:2px;">no caption</div>':''}
       <div class="grid-cell-overlay">
         <div class="grid-cell-date">${p.date} · ${p.time}</div>
         <div class="grid-cell-actions">
-          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})">swap</button>
-          ${p.type==='carousel'?`<button class="gcell-btn" onclick="event.stopPropagation();openCarouselEditor(${i})">slides</button>`:''}
-          <button class="gcell-btn" onclick="event.stopPropagation();openCaptionEditor(${i})">edit</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();flipPlanImg(${i},'H')">↔</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();rotatePlanImg(${i},90)">↻</button>
-          <button class="gcell-btn ${isLocked?'gold':''}" onclick="event.stopPropagation();toggleLock(${i})">${isLocked?'🔒':'🔓'}</button>
+          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})" data-tip="Swap cover image">swap</button>
+          ${p.type==='carousel'?`<button class="gcell-btn" onclick="event.stopPropagation();openCarouselEditor(${i})" data-tip="Edit carousel slides">slides</button>`:''}
+          <button class="gcell-btn" onclick="event.stopPropagation();openCaptionEditor(${i})" data-tip="Edit caption">edit</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();flipPlanImg(${i},'H')" data-tip="Flip horizontally">↔</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();rotatePlanImg(${i},90)" data-tip="Rotate 90°">↻</button>
+          <button class="gcell-btn ${isLocked?'gold':''}" onclick="event.stopPropagation();toggleLock(${i})" data-tip="${isLocked?'Unlock this post':'Lock post — freezes image assignment and prevents reshuffling'}">${isLocked?'🔒':'🔓'}</button>
         </div>
       </div>`;
-    cell.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);cell.style.opacity='.4';});
-    cell.addEventListener('dragend',()=>cell.style.opacity='1');
+    // Only allow drag if not locked
+    if(!isLocked){
+      cell.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);cell.style.opacity='.4';});
+      cell.addEventListener('dragend',()=>cell.style.opacity='1');
+    }
     cell.addEventListener('dragover',e=>{e.preventDefault();cell.classList.add('drag-over');});
     cell.addEventListener('dragleave',()=>cell.classList.remove('drag-over'));
     cell.addEventListener('drop',e=>{
       e.preventDefault();cell.classList.remove('drag-over');
+      // Check if this is an unassigned image being dragged
+      const unassignedIdx=e.dataTransfer.getData('unassigned-img');
+      if(unassignedIdx!==''){
+        const imgIdx=parseInt(unassignedIdx);
+        if(!isNaN(imgIdx)){S.plan[i].imageIndex=imgIdx;S.plan[i].slides=[imgIdx];renderPlan();renderUnassignedPanel();toast('Image assigned ✓');return;}
+      }
       const from=parseInt(e.dataTransfer.getData('text/plain'));
-      if(from!==i){const m=S.plan.splice(from,1)[0];S.plan.splice(i,0,m);renderPlan();toast('Reordered ✓');}
+      if(!isNaN(from)&&from!==i&&!S.plan[from]?.locked){
+        const m=S.plan.splice(from,1)[0];S.plan.splice(i,0,m);renderPlan();toast('Reordered ✓');
+      }
     });
     grid.appendChild(cell);
   });
@@ -1465,6 +1697,7 @@ function renderGridView(){
 
 function renderListView(){
   const dupes=findDuplicateCoverImages();
+  const total=S.plan.length;
   document.getElementById('planItems').innerHTML=S.plan.map((p,i)=>{
     const img=imgByIdx(p.imageIndex);
     const slides=p.slides?p.slides.length:1;
@@ -1472,47 +1705,143 @@ function renderListView(){
     const isDupe=dupes.has(p.imageIndex);
     const qualBadge=img?.qualityFlag==='warn'?'<span class="quality-warn">⚠ low res</span>':img?.qualityFlag==='err'?'<span class="quality-err">✕ too small</span>':'';
     const bestTimeBadge=p.bestTime?'<span class="best-time-tag">⏰ optimal</span>':'';
-    return `<div class="plan-item ${isLocked?'locked':''}">
+    const igNum=total-i;
+    const hasCap=p.caption&&p.caption.trim().length>0;
+    const orientBadge=img?.orientation==='landscape'?'<span class="landscape-badge">⬛ L</span>':img?.orientation==='square'?'<span style="background:rgba(74,140,92,.2);color:var(--green);border-radius:3px;padding:1px 5px;font-size:8px;">□ S</span>':'';
+    return `<div class="plan-item ${isLocked?'locked':''}" id="planItem${i}"
+      ondragover="event.preventDefault();this.style.outline='2px solid var(--gold)'"
+      ondragleave="this.style.outline=''"
+      ondrop="dropUnassignedOnPost(event,${i});this.style.outline=''">
       <div class="plan-thumb" onclick="${isLocked?'':(`openImagePicker(${i})`)}">
         <img src="${img?img.dataUrl:''}" crossorigin="anonymous" style="transform:${getImgTransform(img)};" onerror="this.style.background='var(--surface3)'"/>
         ${isLocked?'':`<div class="plan-thumb-swap">swap</div>`}
       </div>
-      <div>
+      <div style="flex:1;min-width:0;">
         ${isDupe?`<div class="dup-warn">⚠ Same image used in another post</div>`:''}
         <div class="plan-meta">
+          <span class="small" style="color:var(--mute);min-width:28px;" data-tip="Instagram post #${igNum} (feeds show newest first — bottom-right of grid = post 1)">#${igNum}</span>
           <input class="date-input" type="text" value="${p.date}" ${isLocked?'disabled':''} onchange="S.plan[${i}].date=this.value;"/>
           <span class="mute">·</span>
           <input class="time-input" type="time" value="${p.time}" ${isLocked?'disabled':''} onchange="S.plan[${i}].time=this.value;"/>
           <span class="badge badge-${p.type}">${p.type}${p.type==='carousel'?` · ${slides}`:''}</span>
-          ${qualBadge}${bestTimeBadge}
+          ${orientBadge}${qualBadge}${bestTimeBadge}
           ${isLocked?'<span class="lock-badge">🔒 locked</span>':''}
         </div>
         ${isLocked?'':`<div class="type-toggle">
-          <button class="type-btn ${p.type==='single'?'act-single':''}" onclick="setPostType(${i},'single')">single</button>
-          <button class="type-btn ${p.type==='carousel'?'act-carousel':''}" onclick="setPostType(${i},'carousel')">carousel</button>
-          <button class="type-btn ${p.type==='reel'?'act-reel':''}" onclick="setPostType(${i},'reel')">reel</button>
+          <button class="type-btn ${p.type==='single'?'act-single':''}" onclick="setPostType(${i},'single')" data-tip="Single image post">single</button>
+          <button class="type-btn ${p.type==='carousel'?'act-carousel':''}" onclick="setPostType(${i},'carousel')" data-tip="Carousel — multiple slides, swipe to view">carousel</button>
+          <button class="type-btn ${p.type==='reel'?'act-reel':''}" onclick="setPostType(${i},'reel')" data-tip="Reel — short video format">reel</button>
         </div>`}
-        <div class="plan-caption-preview" onclick="openCaptionEditor(${i})">${p.caption.substring(0,140)}…</div>
+        ${hasCap
+          ?`<div class="plan-caption-preview" onclick="openCaptionEditor(${i})" data-tip="Click to edit full caption">${p.caption.substring(0,140)}…</div>`
+          :`<div style="font-size:11px;color:var(--mute);font-style:italic;cursor:default;">No caption yet — generate captions when layout is ready</div>`}
         <div class="plan-notes" onclick="openCaptionEditor(${i})">${p.notes||'+ notes'}</div>
         <div class="plan-actions">
-          ${p.type==='carousel'?`<button class="btn btn-ghost btn-xs" onclick="openCarouselEditor(${i})">▤ slides</button>`:''}
-          <button class="btn btn-ghost btn-xs" onclick="flipPlanImg(${i},'H')">↔</button>
-          <button class="btn btn-ghost btn-xs" onclick="rotatePlanImg(${i},90)">↻</button>
-          ${isLocked?'':`<button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})">⎘</button>
-          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},-1)">↑</button>
-          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)">↓</button>`}
-          <button class="btn ${isLocked?'btn-ghost':'btn-ghost'} btn-xs" onclick="toggleLock(${i})" style="${isLocked?'color:var(--green);border-color:rgba(74,140,92,.4);':''}">
+          ${p.type==='carousel'?`<button class="btn btn-ghost btn-xs" onclick="openCarouselEditor(${i})" data-tip="Edit carousel slides — reorder, add or remove">▤ slides</button>`:''}
+          <button class="btn btn-ghost btn-xs" onclick="flipPlanImg(${i},'H')" data-tip="Flip image horizontally">↔</button>
+          <button class="btn btn-ghost btn-xs" onclick="rotatePlanImg(${i},90)" data-tip="Rotate image 90° clockwise">↻</button>
+          ${isLocked?'':`<button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})" data-tip="Duplicate this post with same settings">⎘</button>
+          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},-1)" data-tip="Move post up (earlier in feed)">↑</button>
+          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)" data-tip="Move post down (later in feed)">↓</button>`}
+          <button class="btn btn-ghost btn-xs" onclick="toggleLock(${i})" style="${isLocked?'color:var(--green);border-color:rgba(74,140,92,.4);':''}" data-tip="${isLocked?'Unlock — allows reshuffling and editing':'Lock — freezes image assignment, excluded from reshuffle'}">
             ${isLocked?'🔒 Unlock':'🔓 Lock'}
           </button>
-          <button class="btn btn-primary btn-xs" onclick="addPlanToQueue(${i})">+ Queue</button>
-          ${isLocked?'':`<button class="btn btn-danger btn-xs" onclick="S.plan.splice(${i},1);renderPlan();">✕</button>`}
+          <button class="btn btn-primary btn-xs" onclick="addPlanToQueue(${i})" data-tip="Add to Schedule queue">+ Queue</button>
+          ${isLocked?'':`<button class="btn btn-danger btn-xs" onclick="S.plan.splice(${i},1);renderPlan();renderUnassignedPanel();" data-tip="Remove this post from plan">✕</button>`}
         </div>
       </div>
     </div>`;
   }).join('');
 }
 
-function renderTimelineView(){
+/* ── CAPTION GENERATION — separate from layout planning ── */
+async function generateAllCaptions(){
+  if(!S.plan.length){toast('Generate a plan first');return;}
+  const btn=document.getElementById('btnGenCaptions');
+  btn.innerHTML='<span class="spin"></span> Writing captions…';btn.disabled=true;
+  const voice=document.getElementById('planVoice').value;
+  const globalCtx=getGlobalContext();
+  const handle=S.settings.handle||'@kshetejsareenstudios';
+  const hashtags=S.settings.hashtags||'#luxuryphotography';
+  const capLenGuide=getCaptionLengthGuide();
+  let written=0;
+  for(let i=0;i<S.plan.length;i++){
+    const p=S.plan[i];
+    const img=imgByIdx(p.imageIndex);
+    const slideImgs=p.slides?p.slides.map(idx=>{const si=imgByIdx(idx);return si?.name||'';}).join(', '):'';
+    try{
+      const cap=await claudeCall(
+        `You write Instagram captions for Kshetej Sareen Studios (${handle}) — luxury commercial photography. Photographer's POV. ${capLenGuide} Always end with studio credit.`,
+        `Write a caption for this ${p.type} post.\nTheme: ${p.theme||'luxury photography'}\nCover image: ${img?.name||'unknown'}\n${p.type==='carousel'?`All slides: ${slideImgs}`:''}\nContext: ${globalCtx||'None'}\nVoice: ${voice}\nEnd with: ${hashtags}`
+      );
+      S.plan[i].caption=cap.replace(/```/g,'').trim();
+      written++;
+      btn.innerHTML=`<span class="spin"></span> ${written}/${S.plan.length}…`;
+    }catch(e){
+      S.plan[i].caption=`[Caption generation failed for post ${i+1}]`;
+      console.error(e);
+    }
+  }
+  renderPlan();renderCaptionsTab();
+  const banner=document.getElementById('captionBanner');
+  if(banner)banner.style.display='none';
+  btn.innerHTML='✦ Generate Captions';btn.disabled=false;
+  toast(`${written} captions written ✓`);
+}
+
+/* ── UNASSIGNED IMAGES PANEL ── */
+function renderUnassignedPanel(){
+  if(!S.plan.length||!S.images.length){
+    document.getElementById('unassignedPanel').style.display='none';return;
+  }
+  // Find images not used as any cover or slide
+  const allUsed=new Set();
+  S.plan.forEach(p=>{
+    allUsed.add(p.imageIndex);
+    (p.slides||[]).forEach(idx=>allUsed.add(idx));
+  });
+  const unassigned=S.images.filter((_,i)=>!allUsed.has(i+1));
+
+  const panel=document.getElementById('unassignedPanel');
+  const grid=document.getElementById('unassignedGrid');
+  const count=document.getElementById('unassignedCount');
+
+  if(!unassigned.length){
+    panel.style.display='block';
+    count.textContent='0';
+    grid.innerHTML='<div class="unassigned-empty">✓ All images assigned to posts</div>';
+    return;
+  }
+
+  panel.style.display='block';
+  count.textContent=unassigned.length;
+  grid.innerHTML=unassigned.map((img,i)=>{
+    const imgIdx=S.images.indexOf(img)+1;
+    const orientClass=img.orientation==='landscape'?'cs-landscape':img.orientation==='square'?'cs-square':'cs-portrait';
+    const orientLabel=img.orientation==='landscape'?'L':img.orientation==='square'?'S':'P';
+    return`<div class="unassigned-img" draggable="true"
+      data-tip="Drag onto a post to assign · ${img.name}"
+      ondragstart="event.dataTransfer.setData('unassigned-img','${imgIdx}');this.style.opacity='.4';"
+      ondragend="this.style.opacity='1';">
+      <img src="${img.dataUrl}" crossorigin="anonymous" loading="lazy"/>
+      <div class="orient-pip ${orientClass}">${orientLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+function dropUnassignedOnPost(event,planIdx){
+  event.preventDefault();
+  const imgIdx=event.dataTransfer.getData('unassigned-img');
+  if(!imgIdx)return;
+  const idx=parseInt(imgIdx);
+  if(isNaN(idx))return;
+  if(S.plan[planIdx]?.locked){toast('Post is locked — unlock first');return;}
+  S.plan[planIdx].imageIndex=idx;
+  S.plan[planIdx].slides=[idx];
+  S.plan[planIdx].caption=''; // clear caption since image changed
+  renderPlan();renderUnassignedPanel();
+  toast(`Image assigned to post ${S.plan.length-planIdx} ✓`);
+}
   const el=document.getElementById('timelineView');
   const weeks=[[],[]];
   S.plan.forEach(p=>weeks[p.day<=7?0:1].push(p));
@@ -1557,20 +1886,73 @@ function addPlanToQueue(i,silent=false){
 function reshuffleGrid(){
   if(!S.plan.length){toast('Generate a plan first');return;}
   if(!S.images.length){toast('No images loaded');return;}
-  const total=S.images.length;const used=new Set();
+  const total=S.images.length;
+
+  // Build set of covers used by LOCKED posts — these cannot be reused as covers
+  const lockedCovers=new Set(S.plan.filter(p=>p.locked).map(p=>p.imageIndex));
+  const usedCovers=new Set([...lockedCovers]);
+
   S.plan.forEach((p,i)=>{
-    if(p.locked)return; // skip locked posts
+    if(p.locked)return;
+
+    // Determine orientation of this post — if it has existing slides, try to keep orientation group
+    const existingImg=imgByIdx(p.imageIndex);
+    const targetOrientation=existingImg?.orientation||null;
+
+    // Build candidates: not a locked cover, not already used as a cover
     const prev=i>0?S.plan[i-1].imageIndex:-1;
     let cands=[];
-    for(let n=1;n<=total;n++){if(n!==prev&&!used.has(n))cands.push(n);}
-    if(!cands.length){used.clear();for(let n=1;n<=total;n++){if(n!==prev)cands.push(n);}}
+    for(let n=1;n<=total;n++){
+      if(usedCovers.has(n))continue;
+      if(n===prev)continue;
+      // Prefer same orientation if possible
+      const img=imgByIdx(n);
+      if(targetOrientation&&img?.orientation&&img.orientation!==targetOrientation)continue;
+      cands.push(n);
+    }
+    // If no orientation-matched candidates, open to all non-locked non-used
+    if(!cands.length){
+      for(let n=1;n<=total;n++){
+        if(!usedCovers.has(n)&&n!==prev)cands.push(n);
+      }
+    }
+    // Last resort — allow reuse of non-locked covers
+    if(!cands.length){
+      for(let n=1;n<=total;n++){if(n!==prev&&!lockedCovers.has(n))cands.push(n);}
+    }
+    if(!cands.length)cands=[...Array(total).keys()].map(n=>n+1);
+
     const pick=cands[Math.floor(Math.random()*cands.length)];
     p.imageIndex=pick;
-    if(p.type==='carousel'){const slides=[pick];const u2=new Set([pick]);while(slides.length<3&&u2.size<total){let x;do{x=Math.floor(Math.random()*total)+1;}while(u2.has(x));slides.push(x);u2.add(x);}p.slides=slides;}
-    else p.slides=[pick];
-    used.add(pick);
+    usedCovers.add(pick);
+
+    // Build orientation-matching slides for carousels
+    if(p.type==='carousel'){
+      const coverImg=imgByIdx(pick);
+      const orient=coverImg?.orientation||'portrait';
+      // Collect slides of same orientation, exclude already-used covers
+      const slidePool=[];
+      for(let n=1;n<=total;n++){
+        if(n===pick)continue;
+        const img=imgByIdx(n);
+        if(img?.orientation===orient)slidePool.push(n);
+      }
+      // Shuffle pool and take up to 3 slides
+      slidePool.sort(()=>Math.random()-.5);
+      p.slides=[pick,...slidePool.slice(0,Math.min(2,slidePool.length))];
+    } else {
+      p.slides=[pick];
+    }
+
+    // Clear captions since images changed — user must regenerate
+    if(!p.locked)p.caption='';
   });
-  renderPlan();toast('Grid reshuffled ✓ (locked posts preserved)');
+
+  renderPlan();renderUnassignedPanel();
+  // Show/update caption banner
+  const banner=document.getElementById('captionBanner');
+  if(banner&&S.plan.some(p=>!p.caption))banner.style.display='flex';
+  toast('Grid reshuffled ✓ · Locked covers preserved · Generate captions when ready');
 }
 
 /* ── IMAGE TRANSFORM ── */
@@ -1621,8 +2003,8 @@ function rotatePlanImg(planIdx,deg){
 /* ── LOCK / APPROVE ── */
 function toggleLock(i){
   S.plan[i].locked=!S.plan[i].locked;
-  renderPlan();
-  toast(S.plan[i].locked?`Post ${i+1} locked ✓`:`Post ${i+1} unlocked`);
+  renderPlan();renderUnassignedPanel();
+  toast(S.plan[i].locked?`Post ${S.plan.length-i} locked ✓`:`Post ${S.plan.length-i} unlocked`);
 }
 function movePlanItem(i,dir){
   if(S.plan[i]?.locked){toast('Unlock this post first');return;}
@@ -1708,23 +2090,46 @@ function exportPlan(){
 function renderCaptionsTab(){
   const list=document.getElementById('captionsList');
   const note=document.getElementById('captionTabNote');
-  if(!S.plan.length){list.innerHTML='<div class="small mute">Go to Plan tab → generate a plan → captions will appear here.</div>';note.textContent='No plan generated yet';return;}
-  note.textContent=`${S.plan.length} posts`;
+  if(!S.plan.length){
+    list.innerHTML='<div class="small mute">Go to Plan tab → generate a layout → then generate captions.</div>';
+    note.textContent='No plan yet';
+    return;
+  }
+  const total=S.plan.length;
+  const withCaptions=S.plan.filter(p=>p.caption&&p.caption.trim()).length;
+  note.textContent=`${total} posts · ${withCaptions} with captions`;
+  if(!withCaptions){
+    list.innerHTML=`<div style="background:rgba(138,90,191,.08);border:1px solid rgba(138,90,191,.2);border-radius:6px;padding:20px;text-align:center;">
+      <div style="font-size:14px;color:#b088e8;font-family:'Fraunces',serif;margin-bottom:6px;">No captions yet</div>
+      <div class="small mute" style="margin-bottom:14px;">Go back to Plan tab and click "✦ Generate Captions" after your layout is finalised</div>
+      <button class="btn btn-purple" onclick="generateAllCaptions();switchTab('plan')">✦ Generate All Captions Now</button>
+    </div>`;
+    return;
+  }
   list.innerHTML=S.plan.map((p,i)=>{
     const img=imgByIdx(p.imageIndex);
-    return`<div class="caption-review-item">
+    const igNum=total-i;
+    const hasCap=p.caption&&p.caption.trim().length>0;
+    return`<div class="caption-review-item" style="${!hasCap?'opacity:.6;':''}">
       <div class="cap-thumb">
         <img src="${img?img.dataUrl:''}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
         <div class="badge badge-${p.type}" style="margin-top:3px;text-align:center;">${p.type}</div>
-        <div style="font-size:9px;color:var(--mute);margin-top:2px;">${p.date}</div>
+        <div style="font-size:9px;color:var(--gold);margin-top:2px;text-align:center;" data-tip="Instagram post #${igNum}">#${igNum}</div>
+        <div style="font-size:9px;color:var(--mute);margin-top:1px;">${p.date}</div>
+        ${p.locked?'<div style="font-size:8px;color:var(--green);margin-top:2px;">🔒</div>':''}
       </div>
-      <div>
-        <textarea class="cap-textarea" id="capText${i}" oninput="updateCapChar(${i});S.plan[${i}].caption=this.value;" rows="5">${p.caption}</textarea>
-        <div class="char-counter ${p.caption.length>2200?'char-over':p.caption.length>1800?'char-warn':'char-ok'}" id="capChar${i}">${p.caption.length} / 2200</div>
+      <div style="flex:1;min-width:0;">
+        ${hasCap
+          ?`<textarea class="cap-textarea" id="capText${i}" oninput="updateCapChar(${i});S.plan[${i}].caption=this.value;" rows="5">${p.caption}</textarea>
+           <div class="char-counter ${p.caption.length>2200?'char-over':p.caption.length>1800?'char-warn':'char-ok'}" id="capChar${i}">${p.caption.length} / 2200</div>`
+          :`<div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-radius:5px;border:1px dashed var(--border2);">
+              <span class="small mute">No caption yet</span>
+            </div>`
+        }
         <div class="plan-notes" id="capNotes${i}" style="margin-top:3px;">${p.notes||'+ add notes'}</div>
         <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:4px;">
-          <button class="btn btn-purple btn-xs" onclick="rewriteSingleCaption(${i})">✦ Rewrite</button>
-          <button class="btn btn-ghost btn-xs" onclick="addPlanToQueue(${i})">+ Queue</button>
+          <button class="btn btn-purple btn-xs" onclick="rewriteSingleCaption(${i})" data-tip="Rewrite this caption using AI based on the actual image assigned">✦ Rewrite</button>
+          <button class="btn btn-ghost btn-xs" onclick="addPlanToQueue(${i})" data-tip="Add to Schedule queue">+ Queue</button>
         </div>
       </div>
     </div>`;
@@ -1821,15 +2226,25 @@ function renderCarouselStrip(){
   const slides=S.plan[carouselEditIndex].slides||[S.plan[carouselEditIndex].imageIndex];
   document.getElementById('carouselStrip').innerHTML=slides.map((idx,si)=>{
     const img=imgByIdx(idx);
+    const orient=img?.orientation||'portrait';
+    const orientClass=orient==='landscape'?'cs-landscape':orient==='square'?'cs-square':'cs-portrait';
+    const orientLabel=orient==='landscape'?'⬛ L':orient==='square'?'□ S':'▭ P';
     return`<div class="cs-slide" draggable="true" data-si="${si}"
       ondragstart="csDragStart(event,${si})" ondragover="csDragOver(event)" ondrop="csDrop(event,${si})" ondragleave="csDragLeave(event)">
-      <img src="${img?img.dataUrl:''}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+      <img src="${img?img.dataUrl:''}" crossorigin="anonymous" style="transform:${getImgTransform(img)};" onerror="this.style.background='var(--surface3)'"/>
       <div class="cs-num">${si+1}</div>
       ${si===0?'<div class="cs-cover">cover</div>':''}
+      <div class="cs-orient ${orientClass}" data-tip="${orient} image">${orientLabel}</div>
       ${slides.length>1?`<button class="cs-remove" onclick="removeCarouselSlide(${si})">✕</button>`:''}
     </div>`;
-  }).join('')+`<div class="cs-add" onclick="showCarouselPicker()"><span style="font-size:18px;">+</span><span>add</span></div>`;
-  document.getElementById('carouselSlideCount').textContent=`${slides.length} slides · first = cover`;
+  }).join('')+`<div class="cs-add" onclick="showCarouselPicker()" data-tip="Add slide from image library"><span style="font-size:18px;">+</span><span>add</span></div>`;
+  // Show orientation warning if mixed
+  const orientations=new Set(slides.map(idx=>{const img=imgByIdx(idx);return img?.orientation||'portrait';}));
+  const hasLandscape=[...orientations].includes('landscape');
+  const hasPortrait=[...orientations].includes('portrait');
+  let warning='';
+  if(hasLandscape&&hasPortrait)warning=` · <span style="color:var(--red);font-size:9px;">⚠ Mixed orientations — landscapes and portraits will conflict</span>`;
+  document.getElementById('carouselSlideCount').innerHTML=`${slides.length} slides · first = cover${warning}`;
 }
 let csDragSrc=null;
 function csDragStart(e,si){csDragSrc=si;e.target.closest('.cs-slide').classList.add('drag-active');}
@@ -1906,6 +2321,194 @@ function clearRefImage(){
 
 /* ── DESIGN STUDIO ── */
 function setStyle(el,style){document.querySelectorAll('.style-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');S.designStyle=style;}
+
+/* ── GLOBAL CONTEXT SYNC ── */
+function syncGlobalContext(val){
+  S.globalContextValue = val;
+  // Flash indicator
+  const ind = document.getElementById('contextBarIndicator');
+  if(ind){ ind.textContent = '✓ synced'; ind.style.color = 'var(--green)';
+    setTimeout(()=>{ ind.textContent = '✓ synced'; ind.style.color = 'rgba(138,90,191,.6)'; }, 1500); }
+  // Mirror into plan tab's globalContext field if it exists
+  const planCtx = document.getElementById('globalContext');
+  if(planCtx && planCtx.value !== val) planCtx.value = val;
+  // Auto-populate storyBrief if empty
+  const sb = document.getElementById('storyBrief');
+  if(sb && !sb.dataset.userEdited) sb.value = val;
+  // Auto-populate designBrief if empty
+  const db = document.getElementById('designBrief');
+  if(db && !db.dataset.userEdited) db.value = val;
+}
+function getGlobalContext(){
+  return S.globalContextValue ||
+    document.getElementById('globalContextBar')?.value ||
+    document.getElementById('globalContext')?.value || '';
+}
+function initGlobalContext(){
+  // On load, populate bar from saved settings if any
+  const saved = localStorage.getItem('kss_global_context');
+  if(saved){
+    S.globalContextValue = saved;
+    const bar = document.getElementById('globalContextBar');
+    if(bar) bar.value = saved;
+  }
+  // Save on change
+  const bar = document.getElementById('globalContextBar');
+  if(bar) bar.addEventListener('change', ()=> localStorage.setItem('kss_global_context', bar.value));
+  // Mark brief fields as user-edited if touched
+  ['storyBrief','designBrief'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', ()=> el.dataset.userEdited = '1');
+  });
+}
+
+/* ── STORY CANVAS DRAG & DROP ── */
+let S_storyActiveImgId = null;
+let S_storyRefDataUrl = null;
+let S_storyRefName = '';
+
+function onStoryCanvasDragOver(e){
+  e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+  document.getElementById('storyPreviewWrap').classList.add('drag-over-story');
+}
+function onStoryCanvasDragLeave(e){
+  if(!document.getElementById('storyPreviewWrap').contains(e.relatedTarget))
+    document.getElementById('storyPreviewWrap').classList.remove('drag-over-story');
+}
+function onStoryCanvasDrop(e){
+  e.preventDefault();
+  document.getElementById('storyPreviewWrap').classList.remove('drag-over-story');
+  // Check sidebar drag
+  const sidebarId = e.dataTransfer.getData('sidebar-img-id');
+  if(sidebarId){ setStoryActiveImage(sidebarId); return; }
+  // Check story picker drag
+  const storyIdx = e.dataTransfer.getData('story-img-idx');
+  if(storyIdx !== ''){ const img = S.images[parseInt(storyIdx)]; if(img) setStoryActiveImage(img.id); }
+}
+function setStoryActiveImage(imgId){
+  const img = S.images.find(i => i.id === imgId);
+  if(!img) return;
+  S_storyActiveImgId = imgId;
+  // Update active bar
+  const bar = document.getElementById('storyActiveImgBar');
+  bar.style.display = 'flex';
+  document.getElementById('storyActiveThumb').src = img.dataUrl;
+  document.getElementById('storyActiveName').textContent = img.name;
+  document.getElementById('storyActiveOrient').textContent = `${img.orientation||'portrait'} · ${img.w||'?'}×${img.h||'?'}px`;
+  // Show image preview in placeholder
+  const placeholder = document.getElementById('storyPlaceholder');
+  const out = document.getElementById('storyOutput');
+  if(!out.innerHTML || out.style.display === 'none'){
+    placeholder.style.display = 'flex';
+    placeholder.style.flexDirection = 'column';
+    placeholder.style.alignItems = 'center';
+    placeholder.style.justifyContent = 'flex-end';
+    placeholder.style.padding = '0';
+    placeholder.innerHTML = `
+      <img src="${img.dataUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--r);opacity:.7;"/>
+      <div style="position:relative;z-index:2;padding:12px;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.8));width:100%;">
+        <div class="small gold">${img.name}</div>
+        <div class="small mute" style="margin-top:2px;">Click Generate Story to design</div>
+      </div>`;
+  }
+  toast('Image loaded into Story canvas ✓');
+}
+function clearStoryImage(){
+  S_storyActiveImgId = null;
+  document.getElementById('storyActiveImgBar').style.display = 'none';
+  document.getElementById('storyOutput').style.display = 'none';
+  document.getElementById('storyOutput').innerHTML = '';
+  document.getElementById('storyPlaceholder').style.display = 'flex';
+  document.getElementById('storyPlaceholder').innerHTML = `
+    <div style="font-size:32px;margin-bottom:6px;">📱</div>
+    <div class="small mute" style="margin-bottom:4px;">Drag an image from the right</div>
+    <div class="small mute" style="opacity:.5;">or click one to select it</div>`;
+}
+function loadStoryRefImage(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    S_storyRefDataUrl = e.target.result; S_storyRefName = file.name;
+    document.getElementById('storyRefUploadZone').style.display = 'none';
+    document.getElementById('storyRefPreview').style.display = 'flex';
+    document.getElementById('storyRefImg').src = e.target.result;
+    document.getElementById('storyRefName').textContent = file.name;
+    toast('Story reference loaded ✓');
+  };
+  reader.readAsDataURL(file);
+}
+function clearStoryRef(){
+  S_storyRefDataUrl = null; S_storyRefName = '';
+  document.getElementById('storyRefUploadZone').style.display = 'block';
+  document.getElementById('storyRefPreview').style.display = 'none';
+}
+
+/* ── HEADLINE OPTIONS — 3 options with Generate Similar ── */
+let S_selectedHeadlineIdx = null;
+
+async function generateHeadlineOptions(){
+  const btn = document.getElementById('btnGenHeadlines');
+  btn.innerHTML = '<span class="spin"></span>'; btn.disabled = true;
+  const style = document.getElementById('storyStyle').value;
+  const brief = document.getElementById('storyBrief').value || getGlobalContext();
+  const img = S_storyActiveImgId ? S.images.find(i => i.id === S_storyActiveImgId) : null;
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  try{
+    const raw = await claudeCall(
+      `You write punchy, evocative headline + subtext pairs for Instagram Stories for Kshetej Sareen Studios (${handle}). Headlines: 3-7 words, premium, memorable. Subtexts: 4-10 words, complements the headline. No clichés.`,
+      `Generate 3 distinct headline+subtext pairs for a ${style}-style story.\nContext: ${brief||'luxury photography'}\nImage: ${img?.name||'unknown'}\nHandle: ${handle}\n\nReturn ONLY valid JSON array:\n[{"headline":"text","subtext":"text"},{"headline":"text","subtext":"text"},{"headline":"text","subtext":"text"}]`
+    );
+    const opts = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    S_selectedHeadlineIdx = null;
+    renderHeadlineOptions(opts, 'headline');
+    btn.innerHTML = '✦ Suggest 3'; btn.disabled = false;
+  } catch(e){ toast('Error: '+e.message); btn.innerHTML = '✦ Suggest 3'; btn.disabled = false; }
+}
+
+async function generateSimilarHeadlines(){
+  if(S_selectedHeadlineIdx === null){ toast('Select a headline first'); return; }
+  const btn = document.querySelector('#btnGenSimilarWrap button');
+  const selected = document.querySelector('.headline-option.selected-headline');
+  const selHead = selected?.querySelector('.headline-option-head')?.textContent || '';
+  const style = document.getElementById('storyStyle').value;
+  const brief = document.getElementById('storyBrief').value || getGlobalContext();
+  const handle = S.settings.handle || '@kshetejsareenstudios';
+  btn.innerHTML = '<span class="spin"></span>'; btn.disabled = true;
+  try{
+    const raw = await claudeCall(
+      `You write punchy, evocative headline + subtext pairs for Instagram Stories for Kshetej Sareen Studios (${handle}). Match the style and energy of the reference headline provided.`,
+      `Generate 3 MORE headline+subtext pairs in the SAME STYLE as: "${selHead}"\nContext: ${brief||'luxury photography'}\nStyle: ${style}\nHandle: ${handle}\nDifferent wording and angle but same tone, length and mood.\n\nReturn ONLY valid JSON array:\n[{"headline":"text","subtext":"text"},{"headline":"text","subtext":"text"},{"headline":"text","subtext":"text"}]`
+    );
+    const opts = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    S_selectedHeadlineIdx = null;
+    renderHeadlineOptions(opts, 'headline');
+    btn.innerHTML = '↻ Generate Similar'; btn.disabled = false;
+  } catch(e){ toast('Error: '+e.message); btn.innerHTML = '↻ Generate Similar'; btn.disabled = false; }
+}
+
+function renderHeadlineOptions(opts, type){
+  const wrap = document.getElementById('headlineOptions');
+  wrap.style.display = 'flex';
+  wrap.style.flexDirection = 'column';
+  wrap.innerHTML = opts.map((o,i) => `
+    <div class="headline-option" id="hlOpt${i}" onclick="selectHeadlineOption(${i},'${escQ(o.headline)}','${escQ(o.subtext)}')">
+      <div class="headline-option-head">${o.headline}</div>
+      <div class="headline-option-sub">${o.subtext}</div>
+      <button class="headline-use-btn" onclick="event.stopPropagation();selectHeadlineOption(${i},'${escQ(o.headline)}','${escQ(o.subtext)}')">Use this</button>
+    </div>`).join('');
+  document.getElementById('btnGenSimilarWrap').style.display = 'block';
+}
+
+function selectHeadlineOption(i, headline, subtext){
+  S_selectedHeadlineIdx = i;
+  document.querySelectorAll('.headline-option').forEach((el,idx) =>
+    el.classList.toggle('selected-headline', idx === i));
+  document.getElementById('storyText').value = headline;
+  document.getElementById('storySub').value = subtext;
+  toast('Headline selected — click Generate Story ✓');
+}
+
+function escQ(s){ return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
 
 /* ── DESIGN PANEL STATE SETTERS ── */
 function setMood(el,mood){
@@ -1986,8 +2589,9 @@ async function exportDesignPNG(){
 
 /* ── GENERATE 3 VARIANTS ── */
 async function generateVariants(){
-  const imgs=getSelImgs();
-  if(!imgs.length){toast('Select an image from sidebar');return;}
+  const _activeImg=S.designActiveImgId?S.images.find(i=>i.id===S.designActiveImgId):getSelImgs()[0];
+  if(!_activeImg){toast('Drag an image onto the canvas first');return;}
+  const imgs=[_activeImg];
   const btn=document.getElementById('btnVariants');
   btn.innerHTML='<span class="spin"></span> Generating…';btn.disabled=true;
   const strip=document.getElementById('variantsStrip');
@@ -2050,31 +2654,54 @@ async function generateVariants(){
   toast('3 variants ready — click to select ✓');
 }
 
-function buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags){
+function buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags,direction){
   const styleGuides={
-    editorial:'Thin serif caption strip in negative space. Thin gold rule. Studio credit 8px mono. Restrained.',
-    campaign:'Strong typography anchored to negative space. Italic Fraunces headline. The image is the hero.',
-    minimal:'Maximum restraint. Thin letterbox strip only. 11px DM Mono. No decoration. Breathing room is the design.'
+    editorial:'Thin serif caption strip in negative space. Thin gold rule. Studio credit 8px mono. Restrained — text never competes with image.',
+    campaign:'Strong typographic presence anchored to negative space. Italic Fraunces headline. The image is the hero — text amplifies.',
+    minimal:'Maximum restraint. Thin letterbox strip only. 11px DM Mono light. No decoration. Breathing room is the design.',
+    bts:'Documentary feel. Raw DM Mono. "Behind the frame" label. Film grain overlay. Date stamp.',
+    quote:'Image recedes slightly. Large italic Fraunces quote in clear space. Attribution below. Studio mark small.',
+    location:'Place name large serif in negative space. City/country small mono above. Clean, no unnecessary decoration.'
   };
   const fontGuide={
-    'fraunces-mono':'Use Fraunces serif for headlines, DM Mono for credits',
-    'cormorant-light':'Use Cormorant Garamond light weight throughout',
-    'playfair-sans':'Use Playfair Display for headlines, clean sans for body',
-    'mono-only':'Use DM Mono throughout — no serifs'
-  }[S.designFont]||'Use Fraunces serif + DM Mono';
-  const colorGuide={auto:'Auto-adapt to image',light:'Light/white overlay surfaces',dark:'Dark/black overlay surfaces',transparent:'Minimal to no overlay backgrounds'}[S.designColorMode]||'Auto';
-  const posGuide=S.designTextPos==='auto'?'Choose text position based on composition analysis':
-    `Anchor text to ${S.designTextPos} of frame — but ONLY if that area is clear negative space, otherwise adjust`;
-  return`Design ${w}×${h}px Instagram post.
+    'fraunces-mono':'Fraunces serif for headlines, DM Mono for credits and metadata',
+    'cormorant-light':'Cormorant Garamond light weight throughout — ultra-refined',
+    'playfair-sans':'Playfair Display for headlines, clean sans-serif for body text',
+    'mono-only':'DM Mono throughout — raw documentary feel, no serifs'
+  }[S.designFont]||'Fraunces serif for headlines, DM Mono for credits';
+  const colorGuide={auto:'Auto-adapt to image tones',light:'Light/white overlay and text surfaces',dark:'Dark/black overlay surfaces',transparent:'Minimal overlays — let image breathe'}[S.designColorMode]||'Auto';
+  const posGuide=S.designTextPos==='auto'?'Choose text position based on where the genuine negative space is (AI decision)':
+    `Anchor text toward the ${S.designTextPos} of the frame — but ONLY if there is clear negative space there, otherwise choose the next best zone`;
+  return`Design a ${w}×${h}px Instagram post graphic for Kshetej Sareen Studios (${handle}).
+
+BRIEF: ${direction||'Premium editorial luxury photography post'}
+
 Style: ${style} — ${styleGuides[style]||styleGuides.editorial}
 Fonts: ${fontGuide}
 Color mode: ${colorGuide}
-Text position: ${posGuide}
-Text: "${overlayText||handle}"
-Sub: "${subText||''}"
-Handle: ${handle}
-Analyse negative space first. Never cover face. Use id="kss-main" for image placeholder.
-HTML:\n<the div>\nCAPTION:\n<caption ending with ${hashtags}>`;
+Text position preference: ${posGuide}
+Text overlay: "${overlayText||handle}"
+Sub-text: "${subText||''}"
+
+COMPOSITION — look at the photograph first:
+- Find the negative space (clear wall, sky, floor, uncluttered background zone)
+- Identify face/body location — NEVER place text over a person
+- Choose text placement ONLY in genuine clear space
+- Text size: headline max 6% of canvas height, credits max 1.5%
+
+TECHNICAL:
+- Outer div: position:relative; width:${w}px; height:${h}px; overflow:hidden;
+- Google Fonts: Fraunces + DM Mono (include link tag)
+- Image: <img id="kss-main" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+- Overlays: position:absolute; z-index≥1
+- Gold: #c9a55a — thin rules and accents only
+
+Return exactly:
+HTML:
+<the complete div>
+
+CAPTION:
+<photographer POV caption ending with ${hashtags}>`;
 }
 
 async function suggestStoryText(){
@@ -2097,10 +2724,84 @@ async function suggestStoryText(){
   }catch(e){toast('Error: '+e.message);}
 }
 
+/* ── DESIGN CANVAS DRAG & DROP ── */
+function onSidebarImgDragStart(event, imgId){
+  event.dataTransfer.setData('sidebar-img-id', imgId);
+  event.dataTransfer.effectAllowed = 'copy';
+  event.target.style.opacity = '0.5';
+}
+
+function onDesignCanvasDragOver(event){
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+  document.getElementById('designCanvasWrap').classList.add('drag-over-canvas');
+}
+
+function onDesignCanvasDragLeave(event){
+  // Only remove if leaving the canvas entirely (not entering a child)
+  if(!document.getElementById('designCanvasWrap').contains(event.relatedTarget)){
+    document.getElementById('designCanvasWrap').classList.remove('drag-over-canvas');
+  }
+}
+
+function onDesignCanvasDrop(event){
+  event.preventDefault();
+  document.getElementById('designCanvasWrap').classList.remove('drag-over-canvas');
+  const imgId = event.dataTransfer.getData('sidebar-img-id');
+  if(!imgId) return;
+  setDesignActiveImage(imgId);
+  toast('Image loaded into Design canvas — click Generate ✓');
+}
+
+function setDesignActiveImage(imgId){
+  const img = S.images.find(i => i.id === imgId);
+  if(!img) return;
+  S.designActiveImgId = imgId;
+  // Also select it in sidebar for visual confirmation
+  if(!S.selected.includes(imgId)){
+    S.selected = [imgId];
+    renderImageGrid();
+  }
+  // Update the active image bar
+  const bar = document.getElementById('designActiveImgBar');
+  const thumb = document.getElementById('designActiveThumb');
+  const name = document.getElementById('designActiveName');
+  const orient = document.getElementById('designActiveOrient');
+  bar.style.display = 'flex';
+  thumb.src = img.dataUrl;
+  name.textContent = img.name;
+  orient.textContent = `${img.orientation||'portrait'} · ${img.w||'?'}×${img.h||'?'}px${img.qualityFlag==='warn'?' · ⚠ low res':img.qualityFlag==='err'?' · ✕ too small':''}`;
+  // Show image preview in placeholder if no design yet
+  const out = document.getElementById('designOutput');
+  if(!out.innerHTML){
+    document.getElementById('designPlaceholder').style.display = 'flex';
+    document.getElementById('designPlaceholder').style.flexDirection = 'column';
+    document.getElementById('designPlaceholder').style.alignItems = 'center';
+    document.getElementById('designPlaceholder').innerHTML = `
+      <img src="${img.dataUrl}" style="max-width:100%;max-height:200px;object-fit:contain;border-radius:4px;margin-bottom:8px;"/>
+      <div class="small gold">${img.name}</div>
+      <div class="small mute" style="margin-top:3px;">Click Generate Design to start</div>`;
+  }
+}
+
+function clearDesignImage(){
+  S.designActiveImgId = null;
+  document.getElementById('designActiveImgBar').style.display = 'none';
+  document.getElementById('designOutput').style.display = 'none';
+  document.getElementById('designOutput').innerHTML = '';
+  document.getElementById('designPlaceholder').style.display = 'flex';
+  document.getElementById('designPlaceholder').innerHTML = `
+    <div style="font-size:36px;margin-bottom:8px;">◫</div>
+    <div class="small mute" style="margin-bottom:6px;">Drag an image from the sidebar</div>
+    <div class="small mute" style="opacity:.6;">or select one and click Generate</div>`;
+}
+
 async function runDesign(){
-  const imgs=getSelImgs();
-  if(!imgs.length){toast('Select an image from sidebar');return;}
-  const img=imgs[0];
+  // Prefer explicitly loaded image, fall back to sidebar selection
+  let img = S.designActiveImgId
+    ? S.images.find(i => i.id === S.designActiveImgId)
+    : getSelImgs()[0];
+  if(!img){toast('Drag an image onto the canvas or select one from the sidebar');return;}
   const btn=document.getElementById('btnDesign');
   btn.innerHTML='<span class="spin"></span> Analysing…';btn.disabled=true;
   document.getElementById('designPlaceholder').style.display='none';
@@ -2111,22 +2812,16 @@ async function runDesign(){
   const sizeVal=document.getElementById('designSize').value;
   const dims={'4:5':{w:1080,h:1350},'1:1':{w:1080,h:1080},'9:16':{w:1080,h:1920}};
   const {w,h}=dims[sizeVal]||dims['4:5'];
+  // Merge: design brief > global context > prompt field
+  const brief=document.getElementById('designBrief')?.value||getGlobalContext();
   const direction=document.getElementById('designPrompt').value;
+  const fullDirection=[brief,direction].filter(Boolean).join(' · ');
   const overlayText=document.getElementById('designText').value;
   const subText=document.getElementById('designSub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
   const hashtags=S.settings.hashtags||'#luxuryphotography';
 
-  const styleGuides={
-    editorial:'Thin serif caption strip, positioned in the negative space. Thin gold horizontal rule separating image from text. Studio credit in 8px DM Mono. Restrained — text never competes with the image.',
-    campaign:'Strong typographic presence anchored to the clearest negative space. Italic Fraunces headline. Optional warm paper-tone border frame. The image is the hero — text amplifies, never dominates.',
-    minimal:'Maximum restraint. Off-white or black letterbox strip (top or bottom only). Caption in 11px DM Mono light. No decorative elements. Breathing room is the design.',
-    bts:'Documentary editorial feel. Raw DM Mono throughout. "Behind the frame" label in negative space. Subtle film grain overlay on image. Date stamp in corner.',
-    quote:'The image recedes — desaturated or darkened slightly. Large italic Fraunces quote centred in the cleared space. Attribution below. Studio mark small, bottom corner.',
-    location:'Location-forward. Place name in large Fraunces serif, anchored to the negative space. City/country in small DM Mono above the place name. No gradient if image has clear space — only use gradient if needed for legibility.'
-  };
-
-  const prompt=buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags);
+  const prompt=buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags,fullDirection);
 
   try{
     document.getElementById('designLoadingText').textContent='Claude is reading the frame…';
@@ -2151,8 +2846,10 @@ async function runDesign(){
 function addDesignToQueue(){
   const cap=document.getElementById('designCaption').value;
   if(!cap){toast('Generate a design first');return;}
-  const imgs=getSelImgs();
-  S.queue.push({id:'q_'+Date.now(),imageDataUrl:imgs[0]?.dataUrl||'',caption:cap,type:'single',date:'',time:'09:00',status:'queued',notes:''});
+  const activeImg=S.designActiveImgId
+    ?S.images.find(i=>i.id===S.designActiveImgId)
+    :getSelImgs()[0];
+  S.queue.push({id:'q_'+Date.now(),imageDataUrl:activeImg?.dataUrl||'',caption:cap,type:'single',date:'',time:'09:00',status:'queued',notes:''});
   saveQueue();renderQueue();toast('Added to queue ✓');
 }
 function downloadDesign(){
@@ -2165,8 +2862,15 @@ function downloadDesign(){
 /* ── STORIES ── */
 function renderStoryImgPicker(){
   document.getElementById('storyImgPicker').innerHTML=S.images.map((img,i)=>`
-    <div class="ipick ${storyImgSelected.includes(i)?'selected':''}" onclick="toggleStoryImg(${i})" style="${storyImgSelected.includes(i)?'border-color:var(--gold);':''}" title="${img.name}">
+    <div class="ipick ${storyImgSelected.includes(i)?'selected':''}"
+      onclick="toggleStoryImg(${i})"
+      draggable="true"
+      ondragstart="event.dataTransfer.setData('story-img-idx','${i}');this.style.opacity='.5';"
+      ondragend="this.style.opacity='1';"
+      style="${storyImgSelected.includes(i)?'border-color:var(--gold);':''}"
+      data-tip="${img.name} · ${img.orientation||'portrait'}">
       <img src="${img.dataUrl}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
+      ${img.orientation==='landscape'?`<div style="position:absolute;top:2px;right:2px;background:rgba(74,122,191,.8);color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;">L</div>`:''}
     </div>`).join('');
   document.getElementById('storyImgSelected').textContent=storyImgSelected.length?`${storyImgSelected.length} image${storyImgSelected.length!==1?'s':''} selected`:'';
 }
@@ -2174,11 +2878,20 @@ function toggleStoryImg(i){
   const idx=storyImgSelected.indexOf(i);
   if(idx===-1)storyImgSelected.push(i);else storyImgSelected.splice(idx,1);
   renderStoryImgPicker();
+  // Preview first selected image on canvas immediately
+  if(storyImgSelected.length>0){
+    const firstImg=S.images[storyImgSelected[0]];
+    if(firstImg)setStoryActiveImage(firstImg.id);
+  }
 }
+
 async function runStoryDesign(){
-  const imgs=getSelImgs();
-  if(!imgs.length){toast('Select an image from sidebar');return;}
-  const img=imgs[0];
+  // Use explicitly loaded story image, fall back to sidebar selection
+  let img = S_storyActiveImgId
+    ? S.images.find(i=>i.id===S_storyActiveImgId)
+    : getSelImgs()[0];
+  if(!img){toast('Drag an image onto the canvas or select one from the right');return;}
+
   document.getElementById('storyPlaceholder').style.display='none';
   document.getElementById('storyOutput').style.display='none';
   document.getElementById('storyLoading').style.display='flex';
@@ -2188,42 +2901,45 @@ async function runStoryDesign(){
   const sub=document.getElementById('storySub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
   const hashtags=S.settings.hashtags||'#luxuryphotography';
+  const brief=document.getElementById('storyBrief')?.value||getGlobalContext();
+  const refCtx=S_storyRefDataUrl?`\nReference design style provided (${S_storyRefName}) — match its aesthetic direction, layout energy, and typography feel. Not a copy, use as creative direction.`:'';
 
   const storyStyleGuides={
-    editorial:'Thin serif text anchored to the negative space. Minimal. Gold rule line. Studio credit bottom-right in 8px mono.',
-    countdown:'Bold countdown or "save the date" energy. Strong date typography. Warm paper-tone accent band.',
-    bts:'Documentary. Raw DM Mono. "Coming soon" or "Behind the frame" label. Film grain overlay.',
-    quote:'Image recedes, large italic Fraunces quote dominates the clear space. Attribution small below.',
-    location:'Place name large serif in the negative space. City above in small mono. No unnecessary decoration.',
-    fullbleed:'Image only. No text. No overlays. Pure photography — just the studio handle in 9px mono, bottom-right, opacity 0.6.'
+    editorial:'Thin serif text anchored to the negative space. Minimal. Gold rule line. Studio credit 8px mono.',
+    countdown:'Bold "save the date" energy. Strong date/headline typography. Warm paper-tone accent.',
+    bts:'Documentary. Raw DM Mono. Film grain overlay. "Behind the frame" or similar label.',
+    quote:'Image recedes or darkens slightly. Large italic Fraunces quote dominates clear space. Attribution below.',
+    location:'Place name large serif in negative space. City/country small mono above. No unnecessary decoration.',
+    fullbleed:'Image only. No text overlays. Pure photography — studio handle 9px mono bottom-right opacity 0.5.'
   };
 
   const prompt=`Design a 1080×1920px Instagram Story graphic.
 
-Style: ${style} — ${storyStyleGuides[style]}
+Style: ${style} — ${storyStyleGuides[style]||storyStyleGuides.editorial}
 Headline: "${text||handle}"
 Sub-text: "${sub||''}"
 Handle: ${handle}
+Brief/context: ${brief||'luxury photography'}${refCtx}
 
-COMPOSITION ANALYSIS REQUIRED:
-Study the photograph. Find the negative space (clear wall, sky, floor, shadow area). 
-Place ALL text and graphic elements ONLY in that negative space.
-Never cover the subject's face or body.
-For Story format — think vertically: subject typically occupies the middle third, leaving top and bottom for text.
+COMPOSITION ANALYSIS REQUIRED — look at the photograph carefully:
+- Identify negative space (clear wall, sky, floor, uncluttered background)
+- Locate subject's face/body — NEVER place text over it
+- Story format (9:16): subject usually occupies middle third — top and bottom are prime text zones
+- Choose text placement based ONLY on where there is genuine clear space
 
 TECHNICAL:
 - Outer div: position:relative; width:1080px; height:1920px; overflow:hidden; background:#0a0908;
-- Include Google Fonts link for Fraunces + DM Mono
-- Image: <img id="kss-story" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
-- All overlays: position:absolute; z-index above 1
-- Gold: #c9a55a (accents only)
+- Google Fonts: Fraunces (serif) + DM Mono
+- Image placeholder: <img id="kss-story" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+- Overlays: position:absolute; z-index≥1
+- Gold accent: #c9a55a (thin rules and accents only, not large fills)
 
-Return HTML + caption:
+Return exactly this format:
 HTML:
-<the div>
+<the complete div>
 
 CAPTION:
-<short story caption, end with ${hashtags}>`;
+<short story caption ending with ${hashtags}>`;
 
   try{
     const raw=await claudeVisionDesign(img.dataUrl, prompt, 3500);
@@ -2238,6 +2954,7 @@ CAPTION:
     document.getElementById('storyLoading').style.display='none';
   }
 }
+
 function addStoryToQueue(){
   const cap=document.getElementById('storyCaption').value;
   const imgs=getSelImgs();
