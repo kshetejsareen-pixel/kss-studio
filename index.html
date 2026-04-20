@@ -1842,6 +1842,7 @@ function dropUnassignedOnPost(event,planIdx){
   renderPlan();renderUnassignedPanel();
   toast(`Image assigned to post ${S.plan.length-planIdx} ✓`);
 }
+function renderTimelineView(){
   const el=document.getElementById('timelineView');
   const weeks=[[],[]];
   S.plan.forEach(p=>weeks[p.day<=7?0:1].push(p));
