@@ -238,8 +238,82 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .mute{color:var(--mute);}
 .gold{color:var(--gold);}
 .serif{font-family:'Fraunces',serif;}
+
+/* DESIGN PANEL EXTRAS */
+.mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+.mood-opt{padding:7px 4px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;text-align:center;transition:all .2s;font-size:9px;letter-spacing:.05em;}
+.mood-opt:hover{border-color:var(--gold);color:var(--gold);}
+.mood-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.font-opt{padding:7px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;transition:all .2s;font-size:10px;}
+.font-opt:hover{border-color:var(--gold);}
+.font-opt.active{border-color:var(--gold);background:var(--gold-dim);}
+.font-opt .font-preview{font-size:13px;margin-bottom:2px;}
+.pos-grid{display:flex;gap:4px;flex-wrap:wrap;}
+.pos-opt{padding:4px 8px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-size:9px;transition:all .2s;color:var(--mute);}
+.pos-opt:hover{border-color:var(--border2);color:var(--text);}
+.pos-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.color-mode-row{display:flex;gap:4px;}
+.cm-opt{flex:1;padding:5px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-size:9px;text-align:center;transition:all .2s;color:var(--mute);}
+.cm-opt:hover{color:var(--text);}
+.cm-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.suggest-pills{display:flex;flex-direction:column;gap:4px;margin-top:5px;}
+.suggest-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:10px;color:var(--text);transition:all .15s;text-align:left;}
+.suggest-pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.variant-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0;}
+.variant-item{flex-shrink:0;cursor:pointer;border:2px solid var(--border);border-radius:5px;overflow:hidden;transition:border-color .2s;position:relative;}
+.variant-item:hover{border-color:var(--border2);}
+.variant-item.selected{border-color:var(--gold);}
+.variant-num{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.7);color:var(--gold);font-size:8px;padding:1px 5px;border-radius:3px;}
+.landscape-badge{background:rgba(74,122,191,.2);border:1px solid rgba(74,122,191,.4);color:#7ab0ff;border-radius:3px;padding:1px 5px;font-size:8px;margin-left:3px;}
+
+/* QUALITY + LOCK + DUPLICATE */
+.quality-warn{background:rgba(201,165,90,.2);border:1px solid rgba(201,165,90,.4);color:var(--gold);border-radius:3px;padding:1px 5px;font-size:8px;}
+.quality-err{background:rgba(200,74,42,.2);border:1px solid rgba(200,74,42,.4);color:var(--red);border-radius:3px;padding:1px 5px;font-size:8px;}
+.dup-warn{background:rgba(200,74,42,.15);border:1px solid rgba(200,74,42,.3);color:var(--red);border-radius:3px;padding:2px 7px;font-size:9px;margin-bottom:3px;}
+.plan-item.locked{border-color:rgba(74,140,92,.4);background:rgba(74,140,92,.04);}
+.plan-item.locked .plan-caption-preview{opacity:.7;}
+.lock-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(74,140,92,.2);color:var(--green);border-radius:3px;padding:1px 6px;font-size:9px;}
+.grid-cell.locked-cell{border:2px solid rgba(74,140,92,.5)!important;}
+.grid-cell.locked-cell .grid-cell-num::after{content:' 🔒';font-size:7px;}
+
+/* TRANSFORM STRIP */
+.transform-strip{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:6px 8px;background:var(--surface2);border-radius:5px;border:1px solid var(--border);}
+.transform-strip .small{color:var(--mute);white-space:nowrap;}
+
+/* CAPTION LENGTH PILLS — reuse size-pills style */
+.cap-len-pills{display:flex;gap:5px;}
+.cap-len-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:10px;cursor:pointer;transition:all .2s;color:var(--mute);}
+.cap-len-pill:hover{color:var(--text);}
+.cap-len-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+
+/* BEST TIMES BADGE */
+.best-time-tag{font-size:8px;background:rgba(74,140,92,.15);color:var(--green);border-radius:3px;padding:1px 5px;margin-left:4px;}
 .loading-overlay{position:absolute;inset:0;background:rgba(10,9,8,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:100;border-radius:var(--r);}
 .loading-spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+/* HASHTAG MANAGER */
+.htag-set{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:9px 11px;display:flex;align-items:center;gap:8px;transition:border-color .15s;}
+.htag-set:hover{border-color:var(--border2);}
+.htag-set-name{font-size:11px;flex:1;font-weight:400;}
+.htag-set-count{font-size:9px;color:var(--mute);white-space:nowrap;}
+.htag-set-apply{background:var(--gold-dim);border:1px solid rgba(201,165,90,.3);color:var(--gold);font-size:9px;padding:2px 8px;border-radius:3px;cursor:pointer;font-family:'DM Mono',monospace;}
+.htag-set-apply:hover{background:rgba(201,165,90,.25);}
+.htag-set-del{color:var(--mute);font-size:12px;cursor:pointer;line-height:1;}
+.htag-set-del:hover{color:var(--red);}
+
+/* FIRST COMMENT */
+.first-comment-wrap{border-top:1px solid var(--border);padding-top:10px;margin-top:4px;}
+.first-comment-badge{background:rgba(74,122,191,.2);color:#7ab0ff;border-radius:3px;padding:1px 6px;font-size:8px;vertical-align:middle;}
+
+/* PUBLISH PIPELINE */
+.pub-log{background:var(--surface2);border-radius:5px;padding:10px;font-size:10px;color:var(--mute2);max-height:160px;overflow-y:auto;line-height:1.8;}
+.pub-log-line{display:flex;align-items:center;gap:6px;}
+.pub-log-line.ok{color:var(--green);}
+.pub-log-line.err{color:var(--red);}
+.pub-log-line.working{color:var(--gold);}
+.pub-progress{height:2px;border-radius:1px;background:var(--border2);margin-top:6px;overflow:hidden;}
+.pub-progress-bar{height:100%;background:var(--gold);transition:width .3s;width:0%;}
+
 .toast{position:fixed;bottom:20px;right:20px;background:var(--surface3);border:1px solid var(--border2);padding:9px 14px;border-radius:5px;font-size:11px;color:var(--text);z-index:10000;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;max-width:280px;}
 .toast.show{opacity:1;transform:translateY(0);}
 ::-webkit-scrollbar{width:3px;height:3px;}
@@ -354,7 +428,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
           <div class="field" style="margin-top:10px;">
             <label>Post Format</label>
             <div class="size-pills">
-              <div class="size-pill" onclick="setPostSize(this,'4:5','1080','1350')">1:1 Square</div>
+              <div class="size-pill" onclick="setPostSize(this,'1:1','1080','1080')">1:1 Square</div>
               <div class="size-pill active" onclick="setPostSize(this,'4:5','1080','1350')">4:5 Portrait <span class="rec">★ max size</span></div>
               <div class="size-pill" onclick="setPostSize(this,'9:16','1080','1920')">9:16 Reel/Story</div>
               <div class="size-pill" onclick="setPostSize(this,'16:9','1080','608')">16:9 Landscape</div>
@@ -362,9 +436,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
             <div id="sizeNote" class="small mute" style="margin-top:3px;">4:5 Portrait (1080×1350) — maximum Instagram real estate ★</div>
           </div>
 
+          <div class="row" style="gap:12px;margin-top:8px;align-items:flex-start;flex-wrap:wrap;">
+            <div class="field">
+              <label>Caption Length</label>
+              <div class="cap-len-pills">
+                <div class="cap-len-pill" onclick="setCaptionLen(this,'short')" title="3-4 lines, hook only. Stops the scroll.">Short</div>
+                <div class="cap-len-pill active" onclick="setCaptionLen(this,'medium')" title="5-8 lines, narrative arc.">Medium</div>
+                <div class="cap-len-pill" onclick="setCaptionLen(this,'long')" title="Full storytelling, 150-250 words.">Long</div>
+              </div>
+            </div>
+          </div>
+
           <div class="row mt">
             <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan">Plan with Claude</button>
             <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()">↺ Reshuffle</button>
+            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()">⏰ Best Times</button>
             <button class="btn btn-ghost btn-sm" onclick="queueAll()">Queue All</button>
             <button class="btn btn-ghost btn-sm" onclick="exportPlan()">Export</button>
             <div class="flex1"></div>
@@ -429,7 +515,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
                 <div style="font-size:36px;margin-bottom:8px;">◫</div>
                 <div class="small mute">Select an image from sidebar then generate</div>
               </div>
-              <div id="designOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;display:none;flex;"></div>
+              <div id="designOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
               <div class="loading-overlay" id="designLoading" style="display:none;">
                 <div class="loading-spinner"></div>
                 <div style="font-size:11px;color:var(--mute2);" id="designLoadingText">Claude is designing…</div>
@@ -439,6 +525,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
               <button class="btn btn-primary" onclick="runDesign()" id="btnDesign">Generate Design</button>
               <button class="btn btn-ghost btn-sm" onclick="addDesignToQueue()">+ Queue</button>
               <button class="btn btn-ghost btn-sm" onclick="downloadDesign()">Download</button>
+            </div>
+            <!-- Flip / Rotate -->
+            <div class="transform-strip">
+              <span class="small">Transform image:</span>
+              <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('H')">↔ Flip H</button>
+              <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('V')">↕ Flip V</button>
+              <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(-90)">↺ −90°</button>
+              <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(90)">↻ +90°</button>
+              <button class="btn btn-ghost btn-xs" onclick="resetSelectedTransform()">⊘ Reset</button>
             </div>
             <!-- Reference screenshot -->
             <div>
@@ -460,12 +555,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
           <div class="design-controls">
             <div class="field">
               <label>Post Size</label>
-              <select id="designSize" class="finput" onchange="updateDesignSizeNote()">
+              <select id="designSize" class="finput">
                 <option value="4:5">4:5 Portrait (1080×1350) ★</option>
                 <option value="1:1">1:1 Square (1080×1080)</option>
                 <option value="9:16">9:16 Story (1080×1920)</option>
               </select>
             </div>
+
             <div class="field">
               <label>Style</label>
               <div class="style-grid">
@@ -477,25 +573,91 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
                 <div class="style-opt" onclick="setStyle(this,'location')">Location</div>
               </div>
             </div>
+
             <div class="field">
-              <label>Design Direction</label>
-              <textarea id="designPrompt" class="finput" rows="2" placeholder="e.g. Leela lobby, evening light, gold accents…"></textarea>
+              <label>Mood</label>
+              <div class="mood-grid">
+                <div class="mood-opt active" onclick="setMood(this,'intimate')">Intimate</div>
+                <div class="mood-opt" onclick="setMood(this,'grand')">Grand</div>
+                <div class="mood-opt" onclick="setMood(this,'minimal')">Hushed</div>
+                <div class="mood-opt" onclick="setMood(this,'documentary')">Raw</div>
+                <div class="mood-opt" onclick="setMood(this,'campaign')">Campaign</div>
+                <div class="mood-opt" onclick="setMood(this,'sensory')">Sensory</div>
+              </div>
             </div>
+
+            <div class="field">
+              <label>Font Pairing</label>
+              <div class="font-grid">
+                <div class="font-opt active" onclick="setFont(this,'fraunces-mono')" data-font="fraunces-mono">
+                  <div class="font-preview" style="font-family:Georgia,serif;font-style:italic;">Aa</div>
+                  <div>Fraunces + Mono</div>
+                </div>
+                <div class="font-opt" onclick="setFont(this,'cormorant-light')" data-font="cormorant-light">
+                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:300;">Aa</div>
+                  <div>Cormorant Light</div>
+                </div>
+                <div class="font-opt" onclick="setFont(this,'playfair-sans')" data-font="playfair-sans">
+                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:700;">Aa</div>
+                  <div>Playfair + Sans</div>
+                </div>
+                <div class="font-opt" onclick="setFont(this,'mono-only')" data-font="mono-only">
+                  <div class="font-preview" style="font-family:monospace;font-size:11px;">Aa</div>
+                  <div>Mono Documentary</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Color Mode</label>
+              <div class="color-mode-row">
+                <div class="cm-opt active" onclick="setColorMode(this,'auto')">Auto</div>
+                <div class="cm-opt" onclick="setColorMode(this,'light')">Light</div>
+                <div class="cm-opt" onclick="setColorMode(this,'dark')">Dark</div>
+                <div class="cm-opt" onclick="setColorMode(this,'transparent')">None</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Text Position</label>
+              <div class="pos-grid">
+                <div class="pos-opt active" onclick="setTextPos(this,'auto')">Auto AI</div>
+                <div class="pos-opt" onclick="setTextPos(this,'top')">Top</div>
+                <div class="pos-opt" onclick="setTextPos(this,'bottom')">Bottom</div>
+                <div class="pos-opt" onclick="setTextPos(this,'left')">Left</div>
+                <div class="pos-opt" onclick="setTextPos(this,'right')">Right</div>
+              </div>
+            </div>
+
             <div class="field">
               <label>Text Overlay</label>
               <div class="overlay-row">
                 <input type="text" id="designText" class="finput flex1" placeholder="e.g. Where light meets luxury."/>
-                <button class="btn btn-purple btn-sm" onclick="suggestTextOverlay()" id="btnSuggestText" title="AI suggest">✦ Suggest</button>
+                <button class="btn btn-purple btn-sm" onclick="suggestTextOverlay()" id="btnSuggestText">✦ Suggest</button>
               </div>
+              <div id="suggestPillsWrap" class="suggest-pills" style="display:none;"></div>
             </div>
+
             <div class="field">
               <label>Sub-text / Location</label>
               <input type="text" id="designSub" class="finput" placeholder="e.g. The Leela, Gurgaon"/>
             </div>
+
+            <div class="field">
+              <label>Design Direction</label>
+              <textarea id="designPrompt" class="finput" rows="2" placeholder="e.g. Evening light, warm tones, focus on texture…"></textarea>
+            </div>
+
             <div class="field">
               <label>Caption</label>
-              <textarea id="designCaption" class="finput" rows="3" placeholder="Claude will write a caption…"></textarea>
+              <textarea id="designCaption" class="finput" rows="3" placeholder="Generated with design…"></textarea>
             </div>
+
+            <div class="row" style="flex-wrap:wrap;gap:5px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportDesignPNG()">↓ PNG</button>
+              <button class="btn btn-ghost btn-sm" onclick="generateVariants()" id="btnVariants">⊞ 3 Variants</button>
+            </div>
+            <div id="variantsStrip" class="variant-strip" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -515,7 +677,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
                 <div style="font-size:36px;margin-bottom:8px;">📱</div>
                 <div class="small mute">Select image + style → Generate</div>
               </div>
-              <div id="storyOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;display:none;flex;"></div>
+              <div id="storyOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
               <div class="loading-overlay" id="storyLoading" style="display:none;">
                 <div class="loading-spinner"></div>
                 <div class="small mute">Designing story…</div>
@@ -644,7 +806,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
               <div class="small mute">No posts queued.</div>
             </div>
             <div class="row mt">
-              <button class="btn btn-primary btn-sm" onclick="publishAll()">Publish All</button>
+              <button class="btn btn-primary btn-sm" onclick="publishAll()">Publish All Scheduled</button>
+              <button class="btn btn-ghost btn-sm" onclick="exportPlanCSV()">↓ CSV</button>
+            </div>
+            <div id="pubLogWrap" style="display:none;margin-top:10px;">
+              <div class="pub-progress"><div class="pub-progress-bar" id="pubProgressBar"></div></div>
+              <div class="pub-log" id="pubLog"></div>
             </div>
           </div>
         </div>
@@ -679,6 +846,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
               <div class="field"><label>Default Hashtags</label><textarea id="settHashtags" class="finput" rows="2">#luxuryphotography #hospitalityphotography #architecturephotography #fnbphotography #commercialphotography #delhiphotographer #bangalorephotographer #kshetejsareenstudios</textarea></div>
             </div>
           </div>
+
+          <!-- HASHTAG MANAGER -->
+          <div class="card" style="grid-column:1/-1;">
+            <div class="sidebar-label" style="margin-bottom:10px;">Hashtag Sets</div>
+            <div class="small mute" style="margin-bottom:10px;">Save hashtag groups by category. Apply instantly to any post or caption.</div>
+            <div class="col" id="htagSetsList" style="gap:5px;margin-bottom:10px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:flex-end;">
+              <div class="field">
+                <label>Set Name</label>
+                <input type="text" id="newHtagName" class="finput" placeholder="e.g. Hospitality"/>
+              </div>
+              <div class="field">
+                <label>Hashtags</label>
+                <input type="text" id="newHtagTags" class="finput" placeholder="#luxury #hotellife #interiors…"/>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="addHtagSet()" style="align-self:flex-end;">+ Save Set</button>
+            </div>
+          </div>
         </div>
         <div class="row mt">
           <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
@@ -703,8 +888,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
         <textarea id="captionEditContext" class="finput" rows="2" placeholder="Add specific context for this post's rewrite…"></textarea>
       </div>
       <div class="field">
-        <textarea class="finput" id="captionEditorText" oninput="updateCharCount()" rows="9" style="min-height:160px;"></textarea>
+        <textarea class="finput" id="captionEditorText" oninput="updateCharCount()" rows="7" style="min-height:140px;"></textarea>
         <div class="char-counter char-ok" id="charCounter">0 / 2200</div>
+      </div>
+      <div class="first-comment-wrap">
+        <div class="first-comment-label">
+          First Comment <span class="first-comment-badge">hashtags go here</span>
+        </div>
+        <textarea class="finput" id="captionFirstComment" rows="2" placeholder="Paste hashtags here — posted as first comment, keeps caption clean…" style="font-size:11px;"></textarea>
+        <div class="row" style="margin-top:5px;gap:5px;flex-wrap:wrap;" id="htagApplyBar"></div>
       </div>
       <div class="field"><label>Internal Notes</label>
         <input class="finput" type="text" id="captionNotesInput" placeholder="e.g. Client approval needed…"/>
@@ -813,6 +1005,8 @@ const PROXY = 'https://kss-proxy.kshetej-sareen.workers.dev';
 const S = {
   images:[], selected:[], plan:[], queue:[], storyQueue:[],
   effect:'kenburnz', designStyle:'editorial', designSize:'4:5',
+  designMood:'intimate', designFont:'fraunces-mono',
+  designColorMode:'auto', designTextPos:'auto',
   postW:1080, postH:1350,
   videoAnim:null, videoChunks:[],
   settings:{}, currentView:'grid',
@@ -824,7 +1018,7 @@ let storyImgSelected=[];
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded',()=>{
   loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus();
-  renderStoryImgPicker();
+  renderHtagSets(); renderStoryImgPicker();
   const z=document.getElementById('fileInput').parentElement;
   z.addEventListener('dragover',e=>{e.preventDefault();z.style.borderColor='var(--gold)';});
   z.addEventListener('dragleave',()=>z.style.borderColor='');
@@ -843,8 +1037,62 @@ function saveSettings(){
     hashtags:document.getElementById('settHashtags').value
   };
   localStorage.setItem('kss_settings',JSON.stringify(S.settings));
-  updateMetaStatus(); toast('Settings saved ✓');
+  updateMetaStatus();renderHtagSets();toast('Settings saved ✓');
 }
+
+/* ── HASHTAG MANAGER ── */
+function getHtagSets(){return JSON.parse(localStorage.getItem('kss_htag_sets')||'[]');}
+function saveHtagSets(sets){localStorage.setItem('kss_htag_sets',JSON.stringify(sets));}
+function renderHtagSets(){
+  const sets=getHtagSets();
+  const el=document.getElementById('htagSetsList');if(!el)return;
+  if(!sets.length){el.innerHTML='<div class="small mute">No sets saved yet.</div>';return;}
+  el.innerHTML=sets.map((s,i)=>`
+    <div class="htag-set">
+      <div style="flex:1;min-width:0;">
+        <div class="htag-set-name">${s.name}</div>
+        <div class="small mute" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.tags.substring(0,70)}</div>
+      </div>
+      <span class="htag-set-count">${(s.tags.match(/#\S+/g)||[]).length} tags</span>
+      <span class="htag-set-apply" onclick="applyHtagSet(${i})">Apply</span>
+      <span class="htag-set-del" onclick="deleteHtagSet(${i})">✕</span>
+    </div>`).join('');
+  renderHtagApplyBar();
+}
+function addHtagSet(){
+  const name=document.getElementById('newHtagName').value.trim();
+  const tags=document.getElementById('newHtagTags').value.trim();
+  if(!name||!tags){toast('Enter a name and hashtags');return;}
+  const sets=getHtagSets();sets.push({name,tags});saveHtagSets(sets);
+  document.getElementById('newHtagName').value='';
+  document.getElementById('newHtagTags').value='';
+  renderHtagSets();toast(`"${name}" saved ✓`);
+}
+function deleteHtagSet(i){
+  const sets=getHtagSets();sets.splice(i,1);saveHtagSets(sets);renderHtagSets();
+}
+function applyHtagSet(i){
+  const sets=getHtagSets();const tags=sets[i]?.tags;if(!tags)return;
+  const fc=document.getElementById('captionFirstComment');
+  if(fc&&document.getElementById('captionModal').style.display!=='none'){
+    fc.value=tags;toast(`"${sets[i].name}" → first comment ✓`);
+  } else {
+    document.getElementById('settHashtags').value=tags;toast(`"${sets[i].name}" set as default ✓`);
+  }
+}
+function renderHtagApplyBar(){
+  const bar=document.getElementById('htagApplyBar');if(!bar)return;
+  const sets=getHtagSets();
+  bar.innerHTML=sets.length
+    ?sets.map((s,i)=>`<button class="btn btn-ghost btn-xs" onclick="applyHtagSetToComment(${i})"># ${s.name}</button>`).join('')
+    :'<span class="small mute">Save hashtag sets in Settings to apply here</span>';
+}
+function applyHtagSetToComment(i){
+  const tags=getHtagSets()[i]?.tags;if(!tags)return;
+  const fc=document.getElementById('captionFirstComment');if(fc)fc.value=tags;
+  toast('Hashtag set applied ✓');
+}
+
 function loadSettings(){
   const st=localStorage.getItem('kss_settings');
   if(st){
@@ -934,9 +1182,35 @@ function handleFiles(files){
   Array.from(files).forEach(file=>{
     if(!file.type.startsWith('image/'))return;
     const reader=new FileReader();
-    reader.onload=e=>{S.images.push({id:'img_'+Date.now()+Math.random().toString(36).slice(2),name:file.name,dataUrl:e.target.result});renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();};
+    reader.onload=e=>{
+      const dataUrl=e.target.result;
+      const img=new Image();
+      img.onload=()=>{
+        const orientation=img.width>img.height*1.15?'landscape':img.height>img.width*1.15?'portrait':'square';
+        const qualityFlag=checkImageQuality(null,img.width,img.height);
+        S.images.push({id:'img_'+Date.now()+Math.random().toString(36).slice(2),name:file.name,dataUrl,orientation,w:img.width,h:img.height,qualityFlag,transform:{flipH:false,flipV:false,rotation:0}});
+        renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();checkDominantOrientation();
+        if(qualityFlag==='err')toast(`⚠ ${file.name} is too small for Instagram (${img.width}×${img.height}px)`);
+        else if(qualityFlag==='warn')toast(`⚠ ${file.name} is below 1080px — may look soft`);
+      };
+      img.src=dataUrl;
+    };
     reader.readAsDataURL(file);
   });
+}
+
+function checkDominantOrientation(){
+  if(!S.images.length)return;
+  const landscapes=S.images.filter(i=>i.orientation==='landscape').length;
+  const ratio=landscapes/S.images.length;
+  if(ratio>=0.6){
+    // Majority landscape — suggest 16:9
+    const hint=document.getElementById('sizeNote');
+    if(hint&&!hint.dataset.userSet){
+      hint.textContent='⚠ Mostly landscape images detected — consider switching to 16:9 Landscape format';
+      hint.style.color='var(--gold)';
+    }
+  }
 }
 function renderImageGrid(){
   document.getElementById('imgGrid').innerHTML=S.images.map(img=>`
@@ -963,6 +1237,124 @@ async function claudeCall(system,user){
   const d=await r.json();
   if(!d.content||!d.content[0])throw new Error('Empty response from API');
   return d.content[0].text;
+}
+
+/* Vision call — sends image + text in one request, no duplicate calls */
+function extractBase64(dataUrl){
+  const m=dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  return m?{mediaType:m[1],data:m[2]}:null;
+}
+
+async function claudeVisionDesign(imageDataUrl, textPrompt, maxTokens=4000){
+  const key=S.settings.anthropicKey;
+  if(!key){toast('Add Anthropic API key in Settings');throw new Error('No key');}
+  const b64=extractBase64(imageDataUrl);
+  if(!b64)throw new Error('Invalid image data');
+
+  // Resize large images before sending to keep payload manageable
+  const resizedData=await resizeForVision(imageDataUrl,800);
+  const b64r=extractBase64(resizedData);
+
+  const content=[
+    {type:'image',source:{type:'base64',media_type:b64r.mediaType,data:b64r.data}},
+    {type:'text',text:textPrompt}
+  ];
+
+  // If reference image is loaded, include it as second image for aesthetic direction
+  if(S.refImageDataUrl){
+    const rb=extractBase64(S.refImageDataUrl);
+    if(rb){
+      const resizedRef=await resizeForVision(S.refImageDataUrl,400);
+      const rbr=extractBase64(resizedRef);
+      content.splice(1,0,
+        {type:'image',source:{type:'base64',media_type:rbr.mediaType,data:rbr.data}},
+        {type:'text',text:`Reference design aesthetic (second image above) — match this style direction, typography mood, and layout feel. Not a copy, use as inspiration only.`}
+      );
+    }
+  }
+
+  const system=`You are Claude Design — a world-class visual designer for Kshetej Sareen Studios, a luxury commercial photography studio in Delhi and Bangalore (clients: Taj, The Leela, Six Senses, JW Marriott, Jumeirah).
+
+BEFORE generating HTML, silently analyse the provided photograph:
+1. SUBJECT POSITION — where is the main subject? (left/center/right, top/middle/bottom quadrant)
+2. NEGATIVE SPACE — where is the clearest open area? (sky, wall, floor, shadow zones)
+3. LIGHT DIRECTION — which edge does light enter from?
+4. DOMINANT TONES — warm/cool/neutral, light/dark
+5. COMPOSITION TYPE — portrait, interior, detail, wide-establishing, F&B
+
+DESIGN RULES — non-negotiable:
+• NEVER place text directly over the subject's face or body
+• ALWAYS anchor text and overlays to the negative space — if clear space is top-left, text goes top-left
+• Gradient overlays must be DIRECTIONAL — follow where negative space is, not a generic bottom fade
+• If image is tight/full-bleed with no negative space → use a thin letterbox strip (top or bottom, max 14% of height) for text — never float text over a face
+• Text size proportional — headline max 5–8% of canvas height; never fills the entire frame
+• For portrait/headshot images → text always goes where there is clean wall/background, NEVER over the face
+• Typography: Fraunces serif for display type, DM Mono for metadata/credits/studio handle
+• Gold #c9a55a for thin rule lines and accent details only — not for body text
+• The result must feel like it belongs in Cereal magazine or an Aman Resorts campaign
+
+RETURN FORMAT — return exactly this structure, nothing else:
+HTML:
+<the complete html/css div here>
+
+CAPTION:
+<the instagram caption here with hashtags>`;
+
+  const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:maxTokens,system,messages:[{role:'user',content}]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  const d=await r.json();
+  if(!d.content||!d.content[0])throw new Error('Empty response from API');
+  return d.content[0].text;
+}
+
+/* Resize image to max dimension before sending as vision input */
+function resizeForVision(dataUrl, maxPx=800){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxPx||h>maxPx){const s=maxPx/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg',0.82));
+    };
+    img.onerror=()=>resolve(dataUrl);
+    img.src=dataUrl;
+  });
+}
+
+/* Shared renderer — used by both Design and Stories tabs */
+function renderDesignOutput(containerId, htmlContent, imgDataUrl, imgSelector, w, h, maxH=520){
+  const out=document.getElementById(containerId);
+  out.style.display='flex';out.innerHTML='';
+  const wrap=out.parentElement;
+  const availW=wrap.clientWidth-20;
+  const availH=Math.min(wrap.clientHeight||maxH, maxH)-10;
+  const scale=Math.min(availW/w, availH/h, 1);
+  const scaledW=Math.round(w*scale);
+  const scaledH=Math.round(h*scale);
+  const outer=document.createElement('div');
+  outer.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:4px;flex-shrink:0;box-shadow:0 8px 32px rgba(0,0,0,.5);`;
+  const inner=document.createElement('div');
+  inner.style.cssText=`width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
+  inner.innerHTML=htmlContent;
+  outer.appendChild(inner);out.appendChild(outer);
+  // Inject actual image
+  const mainImg=inner.querySelector(imgSelector);
+  if(mainImg&&imgDataUrl)mainImg.src=imgDataUrl;
+  return inner;
+}
+
+/* Parse Claude's combined HTML+Caption response */
+function parseDesignResponse(raw){
+  const clean=raw.replace(/```html|```/g,'');
+  const htmlMatch=clean.match(/HTML:\s*([\s\S]*?)(?:CAPTION:|$)/i);
+  const capMatch=clean.match(/CAPTION:\s*([\s\S]*?)$/i);
+  return{
+    html:(htmlMatch?.[1]||clean).trim(),
+    caption:(capMatch?.[1]||'').trim()
+  };
 }
 
 /* ── PLAN ── */
@@ -995,9 +1387,10 @@ async function runContentPlan(){
     suggestedMix='stills';
   }
 
-  const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions from photographer's POV. Always end with studio credit.`;
+  const capLenGuide=getCaptionLengthGuide();
+  const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}) — Delhi + Bangalore, luxury hospitality, architectural, and F&B photography. Clients: Taj, JW Marriott, Six Senses, The Leela, Jumeirah. Voice: ${voice}. Captions from photographer's POV. Caption length style: ${capLenGuide} Always end with studio credit.`;
 
-  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images available:\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\nHashtags: ${hashtags}\n\n${distributionNote}\n\nVISUAL DIVERSITY — CRITICAL:\n- Never place similar images adjacent in the 3-column grid\n- Every row of 3 must mix: wide shot / close-up / detail, person / space / object, warm / cool tone\n- Carousels: images must tell a progression, not repeat the same subject\n- No imageIndex should appear in two different posts' cover images\n\nReturn ONLY valid JSON array:\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3,5],"type":"single|carousel|reel","time":"09:00","caption":"full caption with hashtags","theme":"short theme","notes":""}]`;
+  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images available:\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\nHashtags: ${hashtags}\n\n${distributionNote}\n\nCAPTION LENGTH RULE: ${capLenGuide}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed, 09:00 and 18:00 on Sun/Fri.\n\nVISUAL DIVERSITY — CRITICAL:\n- Never place similar images adjacent in the 3-column grid\n- Every row of 3 must mix: wide shot / close-up / detail, person / space / object, warm / cool tone\n- Carousels: images must tell a progression, not repeat the same subject\n- No imageIndex should appear in two different posts' cover images\n\nReturn ONLY valid JSON array:\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3,5],"type":"single|carousel|reel","time":"09:00","caption":"full caption with hashtags","theme":"short theme","notes":""}]`;
 
   try{
     const raw=await claudeCall(system,prompt);
@@ -1025,20 +1418,25 @@ function setView(v){
 function renderGridView(){
   const grid=document.getElementById('gridPreview');
   // Set aspect ratio based on post size
-  const ar=S.postH/S.postW;
   grid.innerHTML='';
+  grid.style.aspectRatio=`${S.postW}/${S.postH}`;
   S.plan.forEach((p,i)=>{
     const img=imgByIdx(p.imageIndex);
+    const orientation=img?.orientation||'portrait';
     const cell=document.createElement('div');
     cell.className='grid-cell';
     cell.draggable=true;
-    cell.style.aspectRatio=`${S.postW}/${S.postH}`;
+    // Landscape images show with landscape ratio in grid
+    cell.style.aspectRatio=orientation==='landscape'?'16/9':orientation==='square'?'1/1':`${S.postW}/${S.postH}`;
     const slides=p.slides?p.slides.length:1;
+    const isLocked=p.locked||false;
+    const qualTag=img?.qualityFlag==='warn'?'<span class="quality-warn">⚠ low res</span>':img?.qualityFlag==='err'?'<span class="quality-err">✕ too small</span>':'';
+    if(isLocked)cell.classList.add('locked-cell');
     cell.innerHTML=`
       <img src="${img?img.dataUrl:''}" crossorigin="anonymous" loading="lazy"
-        style="width:100%;height:100%;object-fit:cover;display:block;"
+        style="width:100%;height:100%;object-fit:cover;display:block;transform:${getImgTransform(img)};"
         onerror="this.style.display='none'"/>
-      <div class="grid-cell-num">${i+1}</div>
+      <div class="grid-cell-num">${i+1}${isLocked?' 🔒':''}</div>
       <div class="grid-cell-type type-${p.type}">${p.type}</div>
       ${p.type==='carousel'&&slides>1?`<div class="slide-count">▤ ${slides}</div>`:''}
       <div class="grid-cell-overlay">
@@ -1047,6 +1445,9 @@ function renderGridView(){
           <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})">swap</button>
           ${p.type==='carousel'?`<button class="gcell-btn" onclick="event.stopPropagation();openCarouselEditor(${i})">slides</button>`:''}
           <button class="gcell-btn" onclick="event.stopPropagation();openCaptionEditor(${i})">edit</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();flipPlanImg(${i},'H')">↔</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();rotatePlanImg(${i},90)">↻</button>
+          <button class="gcell-btn ${isLocked?'gold':''}" onclick="event.stopPropagation();toggleLock(${i})">${isLocked?'🔒':'🔓'}</button>
         </div>
       </div>`;
     cell.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);cell.style.opacity='.4';});
@@ -1063,35 +1464,48 @@ function renderGridView(){
 }
 
 function renderListView(){
+  const dupes=findDuplicateCoverImages();
   document.getElementById('planItems').innerHTML=S.plan.map((p,i)=>{
     const img=imgByIdx(p.imageIndex);
     const slides=p.slides?p.slides.length:1;
-    return `<div class="plan-item">
-      <div class="plan-thumb" onclick="openImagePicker(${i})">
-        <img src="${img?img.dataUrl:''}" crossorigin="anonymous" onerror="this.style.background='var(--surface3)'"/>
-        <div class="plan-thumb-swap">swap</div>
+    const isLocked=p.locked||false;
+    const isDupe=dupes.has(p.imageIndex);
+    const qualBadge=img?.qualityFlag==='warn'?'<span class="quality-warn">⚠ low res</span>':img?.qualityFlag==='err'?'<span class="quality-err">✕ too small</span>':'';
+    const bestTimeBadge=p.bestTime?'<span class="best-time-tag">⏰ optimal</span>':'';
+    return `<div class="plan-item ${isLocked?'locked':''}">
+      <div class="plan-thumb" onclick="${isLocked?'':(`openImagePicker(${i})`)}">
+        <img src="${img?img.dataUrl:''}" crossorigin="anonymous" style="transform:${getImgTransform(img)};" onerror="this.style.background='var(--surface3)'"/>
+        ${isLocked?'':`<div class="plan-thumb-swap">swap</div>`}
       </div>
       <div>
+        ${isDupe?`<div class="dup-warn">⚠ Same image used in another post</div>`:''}
         <div class="plan-meta">
-          <input class="date-input" type="text" value="${p.date}" onchange="S.plan[${i}].date=this.value;"/>
+          <input class="date-input" type="text" value="${p.date}" ${isLocked?'disabled':''} onchange="S.plan[${i}].date=this.value;"/>
           <span class="mute">·</span>
-          <input class="time-input" type="time" value="${p.time}" onchange="S.plan[${i}].time=this.value;"/>
+          <input class="time-input" type="time" value="${p.time}" ${isLocked?'disabled':''} onchange="S.plan[${i}].time=this.value;"/>
           <span class="badge badge-${p.type}">${p.type}${p.type==='carousel'?` · ${slides}`:''}</span>
+          ${qualBadge}${bestTimeBadge}
+          ${isLocked?'<span class="lock-badge">🔒 locked</span>':''}
         </div>
-        <div class="type-toggle">
+        ${isLocked?'':`<div class="type-toggle">
           <button class="type-btn ${p.type==='single'?'act-single':''}" onclick="setPostType(${i},'single')">single</button>
           <button class="type-btn ${p.type==='carousel'?'act-carousel':''}" onclick="setPostType(${i},'carousel')">carousel</button>
           <button class="type-btn ${p.type==='reel'?'act-reel':''}" onclick="setPostType(${i},'reel')">reel</button>
-        </div>
+        </div>`}
         <div class="plan-caption-preview" onclick="openCaptionEditor(${i})">${p.caption.substring(0,140)}…</div>
         <div class="plan-notes" onclick="openCaptionEditor(${i})">${p.notes||'+ notes'}</div>
         <div class="plan-actions">
           ${p.type==='carousel'?`<button class="btn btn-ghost btn-xs" onclick="openCarouselEditor(${i})">▤ slides</button>`:''}
-          <button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})">⎘</button>
+          <button class="btn btn-ghost btn-xs" onclick="flipPlanImg(${i},'H')">↔</button>
+          <button class="btn btn-ghost btn-xs" onclick="rotatePlanImg(${i},90)">↻</button>
+          ${isLocked?'':`<button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})">⎘</button>
           <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},-1)">↑</button>
-          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)">↓</button>
+          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)">↓</button>`}
+          <button class="btn ${isLocked?'btn-ghost':'btn-ghost'} btn-xs" onclick="toggleLock(${i})" style="${isLocked?'color:var(--green);border-color:rgba(74,140,92,.4);':''}">
+            ${isLocked?'🔒 Unlock':'🔓 Lock'}
+          </button>
           <button class="btn btn-primary btn-xs" onclick="addPlanToQueue(${i})">+ Queue</button>
-          <button class="btn btn-danger btn-xs" onclick="S.plan.splice(${i},1);renderPlan();">✕</button>
+          ${isLocked?'':`<button class="btn btn-danger btn-xs" onclick="S.plan.splice(${i},1);renderPlan();">✕</button>`}
         </div>
       </div>
     </div>`;
@@ -1137,7 +1551,7 @@ function duplicatePlanItem(i){const c=JSON.parse(JSON.stringify(S.plan[i]));c.da
 function queueAll(){if(!S.plan.length){toast('Generate a plan first');return;}S.plan.forEach((_,i)=>addPlanToQueue(i,true));saveQueue();renderQueue();toast(`${S.plan.length} posts queued ✓`);}
 function addPlanToQueue(i,silent=false){
   const p=S.plan[i];const img=imgByIdx(p.imageIndex);
-  S.queue.push({id:'q_'+Date.now()+Math.random(),imageDataUrl:img?.dataUrl||'',caption:p.caption,type:p.type,date:p.date,time:p.time,status:'queued',notes:p.notes||''});
+  S.queue.push({id:'q_'+Date.now()+Math.random(),imageDataUrl:img?.dataUrl||'',caption:p.caption,firstComment:p.firstComment||S.settings.hashtags||'',type:p.type,date:p.date,time:p.time,status:'queued',notes:p.notes||''});
   if(!silent){saveQueue();renderQueue();toast('Added to queue ✓');}
 }
 function reshuffleGrid(){
@@ -1145,6 +1559,7 @@ function reshuffleGrid(){
   if(!S.images.length){toast('No images loaded');return;}
   const total=S.images.length;const used=new Set();
   S.plan.forEach((p,i)=>{
+    if(p.locked)return; // skip locked posts
     const prev=i>0?S.plan[i-1].imageIndex:-1;
     let cands=[];
     for(let n=1;n<=total;n++){if(n!==prev&&!used.has(n))cands.push(n);}
@@ -1155,7 +1570,133 @@ function reshuffleGrid(){
     else p.slides=[pick];
     used.add(pick);
   });
-  renderPlan();toast('Grid reshuffled ✓');
+  renderPlan();toast('Grid reshuffled ✓ (locked posts preserved)');
+}
+
+/* ── IMAGE TRANSFORM ── */
+function getImgTransform(img){
+  if(!img?.transform)return'none';
+  const{flipH=false,flipV=false,rotation=0}=img.transform;
+  const sx=flipH?-1:1,sy=flipV?-1:1;
+  return`scale(${sx},${sy}) rotate(${rotation}deg)`;
+}
+function applyTransformToImage(imgId,updater){
+  const img=S.images.find(i=>i.id===imgId);
+  if(!img)return;
+  if(!img.transform)img.transform={flipH:false,flipV:false,rotation:0};
+  updater(img.transform);
+  renderImageGrid();renderPlan();renderStoryImgPicker();
+}
+function flipSelectedImage(axis){
+  const imgs=getSelImgs();
+  if(!imgs.length){toast('Select an image from sidebar');return;}
+  applyTransformToImage(imgs[0].id,t=>{if(axis==='H')t.flipH=!t.flipH;else t.flipV=!t.flipV;});
+  toast(`Flipped ${axis==='H'?'horizontally':'vertically'} ✓`);
+}
+function rotateSelectedImage(deg){
+  const imgs=getSelImgs();
+  if(!imgs.length){toast('Select an image from sidebar');return;}
+  applyTransformToImage(imgs[0].id,t=>{t.rotation=((t.rotation||0)+deg+360)%360;});
+  toast(`Rotated ${deg>0?'+':''}${deg}° ✓`);
+}
+function resetSelectedTransform(){
+  const imgs=getSelImgs();
+  if(!imgs.length){toast('Select an image from sidebar');return;}
+  const img=imgs[0];img.transform={flipH:false,flipV:false,rotation:0};
+  renderImageGrid();renderPlan();toast('Transform reset ✓');
+}
+function flipPlanImg(planIdx,axis){
+  const img=imgByIdx(S.plan[planIdx].imageIndex);
+  if(!img)return;
+  applyTransformToImage(img.id,t=>{if(axis==='H')t.flipH=!t.flipH;else t.flipV=!t.flipV;});
+  toast(`Post ${planIdx+1} flipped ✓`);
+}
+function rotatePlanImg(planIdx,deg){
+  const img=imgByIdx(S.plan[planIdx].imageIndex);
+  if(!img)return;
+  applyTransformToImage(img.id,t=>{t.rotation=((t.rotation||0)+deg+360)%360;});
+  toast(`Post ${planIdx+1} rotated ✓`);
+}
+
+/* ── LOCK / APPROVE ── */
+function toggleLock(i){
+  S.plan[i].locked=!S.plan[i].locked;
+  renderPlan();
+  toast(S.plan[i].locked?`Post ${i+1} locked ✓`:`Post ${i+1} unlocked`);
+}
+function movePlanItem(i,dir){
+  if(S.plan[i]?.locked){toast('Unlock this post first');return;}
+  const j=i+dir;if(j<0||j>=S.plan.length)return;
+  if(S.plan[j]?.locked){toast('Cannot move past a locked post');return;}
+  [S.plan[i],S.plan[j]]=[S.plan[j],S.plan[i]];renderPlan();
+}
+
+/* ── IMAGE QUALITY CHECK ── */
+function checkImageQuality(img,w,h){
+  if(!w||!h)return'';
+  if(w<800&&h<800)return'err';
+  if(w<1080||h<1080)return'warn';
+  return'';
+}
+
+/* ── DUPLICATE COVER IMAGE DETECTOR ── */
+function findDuplicateCoverImages(){
+  const seen=new Set();const dupes=new Set();
+  S.plan.forEach(p=>{
+    if(seen.has(p.imageIndex))dupes.add(p.imageIndex);
+    seen.add(p.imageIndex);
+  });
+  return dupes;
+}
+
+/* ── CAPTION LENGTH ── */
+let S_captionLen='medium';
+function setCaptionLen(el,len){
+  document.querySelectorAll('.cap-len-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');S_captionLen=len;
+}
+function getCaptionLengthGuide(){
+  return{
+    short:'3-5 lines maximum. Opening hook only — stop the scroll. No long narrative. End with 2-3 hashtags only.',
+    medium:'6-9 lines. Opening hook + 2-3 lines of narrative + call to action. 8-12 hashtags.',
+    long:'Full storytelling, 3-5 paragraphs. Share the context, the process, the emotion behind the frame. 15-20 hashtags.'
+  }[S_captionLen]||'';
+}
+
+/* ── BEST TIMES — India IST research defaults ── */
+const INDIA_BEST_TIMES={
+  0:['09:00','18:00'], // Sunday
+  1:['07:00','19:00'], // Monday
+  2:['09:00','19:00'], // Tuesday ★
+  3:['07:00','20:00'], // Wednesday
+  4:['09:00','19:00'], // Thursday ★★ best day
+  5:['07:00','18:00'], // Friday
+  6:['08:00','19:00'], // Saturday ★
+};
+const HIGH_ENGAGEMENT_DAYS=[2,4,6]; // Tue, Thu, Sat
+
+function applyBestTimes(){
+  if(!S.plan.length){toast('Generate a plan first');return;}
+  const today=new Date();
+  let applied=0;
+  S.plan.forEach((p,i)=>{
+    if(p.locked)return;
+    // Parse date to get day of week
+    try{
+      const d=new Date(p.date+' '+new Date().getFullYear());
+      const dow=d.getDay();
+      const slots=INDIA_BEST_TIMES[dow]||['09:00','19:00'];
+      // Alternate between morning and evening slots
+      p.time=slots[i%2];
+      p.bestTime=true;
+    }catch(e){
+      p.time=i%2===0?'09:00':'19:00';
+      p.bestTime=true;
+    }
+    applied++;
+  });
+  renderPlan();
+  toast(`Best times applied to ${applied} posts (India IST) ✓`);
 }
 function exportPlan(){
   if(!S.plan.length){toast('Generate a plan first');return;}
@@ -1228,8 +1769,10 @@ function openCaptionEditor(i){
   captionEditIndex=i;
   document.getElementById('captionEditorText').value=S.plan[i].caption;
   document.getElementById('captionNotesInput').value=S.plan[i].notes||'';
+  document.getElementById('captionFirstComment').value=S.plan[i].firstComment||S.settings.hashtags||'';
   document.getElementById('captionEditContext').value='';
   updateCharCount();
+  renderHtagApplyBar();
   document.getElementById('captionModal').style.display='flex';
 }
 function closeCaptionModal(){document.getElementById('captionModal').style.display='none';captionEditIndex=null;}
@@ -1243,6 +1786,7 @@ function saveCaptionEdit(){
   if(captionEditIndex===null)return;
   S.plan[captionEditIndex].caption=document.getElementById('captionEditorText').value;
   S.plan[captionEditIndex].notes=document.getElementById('captionNotesInput').value;
+  S.plan[captionEditIndex].firstComment=document.getElementById('captionFirstComment').value;
   closeCaptionModal();renderPlan();renderCaptionsTab();toast('Caption saved ✓');
 }
 async function rewriteCaptionWithClaude(){
@@ -1363,28 +1907,194 @@ function clearRefImage(){
 /* ── DESIGN STUDIO ── */
 function setStyle(el,style){document.querySelectorAll('.style-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');S.designStyle=style;}
 
+/* ── DESIGN PANEL STATE SETTERS ── */
+function setMood(el,mood){
+  document.querySelectorAll('.mood-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');S.designMood=mood;
+}
+function setFont(el,font){
+  document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');S.designFont=font;
+}
+function setColorMode(el,mode){
+  document.querySelectorAll('.cm-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');S.designColorMode=mode;
+}
+function setTextPos(el,pos){
+  document.querySelectorAll('.pos-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');S.designTextPos=pos;
+}
+
+/* ── SUGGEST TEXT OVERLAY — inline pills, no browser prompt ── */
 async function suggestTextOverlay(){
   const btn=document.getElementById('btnSuggestText');
   btn.innerHTML='<span class="spin"></span>';btn.disabled=true;
   const style=S.designStyle;
-  const prompt=document.getElementById('designPrompt').value;
+  const mood=S.designMood;
+  const dir=document.getElementById('designPrompt').value;
   const sub=document.getElementById('designSub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
-  const refCtx=S.refImageName?`Reference image: ${S.refImageName}`:'';
   try{
     const suggestions=await claudeCall(
-      `You suggest short, evocative text overlay lines for luxury photography Instagram posts for Kshetej Sareen Studios (${handle}). Lines should be 3-8 words, poetic, premium. No clichés. Return exactly 3 options, one per line, no numbering.`,
-      `Style: ${style}\nLocation/context: ${sub||'luxury hospitality'}\nDesign direction: ${prompt||'editorial luxury'}\n${refCtx}\nSuggest 3 short text overlay options:`
+      `You suggest short evocative text overlay lines for luxury photography Instagram posts for Kshetej Sareen Studios (${handle}). Lines: 3-8 words, poetic, premium. Mood: ${mood}. No clichés. Return exactly 4 options, one per line, no numbering, no punctuation at end.`,
+      `Style: ${style}\nMood: ${mood}\nLocation/context: ${sub||'luxury hospitality'}\nDesign direction: ${dir||'editorial luxury'}\n4 text overlay options:`
     );
-    const lines=suggestions.trim().split('\n').filter(l=>l.trim()).slice(0,3);
-    // Show as quick-pick options
-    const existing=document.getElementById('designText').value;
-    const choice=prompt(`AI suggestions (click OK to use first, or pick):\n\n${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}\n\nType 1, 2, or 3 to pick, or OK for option 1:`,'1');
-    const idx=parseInt(choice)-1;
-    document.getElementById('designText').value=lines[isNaN(idx)||idx<0||idx>=lines.length?0:idx]||lines[0];
-    toast('Text overlay suggested ✓');
+    const lines=suggestions.trim().split('\n').filter(l=>l.trim()).slice(0,4);
+    const wrap=document.getElementById('suggestPillsWrap');
+    wrap.style.display='flex';
+    wrap.innerHTML=lines.map(l=>`<button class="suggest-pill" onclick="pickSuggestPill(this,'${l.replace(/'/g,"\\'")}')"> ${l}</button>`).join('');
+    toast('Tap a suggestion to use it');
   }catch(e){toast('Error: '+e.message);}
   finally{btn.innerHTML='✦ Suggest';btn.disabled=false;}
+}
+function pickSuggestPill(el,text){
+  document.getElementById('designText').value=text;
+  document.getElementById('suggestPillsWrap').style.display='none';
+  toast('Text overlay set ✓');
+}
+
+/* ── EXPORT PNG ── */
+async function exportDesignPNG(){
+  const out=document.getElementById('designOutput');
+  if(!out.innerHTML){toast('Generate a design first');return;}
+  const inner=out.querySelector('div > div');
+  if(!inner){toast('No design to export');return;}
+  toast('Preparing PNG…',4000);
+  try{
+    // Use html2canvas if available, otherwise guide user
+    if(window.html2canvas){
+      const canvas=await html2canvas(inner,{scale:2,useCORS:true,allowTaint:true,backgroundColor:null});
+      const link=document.createElement('a');
+      link.download='KSS-Design.png';
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      toast('PNG exported ✓');
+    } else {
+      // Fallback: load html2canvas dynamically
+      const script=document.createElement('script');
+      script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      script.onload=async()=>{
+        const canvas=await html2canvas(inner,{scale:2,useCORS:true,allowTaint:true,backgroundColor:null});
+        const link=document.createElement('a');link.download='KSS-Design.png';
+        link.href=canvas.toDataURL('image/png');link.click();
+        toast('PNG exported ✓');
+      };
+      document.head.appendChild(script);
+    }
+  }catch(e){toast('PNG export failed — try Download HTML instead');console.error(e);}
+}
+
+/* ── GENERATE 3 VARIANTS ── */
+async function generateVariants(){
+  const imgs=getSelImgs();
+  if(!imgs.length){toast('Select an image from sidebar');return;}
+  const btn=document.getElementById('btnVariants');
+  btn.innerHTML='<span class="spin"></span> Generating…';btn.disabled=true;
+  const strip=document.getElementById('variantsStrip');
+  strip.style.display='flex';strip.innerHTML='';
+
+  const sizeVal=document.getElementById('designSize').value;
+  const dims={'4:5':{w:1080,h:1350},'1:1':{w:1080,h:1080},'9:16':{w:1080,h:1920}};
+  const {w,h}=dims[sizeVal]||dims['4:5'];
+  const styles=['editorial','campaign','minimal'];
+
+  for(let vi=0;vi<3;vi++){
+    const varStyle=styles[vi];
+    const placeholder=document.createElement('div');
+    placeholder.className='variant-item';
+    placeholder.style.cssText=`width:100px;height:${Math.round(100*h/w)}px;background:var(--surface2);display:flex;align-items:center;justify-content:center;`;
+    placeholder.innerHTML=`<span class="spin spin-g"></span>`;
+    strip.appendChild(placeholder);
+
+    try{
+      const origStyle=S.designStyle;
+      S.designStyle=varStyle;
+      // Build a lighter prompt for variants
+      const overlayText=document.getElementById('designText').value;
+      const subText=document.getElementById('designSub').value;
+      const handle=S.settings.handle||'@kshetejsareenstudios';
+      const hashtags=S.settings.hashtags||'#luxuryphotography';
+      const varPrompt=buildDesignPrompt(w,h,varStyle,overlayText,subText,handle,hashtags);
+      const raw=await claudeVisionDesign(imgs[0].dataUrl,varPrompt,3500);
+      const {html}=parseDesignResponse(raw);
+      S.designStyle=origStyle;
+
+      // Render mini preview
+      const scale=100/w;
+      const scaledH=Math.round(h*scale);
+      placeholder.innerHTML=`
+        <div class="variant-num">${['E','C','M'][vi]}</div>
+        <div style="width:100px;height:${scaledH}px;overflow:hidden;position:relative;">
+          <div style="width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;">${html}</div>
+        </div>`;
+      // Inject image
+      const mi=placeholder.querySelector('#kss-main');
+      if(mi)mi.src=imgs[0].dataUrl;
+      // Click to use this variant
+      const capturedHtml=html;
+      placeholder.onclick=()=>{
+        S.designStyle=varStyle;
+        document.querySelectorAll('.style-opt').forEach(o=>{o.classList.toggle('active',o.textContent.toLowerCase().includes(varStyle));});
+        renderDesignOutput('designOutput',capturedHtml,imgs[0].dataUrl,'#kss-main',w,h,520);
+        document.getElementById('designOutput').style.display='flex';
+        document.getElementById('designPlaceholder').style.display='none';
+        document.querySelectorAll('.variant-item').forEach(v=>v.classList.remove('selected'));
+        placeholder.classList.add('selected');
+        toast(`Variant ${['Editorial','Campaign','Minimal'][vi]} selected ✓`);
+      };
+    }catch(e){
+      placeholder.innerHTML=`<span class="small mute" style="padding:6px;text-align:center;">Failed</span>`;
+    }
+  }
+  btn.innerHTML='⊞ 3 Variants';btn.disabled=false;
+  toast('3 variants ready — click to select ✓');
+}
+
+function buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags){
+  const styleGuides={
+    editorial:'Thin serif caption strip in negative space. Thin gold rule. Studio credit 8px mono. Restrained.',
+    campaign:'Strong typography anchored to negative space. Italic Fraunces headline. The image is the hero.',
+    minimal:'Maximum restraint. Thin letterbox strip only. 11px DM Mono. No decoration. Breathing room is the design.'
+  };
+  const fontGuide={
+    'fraunces-mono':'Use Fraunces serif for headlines, DM Mono for credits',
+    'cormorant-light':'Use Cormorant Garamond light weight throughout',
+    'playfair-sans':'Use Playfair Display for headlines, clean sans for body',
+    'mono-only':'Use DM Mono throughout — no serifs'
+  }[S.designFont]||'Use Fraunces serif + DM Mono';
+  const colorGuide={auto:'Auto-adapt to image',light:'Light/white overlay surfaces',dark:'Dark/black overlay surfaces',transparent:'Minimal to no overlay backgrounds'}[S.designColorMode]||'Auto';
+  const posGuide=S.designTextPos==='auto'?'Choose text position based on composition analysis':
+    `Anchor text to ${S.designTextPos} of frame — but ONLY if that area is clear negative space, otherwise adjust`;
+  return`Design ${w}×${h}px Instagram post.
+Style: ${style} — ${styleGuides[style]||styleGuides.editorial}
+Fonts: ${fontGuide}
+Color mode: ${colorGuide}
+Text position: ${posGuide}
+Text: "${overlayText||handle}"
+Sub: "${subText||''}"
+Handle: ${handle}
+Analyse negative space first. Never cover face. Use id="kss-main" for image placeholder.
+HTML:\n<the div>\nCAPTION:\n<caption ending with ${hashtags}>`;
+}
+
+async function suggestStoryText(){
+  const style=document.getElementById('storyStyle').value;
+  const sub=document.getElementById('storySub').value;
+  const handle=S.settings.handle||'@kshetejsareenstudios';
+  try{
+    const s=await claudeCall(
+      `You suggest short punchy text for Instagram Stories for Kshetej Sareen Studios (${handle}). 3-6 words. Premium, intriguing. Return 4 options, one per line, no numbering.`,
+      `Story style: ${style}\nContext: ${sub||'luxury photography'}\n4 story text options:`
+    );
+    const lines=s.trim().split('\n').filter(l=>l.trim()).slice(0,4);
+    // Show inline under the story text field
+    const existing=document.getElementById('storyText').parentElement;
+    let picker=document.getElementById('storyTextPicker');
+    if(!picker){picker=document.createElement('div');picker.id='storyTextPicker';picker.className='suggest-pills';existing.parentElement.insertBefore(picker,existing.nextSibling);}
+    picker.style.display='flex';
+    picker.innerHTML=lines.map(l=>`<button class="suggest-pill" onclick="document.getElementById('storyText').value='${l.replace(/'/g,"\\'")}';this.parentElement.style.display='none';">${l}</button>`).join('');
+    toast('Tap a suggestion');
+  }catch(e){toast('Error: '+e.message);}
 }
 
 async function runDesign(){
@@ -1392,7 +2102,7 @@ async function runDesign(){
   if(!imgs.length){toast('Select an image from sidebar');return;}
   const img=imgs[0];
   const btn=document.getElementById('btnDesign');
-  btn.innerHTML='<span class="spin"></span> Designing…';btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Analysing…';btn.disabled=true;
   document.getElementById('designPlaceholder').style.display='none';
   document.getElementById('designOutput').style.display='none';
   document.getElementById('designLoading').style.display='flex';
@@ -1401,57 +2111,32 @@ async function runDesign(){
   const sizeVal=document.getElementById('designSize').value;
   const dims={'4:5':{w:1080,h:1350},'1:1':{w:1080,h:1080},'9:16':{w:1080,h:1920}};
   const {w,h}=dims[sizeVal]||dims['4:5'];
-  const prompt=document.getElementById('designPrompt').value;
+  const direction=document.getElementById('designPrompt').value;
   const overlayText=document.getElementById('designText').value;
   const subText=document.getElementById('designSub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
-  const refCtx=S.refImageDataUrl?`\nReference design provided — match its aesthetic direction, typography feel, and layout style. File: ${S.refImageName}`:'';
+  const hashtags=S.settings.hashtags||'#luxuryphotography';
 
   const styleGuides={
-    editorial:'Full-bleed image, thin serif caption strip at bottom, gold rule line, studio credit in 8px mono bottom-right.',
-    campaign:'Image fills 80%, large italic serif headline top-left with slight transparency, thick warm-paper border frame.',
-    minimal:'Off-white canvas, image centered at 60%, caption below in light grey mono 11px, maximum breathing room.',
-    bts:'Documentary feel, slight vignette, raw mono font, "Behind the frame" label top-left, film grain overlay.',
-    quote:'Dark/blurred background, large italic serif quote centered, attribution line, studio mark bottom-right.',
-    location:'Full image, gradient overlay bottom 40%, location name in large serif, city in small mono above.'
+    editorial:'Thin serif caption strip, positioned in the negative space. Thin gold horizontal rule separating image from text. Studio credit in 8px DM Mono. Restrained — text never competes with the image.',
+    campaign:'Strong typographic presence anchored to the clearest negative space. Italic Fraunces headline. Optional warm paper-tone border frame. The image is the hero — text amplifies, never dominates.',
+    minimal:'Maximum restraint. Off-white or black letterbox strip (top or bottom only). Caption in 11px DM Mono light. No decorative elements. Breathing room is the design.',
+    bts:'Documentary editorial feel. Raw DM Mono throughout. "Behind the frame" label in negative space. Subtle film grain overlay on image. Date stamp in corner.',
+    quote:'The image recedes — desaturated or darkened slightly. Large italic Fraunces quote centred in the cleared space. Attribution below. Studio mark small, bottom corner.',
+    location:'Location-forward. Place name in large Fraunces serif, anchored to the negative space. City/country in small DM Mono above the place name. No gradient if image has clear space — only use gradient if needed for legibility.'
   };
 
+  const prompt=buildDesignPrompt(w,h,style,overlayText,subText,handle,hashtags);
+
   try{
-    document.getElementById('designLoadingText').textContent='Claude is designing…';
-    const html=await claudeCall(
-      `You are Claude Design for Kshetej Sareen Studios. Generate self-contained HTML/CSS Instagram post graphics. Use Fraunces serif + DM Mono. Gold: #c9a55a. Luxury editorial aesthetic. Return ONLY HTML, no markdown.`,
-      `Create an Instagram graphic ${w}×${h}px for Kshetej Sareen Studios.\nStyle: ${style} — ${styleGuides[style]}\nUse this image as background: <img id="kss-main" src="MAIN_IMAGE_SRC" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:0;"/>\nText overlay: "${overlayText||handle}"\nSub-text: "${subText}"\nHandle: ${handle}\nDirection: ${prompt||'Premium editorial.'}${refCtx}\nOutput: a <div> at exactly ${w}×${h}px with embedded CSS. Use position:relative on outer div, z-index layers for overlay text above image. Include the img tag with id="kss-main".`
-    );
+    document.getElementById('designLoadingText').textContent='Claude is reading the frame…';
+    const raw=await claudeVisionDesign(img.dataUrl, prompt, 4000);
+    const {html,caption}=parseDesignResponse(raw);
 
-    const clean=html.replace(/```html|```/g,'').trim();
+    document.getElementById('designLoadingText').textContent='Rendering…';
+    renderDesignOutput('designOutput', html, img.dataUrl, '#kss-main', w, h, 520);
 
-    // Render output
-    const out=document.getElementById('designOutput');
-    out.style.display='flex';
-    out.innerHTML='';
-
-    // Create properly scaled wrapper
-    const wrap=document.getElementById('designCanvasWrap');
-    const availW=wrap.clientWidth-20;
-    const availH=Math.min(wrap.clientHeight-20, 500);
-    const scale=Math.min(availW/w, availH/h, 1);
-    const scaledW=Math.round(w*scale);
-    const scaledH=Math.round(h*scale);
-
-    const outerWrap=document.createElement('div');
-    outerWrap.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:4px;flex-shrink:0;`;
-
-    const inner=document.createElement('div');
-    inner.style.cssText=`width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
-    inner.innerHTML=clean;
-    outerWrap.appendChild(inner);
-    out.appendChild(outerWrap);
-
-    // Inject actual image
-    const mainImg=inner.querySelector('#kss-main');
-    if(mainImg)mainImg.src=img.dataUrl;
-
-    generateDesignCaption(overlayText,subText,style);
+    if(caption)document.getElementById('designCaption').value=caption;
     toast('Design ready ✓');
   }catch(e){
     toast('Error: '+e.message);console.error(e);
@@ -1463,17 +2148,6 @@ async function runDesign(){
   }
 }
 
-async function generateDesignCaption(text,sub,style){
-  const handle=S.settings.handle||'@kshetejsareenstudios';
-  const hashtags=S.settings.hashtags||'#luxuryphotography';
-  try{
-    const c=await claudeCall(
-      `You write Instagram captions for Kshetej Sareen Studios (${handle}), luxury commercial photography. Short, poetic, photographer's POV.`,
-      `Caption for ${style} post. Text: "${text}". Location: "${sub}". End with: ${hashtags}`
-    );
-    document.getElementById('designCaption').value=c.replace(/```/g,'').trim();
-  }catch(e){}
-}
 function addDesignToQueue(){
   const cap=document.getElementById('designCaption').value;
   if(!cap){toast('Generate a design first');return;}
@@ -1505,37 +2179,64 @@ async function runStoryDesign(){
   const imgs=getSelImgs();
   if(!imgs.length){toast('Select an image from sidebar');return;}
   const img=imgs[0];
-  const btn=document.querySelector('#tab-stories .btn-primary');
   document.getElementById('storyPlaceholder').style.display='none';
   document.getElementById('storyOutput').style.display='none';
   document.getElementById('storyLoading').style.display='flex';
+
   const style=document.getElementById('storyStyle').value;
   const text=document.getElementById('storyText').value;
   const sub=document.getElementById('storySub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
+  const hashtags=S.settings.hashtags||'#luxuryphotography';
+
+  const storyStyleGuides={
+    editorial:'Thin serif text anchored to the negative space. Minimal. Gold rule line. Studio credit bottom-right in 8px mono.',
+    countdown:'Bold countdown or "save the date" energy. Strong date typography. Warm paper-tone accent band.',
+    bts:'Documentary. Raw DM Mono. "Coming soon" or "Behind the frame" label. Film grain overlay.',
+    quote:'Image recedes, large italic Fraunces quote dominates the clear space. Attribution small below.',
+    location:'Place name large serif in the negative space. City above in small mono. No unnecessary decoration.',
+    fullbleed:'Image only. No text. No overlays. Pure photography — just the studio handle in 9px mono, bottom-right, opacity 0.6.'
+  };
+
+  const prompt=`Design a 1080×1920px Instagram Story graphic.
+
+Style: ${style} — ${storyStyleGuides[style]}
+Headline: "${text||handle}"
+Sub-text: "${sub||''}"
+Handle: ${handle}
+
+COMPOSITION ANALYSIS REQUIRED:
+Study the photograph. Find the negative space (clear wall, sky, floor, shadow area). 
+Place ALL text and graphic elements ONLY in that negative space.
+Never cover the subject's face or body.
+For Story format — think vertically: subject typically occupies the middle third, leaving top and bottom for text.
+
+TECHNICAL:
+- Outer div: position:relative; width:1080px; height:1920px; overflow:hidden; background:#0a0908;
+- Include Google Fonts link for Fraunces + DM Mono
+- Image: <img id="kss-story" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+- All overlays: position:absolute; z-index above 1
+- Gold: #c9a55a (accents only)
+
+Return HTML + caption:
+HTML:
+<the div>
+
+CAPTION:
+<short story caption, end with ${hashtags}>`;
+
   try{
-    const html=await claudeCall(
-      `You create Instagram Story graphics (1080×1920px, 9:16). Luxury editorial style. Fraunces serif + DM Mono. Gold #c9a55a. Return ONLY HTML snippet.`,
-      `Story graphic 1080×1920px.\nStyle: ${style}\nImage: <img id="kss-story-img" src="STORY_IMG_SRC" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:0;"/>\nHeadline: "${text||handle}"\nSub: "${sub}"\nHandle: ${handle}\nOutput: <div> at 1080×1920px with the img tag having id="kss-story-img".`
-    );
-    const clean=html.replace(/```html|```/g,'').trim();
-    const out=document.getElementById('storyOutput');
-    out.style.display='flex';out.innerHTML='';
-    const wrap=document.getElementById('storyPreviewWrap');
-    const availH=wrap.clientHeight-16;
-    const scale=availH/1920;
-    const scaledW=Math.round(1080*scale);
-    const scaledH=Math.round(1920*scale);
-    const outerWrap=document.createElement('div');
-    outerWrap.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:4px;`;
-    const inner=document.createElement('div');
-    inner.style.cssText=`width:1080px;height:1920px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
-    inner.innerHTML=clean;
-    outerWrap.appendChild(inner);out.appendChild(outerWrap);
-    const si=inner.querySelector('#kss-story-img');if(si)si.src=img.dataUrl;
+    const raw=await claudeVisionDesign(img.dataUrl, prompt, 3500);
+    const {html,caption}=parseDesignResponse(raw);
+    renderDesignOutput('storyOutput', html, img.dataUrl, '#kss-story', 1080, 1920, 400);
+    if(caption)document.getElementById('storyCaption').value=caption;
     toast('Story ready ✓');
-  }catch(e){toast('Error: '+e.message);document.getElementById('storyPlaceholder').style.display='block';}
-  finally{document.getElementById('storyLoading').style.display='none';}
+  }catch(e){
+    toast('Error: '+e.message);console.error(e);
+    document.getElementById('storyPlaceholder').style.display='block';
+  }finally{
+    document.getElementById('storyLoading').style.display='none';
+  }
 }
 function addStoryToQueue(){
   const cap=document.getElementById('storyCaption').value;
@@ -1560,22 +2261,6 @@ function downloadStory(){
   const out=document.getElementById('storyOutput');
   if(!out.innerHTML){toast('Generate a story first');return;}
   const b=new Blob([out.innerHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='KSS-Story.html';a.click();
-}
-async function suggestStoryText(){
-  const style=document.getElementById('storyStyle').value;
-  const sub=document.getElementById('storySub').value;
-  const handle=S.settings.handle||'@kshetejsareenstudios';
-  try{
-    const s=await claudeCall(
-      `You suggest short punchy text for Instagram Stories for Kshetej Sareen Studios (${handle}). 3-6 words. Premium, intriguing. Return 3 options, one per line.`,
-      `Story style: ${style}\nContext: ${sub||'luxury photography'}\nSuggest 3 story text options:`
-    );
-    const lines=s.trim().split('\n').filter(l=>l.trim()).slice(0,3);
-    const choice=prompt(`Story text suggestions:\n\n${lines.map((l,i)=>`${i+1}. ${l}`).join('\n')}\n\nType 1, 2, or 3:`,'1');
-    const idx=parseInt(choice)-1;
-    document.getElementById('storyText').value=lines[isNaN(idx)||idx<0||idx>=lines.length?0:idx];
-    toast('Text suggested ✓');
-  }catch(e){toast('Error: '+e.message);}
 }
 async function generateStoryCaption(){
   const handle=S.settings.handle||'@kshetejsareenstudios';
@@ -1708,8 +2393,141 @@ function renderQueue(){
 function removeFromQueue(i){S.queue.splice(i,1);saveQueue();renderQueue();}
 function clearQueue(){if(confirm('Clear all?')){S.queue=[];saveQueue();renderQueue();}}
 function saveQueue(){localStorage.setItem('kss_queue',JSON.stringify(S.queue));}
-async function publishPost(i){if(!S.settings.metaToken||!S.settings.igId){toast('Add Meta credentials in Settings');return;}toast('Upload to Cloudinary first for public URL, then publishing works.');}
-async function publishAll(){toast(`${S.queue.filter(p=>p.date).length} scheduled — Cloudinary upload needed for auto-publish`);}
+/* ── PUBLISH PIPELINE ── */
+function pubLog(msg,type=''){
+  const log=document.getElementById('pubLog');if(!log)return;
+  const wrap=document.getElementById('pubLogWrap');if(wrap)wrap.style.display='block';
+  log.innerHTML+=`<div class="pub-log-line ${type}">${type==='ok'?'✓':type==='err'?'✕':type==='working'?'…':''} ${msg}</div>`;
+  log.scrollTop=log.scrollHeight;
+}
+function setPubProgress(pct){
+  const bar=document.getElementById('pubProgressBar');
+  if(bar)bar.style.width=pct+'%';
+}
+
+async function uploadToCloudinary(dataUrl){
+  const cloud=S.settings.cloudName||'dsouvrzlr';
+  // Cloudinary unsigned upload using upload preset
+  const preset=S.settings.cloudinaryPreset||'ml_default';
+  const b64=dataUrl.split(',')[1];
+  const body=new FormData();
+  body.append('file','data:image/jpeg;base64,'+b64);
+  body.append('upload_preset',preset);
+  body.append('folder','kss-instagram');
+  const r=await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`,{method:'POST',body});
+  if(!r.ok)throw new Error('Cloudinary upload failed');
+  const d=await r.json();
+  return d.secure_url;
+}
+
+async function publishPost(i){
+  const post=S.queue[i];
+  const token=S.settings.metaToken;
+  const igId=S.settings.igId;
+  if(!token||!igId){toast('Add Meta credentials in Settings');return;}
+  if(!post.imageDataUrl){toast('No image for this post');return;}
+
+  const wrap=document.getElementById('pubLogWrap');if(wrap)wrap.style.display='block';
+  document.getElementById('pubLog').innerHTML='';
+  setPubProgress(10);
+  pubLog(`Publishing post ${i+1}…`,'working');
+
+  try{
+    // Step 1: Upload image to Cloudinary
+    pubLog('Uploading image to Cloudinary…','working');
+    setPubProgress(30);
+    const imageUrl=await uploadToCloudinary(post.imageDataUrl);
+    pubLog(`Image uploaded: ${imageUrl.substring(0,50)}…`,'ok');
+    setPubProgress(55);
+
+    // Step 2: Create Instagram media container
+    pubLog('Creating Instagram media container…','working');
+    const containerBody={image_url:imageUrl,caption:post.caption,access_token:token};
+    const containerR=await fetch(`https://graph.facebook.com/v19.0/${igId}/media`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(containerBody)
+    });
+    const container=await containerR.json();
+    if(container.error)throw new Error(container.error.message);
+    pubLog(`Container created: ${container.id}`,'ok');
+    setPubProgress(75);
+
+    // Step 3: Publish the container
+    pubLog('Publishing to Instagram…','working');
+    const pubR=await fetch(`https://graph.facebook.com/v19.0/${igId}/media_publish`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({creation_id:container.id,access_token:token})
+    });
+    const pub=await pubR.json();
+    if(pub.error)throw new Error(pub.error.message);
+    pubLog(`Published! Post ID: ${pub.id}`,'ok');
+    setPubProgress(90);
+
+    // Step 4: Post first comment (hashtags) if present
+    if(post.firstComment){
+      pubLog('Adding first comment…','working');
+      const cmtR=await fetch(`https://graph.facebook.com/v19.0/${pub.id}/comments`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:post.firstComment,access_token:token})
+      });
+      const cmt=await cmtR.json();
+      if(!cmt.error)pubLog('First comment posted ✓','ok');
+    }
+
+    setPubProgress(100);
+    S.queue[i].status='published';
+    S.queue[i].publishedId=pub.id;
+    saveQueue();renderQueue();
+    toast(`Post ${i+1} published to Instagram ✓`);
+  }catch(e){
+    pubLog(`Error: ${e.message}`,'err');
+    toast('Publish failed: '+e.message);
+    console.error(e);
+  }
+}
+
+async function publishAll(){
+  const scheduled=S.queue.filter((p,i)=>p.date&&p.status==='queued');
+  if(!scheduled.length){toast('No scheduled posts');return;}
+  if(!S.settings.metaToken||!S.settings.igId){toast('Add Meta credentials in Settings');return;}
+
+  document.getElementById('pubLog').innerHTML='';
+  document.getElementById('pubLogWrap').style.display='block';
+  pubLog(`Publishing ${scheduled.length} posts…`);
+
+  for(let i=0;i<S.queue.length;i++){
+    const p=S.queue[i];
+    if(!p.date||p.status!=='queued')continue;
+    setPubProgress(Math.round((i/S.queue.length)*100));
+    await publishPost(i);
+    await new Promise(r=>setTimeout(r,2000)); // Rate limit buffer
+  }
+  setPubProgress(100);
+  pubLog(`All done ✓`,'ok');
+  toast('All scheduled posts published ✓');
+}
+
+/* ── CSV EXPORT ── */
+function exportPlanCSV(){
+  if(!S.plan.length){toast('Generate a plan first');return;}
+  const headers=['Post #','Date','Time','Type','Theme','Caption','First Comment','Notes','Image Name','Locked'];
+  const rows=S.plan.map((p,i)=>{
+    const img=imgByIdx(p.imageIndex);
+    return [
+      i+1, p.date, p.time, p.type, p.theme||'',
+      `"${(p.caption||'').replace(/"/g,'""')}"`,
+      `"${(p.firstComment||'').replace(/"/g,'""')}"`,
+      `"${(p.notes||'').replace(/"/g,'""')}"`,
+      img?.name||'',
+      p.locked?'YES':'NO'
+    ].join(',');
+  });
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='KSS-Content-Plan.csv';a.click();
+  toast('CSV exported ✓');
+}
 
 /* ── GOOGLE DRIVE PICKER ── */
 const DS={files:[],selected:[],folderName:''};
@@ -1800,21 +2618,34 @@ async function importFromDrive(){
     try{
       const hiRes=file.thumbnailLink?file.thumbnailLink.replace(/=s\d+/,'=s1600'):`https://lh3.googleusercontent.com/d/${id}=s1600`;
       const dataUrl=await urlToBase64(hiRes);
-      S.images.push({id:'drive_'+id,name:file.name,dataUrl,driveId:id,source:'drive'});
+      const orient=await detectOrientation(dataUrl);
+      S.images.push({id:'drive_'+id,name:file.name,dataUrl,...orient,driveId:id,source:'drive'});
     }catch(e){
       const fallback=file.thumbnailLink?file.thumbnailLink.replace(/=s\d+/,'=s1200'):`https://lh3.googleusercontent.com/d/${id}=s1200`;
-      S.images.push({id:'drive_'+id,name:file.name,dataUrl:fallback,driveId:id,source:'drive-url'});
+      S.images.push({id:'drive_'+id,name:file.name,dataUrl:fallback,orientation:'portrait',driveId:id,source:'drive-url'});
     }
     imported++;
   }
   bar.style.width='100%';label.textContent=`Done — ${imported} imported`;
   setTimeout(()=>{
-    prog.style.display='none';renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();
+    prog.style.display='none';renderImageGrid();renderStoryImgPicker();updateSmartFreqHint();checkDominantOrientation();
     showActiveFolderTag(document.getElementById('driveUrl').value);
     closeDriveModal();toast(`${imported} image${imported!==1?'s':''} imported ✓`);
     btn.disabled=false;updateDriveSelCount();
   },500);
 }
+function detectOrientation(dataUrl){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const orientation=img.width>img.height*1.15?'landscape':img.height>img.width*1.15?'portrait':'square';
+      resolve({orientation,w:img.width,h:img.height});
+    };
+    img.onerror=()=>resolve({orientation:'portrait',w:0,h:0});
+    img.src=dataUrl;
+  });
+}
+
 function urlToBase64(url){
   return new Promise((resolve,reject)=>{
     const img=new Image();img.crossOrigin='anonymous';
