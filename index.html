@@ -9,42 +9,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#0a0908;--surface:#111009;--surface2:#181610;--surface3:#1f1d14;
-  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.13);
-  --text:#e6dfd4;--mute:#6b6355;--mute2:#8a7f6e;
-  --gold:#c9a55a;--gold2:#e8c97a;--gold-dim:rgba(201,165,90,.15);
-  --red:#c84a2a;--green:#4a8c5c;--blue:#4a7abf;--purple:#8a5abf;
-  --r:8px;
+  /* Terminal: black, charcoal, red, olive — coding screen aesthetic */
+  --bg:#0d0d0d;--surface:#141414;--surface2:#1a1a1a;--surface3:#222222;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);
+  --text:#d4d4d4;--mute:#5a5a5a;--mute2:#787878;
+  /* Red as primary accent (replaces gold) */
+  --gold:#c0392b;--gold2:#e74c3c;--gold-dim:rgba(192,57,43,.15);
+  /* Olive green as secondary */
+  --green:#6b7c4a;--green2:#8fa65e;--green-dim:rgba(107,124,74,.2);
+  /* Charcoal tones */
+  --red:#c0392b;--blue:#4a7abf;--purple:#7c5cbf;
+  /* Scan-line / terminal feel */
+  --scan:rgba(0,255,0,.015);
+  --r:4px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;}
 body{font-family:'DM Mono',monospace;font-size:12px;font-weight:300;-webkit-font-smoothing:antialiased;}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");opacity:.5;}
+/* Subtle scan-line effect for terminal feel */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scan) 2px,var(--scan) 3px);
+  opacity:.4;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:.4;}
 
 .shell{display:grid;grid-template-rows:52px 44px 1fr;height:100vh;}
-.topbar{display:flex;align-items:center;padding:0 20px;gap:24px;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+.topbar{display:flex;align-items:center;padding:0 16px;gap:20px;border-bottom:1px solid var(--border);background:var(--bg);overflow-x:auto;}
 
-/* GLOBAL CONTEXT BAR */
-.context-bar{display:flex;align-items:center;gap:10px;padding:0 20px;background:rgba(138,90,191,.06);border-bottom:1px solid rgba(138,90,191,.2);overflow:hidden;}
-.context-bar-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#b088e8;white-space:nowrap;flex-shrink:0;}
+/* GLOBAL CONTEXT BAR — olive tinted, terminal feel */
+.context-bar{display:flex;align-items:center;gap:10px;padding:0 16px;background:rgba(107,124,74,.08);border-bottom:1px solid rgba(107,124,74,.25);overflow:hidden;}
+.context-bar-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--green2);white-space:nowrap;flex-shrink:0;font-family:'DM Mono',monospace;}
 .context-bar-input{background:transparent;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;flex:1;padding:0;min-width:0;}
 .context-bar-input::placeholder{color:var(--mute);}
-.context-bar-indicator{flex-shrink:0;font-size:9px;color:rgba(138,90,191,.6);white-space:nowrap;}
-.logo{font-family:'Fraunces',serif;font-size:15px;font-weight:300;color:var(--gold);white-space:nowrap;}
-.nav{display:flex;gap:2px;flex:1;}
-.nav-btn{background:none;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;}
-.nav-btn:hover{color:var(--text);background:var(--surface3);}
-.nav-btn.active{color:var(--gold);background:var(--gold-dim);}
+.context-bar-indicator{flex-shrink:0;font-size:9px;color:var(--green);white-space:nowrap;font-family:'DM Mono',monospace;}
+.logo{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--gold);white-space:nowrap;letter-spacing:.2em;text-transform:uppercase;}
+.nav{display:flex;gap:1px;flex:1;}
+.nav-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--mute);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:0 12px;height:52px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.nav-btn:hover{color:var(--text);border-bottom-color:rgba(192,57,43,.4);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
 .topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--mute);}
-.status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--mute);}
+.status-dot.live{background:var(--green);box-shadow:0 0 5px var(--green);}
 
 .main{display:grid;grid-template-columns:260px 1fr;overflow:hidden;}
 .sidebar{border-right:1px solid var(--border);overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;}
 .sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;}
-.sidebar-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:8px;}
+.sidebar-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--mute2);margin-bottom:8px;}
 .upload-zone{border:1px dashed var(--border2);border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
-.upload-zone:hover{border-color:var(--gold);background:var(--gold-dim);}
+.upload-zone:hover{border-color:var(--gold);background:rgba(192,57,43,.07);}
 .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 .img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:8px;}
 .img-thumb{aspect-ratio:1;border-radius:3px;overflow:hidden;cursor:pointer;position:relative;border:2px solid transparent;transition:border-color .15s;}
@@ -52,41 +65,41 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
 .img-thumb .sel-badge{position:absolute;top:2px;right:2px;background:var(--gold);color:#000;width:14px;height:14px;border-radius:50%;font-size:8px;display:none;align-items:center;justify-content:center;font-weight:600;}
 .img-thumb.selected .sel-badge{display:flex;}
-.drive-folder-tag{display:inline-flex;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid rgba(201,165,90,.3);border-radius:20px;padding:3px 9px;font-size:9px;color:var(--gold);}
+.drive-folder-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:2px;padding:3px 9px;font-size:9px;color:var(--gold);letter-spacing:.08em;}
 
 .content{overflow-y:auto;display:flex;flex-direction:column;}
 .tab-panel{display:none;flex:1;padding:20px;}
 .tab-panel.active{display:flex;flex-direction:column;gap:16px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
-.card-title{font-family:'Fraunces',serif;font-size:17px;font-weight:300;margin-bottom:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+.card-title{font-family:'DM Mono',monospace;font-size:13px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;color:var(--text);}
 .card-sub{font-size:11px;color:var(--mute);margin-bottom:14px;}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:5px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.05em;transition:all .2s;}
-.btn-primary{background:var(--gold);color:#000;}
-.btn-primary:hover{background:var(--gold2);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:2px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;transition:all .15s;}
+.btn-primary{background:var(--gold);color:#fff;letter-spacing:.08em;}
+.btn-primary:hover{background:var(--gold2);color:#fff;}
 .btn-primary:disabled{background:var(--mute);cursor:not-allowed;opacity:.5;}
 .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
 .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(200,74,42,.3);}
-.btn-purple{background:rgba(138,90,191,.2);color:#b088e8;border:1px solid rgba(138,90,191,.3);}
-.btn-purple:hover{background:rgba(138,90,191,.35);}
+.btn-purple{background:rgba(107,124,74,.2);color:var(--green2);border:1px solid rgba(107,124,74,.35);}
+.btn-purple:hover{background:rgba(107,124,74,.35);}
 .btn-sm{padding:5px 10px;font-size:10px;}
 .btn-xs{padding:3px 7px;font-size:9px;}
 .spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(0,0,0,.15);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;}
-.spin-g{border-color:rgba(201,165,90,.2);border-top-color:var(--gold);}
+.spin-g{border-color:rgba(192,57,43,.2);border-top-color:var(--gold);}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .field{display:flex;flex-direction:column;gap:4px;}
 .field label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
 .finput{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:8px 11px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;width:100%;}
-.finput:focus{border-color:var(--gold);}
+.finput:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 1px rgba(192,57,43,.15);}
 .finput option{background:var(--surface2);}
 
 /* POST SIZE SELECTOR */
 .size-pills{display:flex;gap:5px;flex-wrap:wrap;}
 .size-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:10px;cursor:pointer;transition:all .2s;color:var(--mute);}
 .size-pill:hover{color:var(--text);border-color:var(--border2);}
-.size-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.size-pill.active{background:rgba(192,57,43,.12);border-color:var(--gold);color:var(--gold);}
 .size-pill .rec{font-size:8px;color:var(--green);margin-left:3px;}
 
 /* GRID */
@@ -131,7 +144,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .badge-single{background:rgba(201,165,90,.15);color:var(--gold);}
 .badge-carousel{background:rgba(74,140,92,.15);color:var(--green);}
 .badge-reel{background:rgba(200,74,42,.15);color:var(--red);}
-.badge-story{background:rgba(138,90,191,.15);color:#b088e8;}
+.badge-story{background:rgba(138,90,191,.15);color:var(--green2);}
 
 /* TIMELINE */
 .timeline-week-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:6px;}
@@ -139,6 +152,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .timeline-post:hover{border-color:var(--border2);}
 
 /* DESIGN CANVAS — fixed sizing */
+/* ── STUDIO WORKSPACE ── */
+.studio-workspace{display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:start;}
+.studio-canvases{display:flex;flex-direction:column;gap:12px;}
+.studio-canvas-col{display:flex;flex-direction:column;gap:6px;}
+.studio-canvas-label{display:flex;align-items:center;justify-content:space-between;padding:0 0 5px;border-bottom:1px solid var(--border);margin-bottom:2px;}
+.studio-canvas-label>span{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--mute2);}
+.studio-mode-btn{background:transparent;border:none;color:var(--mute);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 14px;cursor:pointer;transition:all .15s;border-right:1px solid var(--border2);}
+.studio-mode-btn:last-child{border-right:none;}
+.studio-mode-btn:hover{color:var(--text);background:var(--surface2);}
+.studio-mode-btn.active{background:var(--gold);color:#fff;}
+.studio-canvases.both-mode{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* Canvas locked state */
+.studio-canvas-col.locked-canvas .design-canvas-wrap,
+.studio-canvas-col.locked-canvas .story-preview-wrap{border-color:rgba(107,124,74,.5);}
+.studio-canvas-col.locked-canvas .studio-canvas-label>span::after{content:' 🔒';opacity:.7;}
+
 .design-workspace{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;}
 .design-canvas-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .design-canvas-wrap.drag-over-canvas{border-color:var(--gold);background:var(--gold-dim);}
@@ -159,7 +188,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .style-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
 .style-opt{padding:8px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;text-align:center;transition:all .2s;font-size:10px;}
 .style-opt:hover{border-color:var(--gold);color:var(--gold);}
-.style-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.style-opt.active{border-color:var(--gold);background:rgba(192,57,43,.12);color:var(--gold);}
 .ref-upload{border:1px dashed var(--border2);border-radius:5px;padding:10px;text-align:center;cursor:pointer;position:relative;transition:all .2s;font-size:10px;color:var(--mute);}
 .ref-upload:hover{border-color:var(--gold);color:var(--gold);}
 .ref-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
@@ -199,8 +228,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .meta-status{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);}
 
 /* CONTEXT BOX */
-.context-box{background:rgba(138,90,191,.08);border:1px solid rgba(138,90,191,.25);border-radius:6px;padding:12px;}
-.context-box-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#b088e8;margin-bottom:6px;}
+.context-box{background:rgba(107,124,74,.08);border:1px solid rgba(107,124,74,.3);border-radius:6px;padding:12px;}
+.context-box-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green2);margin-bottom:6px;}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
@@ -256,13 +285,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .small{font-size:10px;}
 .mute{color:var(--mute);}
 .gold{color:var(--gold);}
-.serif{font-family:'Fraunces',serif;}
+.serif{font-family:'DM Mono',monospace;letter-spacing:.05em;}
 
 /* DESIGN PANEL EXTRAS */
 .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
 .mood-opt{padding:7px 4px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;text-align:center;transition:all .2s;font-size:9px;letter-spacing:.05em;}
 .mood-opt:hover{border-color:var(--gold);color:var(--gold);}
-.mood-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.mood-opt.active{border-color:var(--gold);background:rgba(192,57,43,.12);color:var(--gold);}
 .font-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 .font-opt{padding:7px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;transition:all .2s;font-size:10px;}
 .font-opt:hover{border-color:var(--gold);}
@@ -271,11 +300,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .pos-grid{display:flex;gap:4px;flex-wrap:wrap;}
 .pos-opt{padding:4px 8px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-size:9px;transition:all .2s;color:var(--mute);}
 .pos-opt:hover{border-color:var(--border2);color:var(--text);}
-.pos-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.pos-opt.active{border-color:var(--gold);background:rgba(192,57,43,.12);color:var(--gold);}
 .color-mode-row{display:flex;gap:4px;}
 .cm-opt{flex:1;padding:5px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-size:9px;text-align:center;transition:all .2s;color:var(--mute);}
 .cm-opt:hover{color:var(--text);}
-.cm-opt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.cm-opt.active{border-color:var(--gold);background:rgba(192,57,43,.12);color:var(--gold);}
 .suggest-pills{display:flex;flex-direction:column;gap:4px;margin-top:5px;}
 .suggest-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:10px;color:var(--text);transition:all .15s;text-align:left;}
 .suggest-pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
@@ -304,7 +333,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .cap-len-pills{display:flex;gap:5px;}
 .cap-len-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:10px;cursor:pointer;transition:all .2s;color:var(--mute);}
 .cap-len-pill:hover{color:var(--text);}
-.cap-len-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.cap-len-pill.active{background:rgba(192,57,43,.1);border-color:var(--gold);color:var(--gold);}
 
 /* BEST TIMES BADGE */
 .best-time-tag{font-size:8px;background:rgba(74,140,92,.15);color:var(--green);border-radius:3px;padding:1px 5px;margin-left:4px;}
@@ -352,8 +381,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .headline-option:hover .headline-use-btn,.headline-option.selected-headline .headline-use-btn{opacity:1;}
 
 /* CLAUDE BRIEF FIELD */
-.claude-brief-wrap{background:rgba(138,90,191,.07);border:1px solid rgba(138,90,191,.2);border-radius:6px;padding:10px 12px;margin-bottom:4px;}
-.claude-brief-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#b088e8;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.claude-brief-wrap{background:rgba(107,124,74,.07);border:1px solid rgba(107,124,74,.25);border-radius:2px;padding:10px 12px;margin-bottom:4px;}
+.claude-brief-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--green2);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
 .claude-brief-input{background:transparent;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;width:100%;resize:none;line-height:1.5;min-height:32px;}
 .claude-brief-input::placeholder{color:var(--mute);}
 
@@ -403,8 +432,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
     <nav class="nav">
       <button class="nav-btn active" onclick="switchTab('plan')">Plan</button>
       <button class="nav-btn" onclick="switchTab('captions')">Captions</button>
-      <button class="nav-btn" onclick="switchTab('design')">Design</button>
-      <button class="nav-btn" onclick="switchTab('stories')">Stories</button>
+      <button class="nav-btn" onclick="switchTab('design')">Studio</button>
       <button class="nav-btn" onclick="switchTab('video')">Video</button>
       <button class="nav-btn" onclick="switchTab('schedule')">Schedule</button>
       <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
@@ -535,10 +563,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 
           <div class="row mt">
             <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan" data-tip="Generates post layout with dates, times, image assignments and themes — captions generated separately after locking">Plan with Claude</button>
-            <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()" data-tip="Randomly reassigns images to posts. Locked posts are skipped. Captions update to match new images.">↺ Reshuffle</button>
-            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()" data-tip="Applies India IST research-based optimal posting times (Tue/Thu/Sat 9am & 7pm)">⏰ Best Times</button>
-            <button class="btn btn-ghost btn-sm" onclick="queueAll()" data-tip="Adds all posts to the Schedule queue">Queue All</button>
-            <button class="btn btn-ghost btn-sm" onclick="exportPlan()" data-tip="Export plan as text file">Export</button>
+            <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()" data-tip="Randomly reassigns images to posts. Locked covers excluded. Captions clear on reshuffled posts.">↺ Reshuffle</button>
+            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()" data-tip="Applies India IST optimal posting times">⏰ Best Times</button>
+            <button class="btn btn-ghost btn-sm" onclick="queueAll()" data-tip="Adds all posts to Schedule queue">Queue All</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportPlan()" data-tip="Export plan as text">Export</button>
+            <button class="btn btn-ghost btn-sm" onclick="saveDraft()" data-tip="Save entire plan as draft — restore anytime">💾 Save Draft</button>
+            <button class="btn" style="background:rgba(192,57,43,.15);color:var(--gold);border:1px solid rgba(192,57,43,.3);font-size:10px;" onclick="openContextQModal()" data-tip="Claude asks you questions about the shoot — better answers = more human captions">✦ Context Q&amp;A</button>
             <div class="flex1"></div>
             <div class="view-toggle">
               <button class="view-btn active" id="btnViewGrid" onclick="setView('grid')">Grid</button>
@@ -548,9 +578,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
         </div>
 
         <!-- Caption generation banner — shown after plan is ready -->
-        <div id="captionBanner" style="display:none;background:rgba(138,90,191,.08);border:1px solid rgba(138,90,191,.25);border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
+        <div id="captionBanner" style="display:none;background:rgba(107,124,74,.08);border:1px solid rgba(107,124,74,.3);border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
           <div style="flex:1;">
-            <div style="font-size:12px;color:#b088e8;font-weight:400;">Layout ready — generate captions now</div>
+            <div style="font-size:12px;color:var(--green2);font-weight:400;">Layout ready — generate captions now</div>
             <div class="small mute" style="margin-top:2px;">Captions are written based on the actual images assigned to each post. Lock posts first for best results.</div>
           </div>
           <button class="btn btn-purple" onclick="generateAllCaptions()" id="btnGenCaptions" data-tip="Generates captions based on the actual images now assigned to each post">✦ Generate Captions</button>
@@ -614,90 +644,206 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
       </div>
 
       <!-- ═══ DESIGN ═══ -->
+      <!-- ═══ DESIGN STUDIO (unified post + story) ═══ -->
       <div class="tab-panel" id="tab-design">
+        <!-- Brief card -->
         <div class="card">
-          <div class="card-title serif">Claude Design Studio</div>
-          <div class="card-sub">Drag an image onto the canvas, describe what you want, Claude does the rest</div>
-          <div class="claude-brief-wrap">
-            <div class="claude-brief-label">✦ Design Brief <span style="color:var(--mute);font-size:8px;font-style:italic;text-transform:none;letter-spacing:0;">auto-pulled from project brief · edit to specialise for this design</span></div>
-            <textarea id="designBrief" class="claude-brief-input" rows="2" placeholder="Describe what you want Claude to create — e.g. 'editorial luxury, text bottom-left, location tag, Leela Gurgaon lobby, warm evening light, make the composition breathe'…"></textarea>
+          <div class="row" style="align-items:flex-start;gap:14px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:0;">
+              <div class="card-title serif" style="margin-bottom:4px;">Design Studio</div>
+              <div class="card-sub">Create posts, stories or both in one go — Claude generates high-res graphics from your images</div>
+            </div>
+            <!-- Output mode toggle -->
+            <div style="display:flex;gap:0;border:1px solid var(--border2);border-radius:2px;overflow:hidden;flex-shrink:0;">
+              <button class="studio-mode-btn active" id="modePost" onclick="setStudioMode('post')" data-tip="Generate an Instagram post (4:5 or 1:1)">Post</button>
+              <button class="studio-mode-btn" id="modeStory" onclick="setStudioMode('story')" data-tip="Generate a 9:16 Story">Story</button>
+              <button class="studio-mode-btn" id="modeBoth" onclick="setStudioMode('both')" data-tip="Generate post AND story in one go — same brief, both formats">Both</button>
+            </div>
+          </div>
+          <div class="claude-brief-wrap" style="margin-top:10px;">
+            <div class="claude-brief-label">✦ Brief <span style="color:var(--mute);font-size:8px;font-style:italic;text-transform:none;letter-spacing:0;">auto-pulled from project context · edit to focus this design</span></div>
+            <textarea id="designBrief" class="claude-brief-input" rows="2" placeholder="e.g. editorial, text bottom-left, The Leela lobby, warm evening light — describe what you want Claude to create…"></textarea>
           </div>
         </div>
-        <div class="design-workspace">
-          <div class="col">
-            <!-- Active image indicator -->
-            <div id="designActiveImgBar" style="display:none;" class="design-active-img">
-              <img id="designActiveThumb" class="design-active-thumb" src="" alt=""/>
-              <div class="design-active-info">
-                <div class="design-active-name" id="designActiveName">No image selected</div>
-                <div class="design-active-orient" id="designActiveOrient"></div>
+
+        <!-- Main workspace -->
+        <div class="studio-workspace" id="studioWorkspace">
+
+          <!-- ── LEFT: Canvas(es) ── -->
+          <div class="studio-canvases" id="studioCanvases">
+
+            <!-- POST canvas -->
+            <div id="postCanvasCol" class="studio-canvas-col">
+              <div class="studio-canvas-label">
+                <span>Post</span>
+                <div class="row" style="gap:4px;">
+                  <button class="btn btn-ghost btn-xs" onclick="lockStudioOutput('post')" id="btnLockPost" data-tip="Lock this design — prevents overwrite when regenerating">🔓 Lock</button>
+                  <button class="btn btn-ghost btn-xs" onclick="rerunStudioOutput('post')" data-tip="Regenerate post with same brief">↻ Re-suggest</button>
+                  <button class="btn btn-ghost btn-xs" onclick="copyStyleToStory()" data-tip="Apply the style of this post design to the story canvas">→ Story</button>
+                  <button class="btn btn-ghost btn-xs" onclick="swapPostStory()" data-tip="Swap post and story designs">⇄ Swap</button>
+                </div>
               </div>
-              <button class="btn btn-ghost btn-xs" onclick="clearDesignImage()" data-tip="Clear selected image">✕</button>
+              <!-- Active image bar -->
+              <div id="designActiveImgBar" style="display:none;" class="design-active-img">
+                <img id="designActiveThumb" class="design-active-thumb" src="" alt=""/>
+                <div class="design-active-info">
+                  <div class="design-active-name" id="designActiveName">No image</div>
+                  <div class="design-active-orient" id="designActiveOrient"></div>
+                </div>
+                <button class="btn btn-ghost btn-xs" onclick="clearDesignImage()">✕</button>
+              </div>
+              <div class="design-canvas-wrap" id="designCanvasWrap" style="min-height:320px;"
+                ondragover="onDesignCanvasDragOver(event)"
+                ondragleave="onDesignCanvasDragLeave(event)"
+                ondrop="onDesignCanvasDrop(event)">
+                <div class="design-placeholder" id="designPlaceholder">
+                  <div style="font-size:28px;margin-bottom:6px;">◫</div>
+                  <div class="small mute" style="margin-bottom:4px;">Drag image here</div>
+                  <div class="small mute" style="opacity:.5;">or select from sidebar</div>
+                </div>
+                <div id="designOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
+                <div class="loading-overlay" id="designLoading" style="display:none;">
+                  <div class="loading-spinner"></div>
+                  <div style="font-size:11px;color:var(--mute2);" id="designLoadingText">Designing…</div>
+                </div>
+                <div class="design-drop-hint">
+                  <div class="design-drop-hint-icon">◫</div>
+                  <div class="design-drop-hint-text">Drop image here</div>
+                </div>
+              </div>
+              <div class="row" style="gap:4px;flex-wrap:wrap;margin-top:6px;">
+                <button class="btn btn-ghost btn-xs" onclick="downloadStudioPNG('post')" data-tip="Download post as high-res PNG">↓ PNG</button>
+                <button class="btn btn-ghost btn-xs" onclick="addDesignToQueue()" data-tip="Add to schedule queue">+ Queue</button>
+                <button class="btn btn-purple btn-xs" onclick="openDesignChat()" data-tip="Chat with Claude to refine this design">✦ Refine</button>
+                <button class="btn btn-ghost btn-xs" onclick="generateVariants()" id="btnVariants" data-tip="Generate 3 layout variants">⊞ Variants</button>
+              </div>
+              <div id="variantsStrip" class="variant-strip" style="display:none;"></div>
+
+              <!-- Transform strip -->
+              <div class="transform-strip">
+                <span class="small" style="color:var(--mute);">Transform:</span>
+                <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('H')" data-tip="Flip image horizontally">↔ H</button>
+                <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('V')" data-tip="Flip image vertically">↕ V</button>
+                <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(-90)" data-tip="Rotate -90°">↺</button>
+                <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(90)" data-tip="Rotate +90°">↻</button>
+                <button class="btn btn-ghost btn-xs" onclick="resetSelectedTransform()" data-tip="Reset transform">⊘</button>
+              </div>
+
+              <!-- Reference screenshot -->
+              <div class="field">
+                <label style="font-size:9px;">Reference screenshot <span class="small mute" style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <div id="refUploadZone" class="ref-upload-compact">
+                  <input type="file" accept="image/*" onchange="loadRefImage(this)"/>
+                  ↑ Upload a design reference
+                </div>
+                <div id="refPreviewWrap" style="display:none;margin-top:4px;" class="ref-preview-compact">
+                  <img id="refPreviewImg" src=""/>
+                  <span class="small mute flex1" id="refPreviewName"></span>
+                  <button class="btn btn-ghost btn-xs" onclick="clearRefImage()">✕</button>
+                </div>
+              </div>
             </div>
 
-            <div class="design-canvas-wrap" id="designCanvasWrap" style="min-height:340px;"
-              ondragover="onDesignCanvasDragOver(event)"
-              ondragleave="onDesignCanvasDragLeave(event)"
-              ondrop="onDesignCanvasDrop(event)">
-              <div class="design-placeholder" id="designPlaceholder">
-                <div style="font-size:36px;margin-bottom:8px;">◫</div>
-                <div class="small mute" style="margin-bottom:6px;">Drag an image from the sidebar</div>
-                <div class="small mute" style="opacity:.6;">or select one and click Generate</div>
+            <!-- STORY canvas -->
+            <div id="storyCanvasCol" class="studio-canvas-col" style="display:none;">
+              <div class="studio-canvas-label">
+                <span>Story</span>
+                <div class="row" style="gap:4px;">
+                  <button class="btn btn-ghost btn-xs" onclick="lockStudioOutput('story')" id="btnLockStory" data-tip="Lock this story design">🔓 Lock</button>
+                  <button class="btn btn-ghost btn-xs" onclick="rerunStudioOutput('story')" data-tip="Regenerate story with same brief">↻ Re-suggest</button>
+                  <button class="btn btn-ghost btn-xs" onclick="copyStyleToPost()" data-tip="Apply this story style to the post canvas">→ Post</button>
+                  <button class="btn btn-ghost btn-xs" onclick="swapPostStory()" data-tip="Swap post and story designs">⇄ Swap</button>
+                </div>
               </div>
-              <div id="designOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
-              <div class="loading-overlay" id="designLoading" style="display:none;">
-                <div class="loading-spinner"></div>
-                <div style="font-size:11px;color:var(--mute2);" id="designLoadingText">Claude is designing…</div>
+              <div id="storyActiveImgBar" style="display:none;" class="story-active-img-bar">
+                <img id="storyActiveThumb" style="width:32px;height:32px;object-fit:cover;border-radius:2px;flex-shrink:0;" src="" alt=""/>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="storyActiveName">No image</div>
+                  <div style="font-size:9px;color:var(--mute);" id="storyActiveOrient"></div>
+                </div>
+                <button class="btn btn-ghost btn-xs" onclick="clearStoryImage()">✕</button>
               </div>
-              <!-- Drop hint overlay -->
-              <div class="design-drop-hint">
-                <div class="design-drop-hint-icon">◫</div>
-                <div class="design-drop-hint-text">Drop to use this image</div>
+              <div class="story-preview-wrap" id="storyPreviewWrap" style="min-height:320px;"
+                ondragover="onStoryCanvasDragOver(event)"
+                ondragleave="onStoryCanvasDragLeave(event)"
+                ondrop="onStoryCanvasDrop(event)">
+                <div id="storyPlaceholder" class="design-placeholder" style="display:flex;flex-direction:column;align-items:center;">
+                  <div style="font-size:28px;margin-bottom:6px;">📱</div>
+                  <div class="small mute" style="margin-bottom:4px;">Drag image here</div>
+                  <div class="small mute" style="opacity:.5;">or select from right</div>
+                </div>
+                <div id="storyOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
+                <div class="loading-overlay" id="storyLoading" style="display:none;">
+                  <div class="loading-spinner"></div>
+                  <div class="small mute">Designing story…</div>
+                </div>
+                <div class="design-drop-hint">
+                  <div class="design-drop-hint-icon">📱</div>
+                  <div class="design-drop-hint-text">Drop image here</div>
+                </div>
               </div>
-            </div>
-            <div class="row">
-              <button class="btn btn-primary" onclick="runDesign()" id="btnDesign">Generate Design</button>
-              <button class="btn btn-ghost btn-sm" onclick="addDesignToQueue()">+ Queue</button>
-              <button class="btn btn-ghost btn-sm" onclick="downloadDesign()">Download</button>
-            </div>
-            <!-- Flip / Rotate -->
-            <div class="transform-strip">
-              <span class="small">Transform image:</span>
-              <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('H')">↔ Flip H</button>
-              <button class="btn btn-ghost btn-xs" onclick="flipSelectedImage('V')">↕ Flip V</button>
-              <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(-90)">↺ −90°</button>
-              <button class="btn btn-ghost btn-xs" onclick="rotateSelectedImage(90)">↻ +90°</button>
-              <button class="btn btn-ghost btn-xs" onclick="resetSelectedTransform()">⊘ Reset</button>
-            </div>
-            <!-- Reference screenshot -->
-            <div>
-              <div class="small mute" style="margin-bottom:4px;">Reference screenshot (optional)</div>
-              <div class="ref-upload" id="refUploadZone">
-                <input type="file" accept="image/*" onchange="loadRefImage(this)"/>
-                <div id="refUploadLabel">Upload a reference design from the web ↑</div>
+              <div class="row" style="gap:4px;flex-wrap:wrap;margin-top:6px;">
+                <button class="btn btn-ghost btn-xs" onclick="downloadStudioPNG('story')" data-tip="Download story as high-res PNG">↓ PNG</button>
+                <button class="btn btn-ghost btn-xs" onclick="addStoryToQueue()" data-tip="Add to story queue">+ Queue</button>
               </div>
-              <div id="refPreviewWrap" style="display:none;margin-top:5px;" class="ref-preview">
-                <img id="refPreviewImg" src=""/>
-                <div class="row" style="padding:4px 0;">
-                  <span class="small mute flex1" id="refPreviewName"></span>
-                  <button class="btn btn-ghost btn-xs" onclick="clearRefImage()">✕ Remove</button>
+              <!-- Story controls -->
+              <div class="col" style="gap:6px;margin-top:6px;">
+                <div class="field">
+                  <label>Headline</label>
+                  <div class="row" style="gap:4px;">
+                    <input type="text" id="storyText" class="finput flex1" placeholder="Headline"/>
+                    <button class="btn btn-ghost btn-xs" onclick="generateHeadlineOptions()" id="btnGenHeadlines" data-tip="Generate 3 headline options">✦</button>
+                  </div>
+                  <div id="headlineOptions" class="col" style="gap:4px;display:none;margin-top:4px;"></div>
+                  <div id="btnGenSimilarWrap" style="display:none;margin-top:4px;">
+                    <button class="btn btn-ghost btn-xs" onclick="generateSimilarHeadlines()">↻ Generate Similar</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Sub-text</label>
+                  <input type="text" id="storySub" class="finput" placeholder="e.g. @kshetejsareenstudios"/>
+                </div>
+                <div class="field">
+                  <label>Style</label>
+                  <select id="storyStyle" class="finput">
+                    <option value="editorial">Editorial</option>
+                    <option value="countdown">Countdown / Save Date</option>
+                    <option value="bts">BTS Frame</option>
+                    <option value="quote">Quote Card</option>
+                    <option value="location">Location</option>
+                    <option value="fullbleed">Full Bleed</option>
+                  </select>
+                </div>
+                <!-- Story ref -->
+                <div class="field">
+                  <label style="font-size:9px;">Reference <span class="small mute" style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+                  <div id="storyRefUploadZone" class="ref-upload-compact">
+                    <input type="file" accept="image/*" onchange="loadStoryRefImage(this)"/>
+                    ↑ Upload style reference
+                  </div>
+                  <div id="storyRefPreview" style="display:none;margin-top:4px;" class="ref-preview-compact">
+                    <img id="storyRefImg" src=""/>
+                    <span class="small mute flex1" id="storyRefName"></span>
+                    <button class="btn btn-ghost btn-xs" onclick="clearStoryRef()">✕</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Caption</label>
+                  <textarea id="storyCaption" class="finput" rows="2" placeholder="Story caption…"></textarea>
+                  <button class="btn btn-ghost btn-xs" style="margin-top:3px;" onclick="generateStoryCaption()">✦ Write with AI</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="design-controls">
-            <div class="field">
-              <label>Post Size</label>
-              <select id="designSize" class="finput">
-                <option value="4:5">4:5 Portrait (1080×1350) ★</option>
-                <option value="1:1">1:1 Square (1080×1080)</option>
-                <option value="9:16">9:16 Story (1080×1920)</option>
-              </select>
-            </div>
+          <!-- ── RIGHT: Controls + Image picker ── -->
+          <div class="design-controls" id="studioControlsPanel">
+
+            <!-- Generate button — prominent -->
+            <button class="btn btn-primary" id="btnStudioGenerate" onclick="runStudioGenerate()" style="width:100%;padding:10px;" data-tip="Generate design using Claude vision — analyses composition, finds negative space, places type">✦ Generate</button>
 
             <div class="field">
-              <label>Style</label>
+              <label>Post Style</label>
               <div class="style-grid">
                 <div class="style-opt active" onclick="setStyle(this,'editorial')">Editorial</div>
                 <div class="style-opt" onclick="setStyle(this,'campaign')">Campaign</div>
@@ -721,23 +867,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
             </div>
 
             <div class="field">
-              <label>Font Pairing</label>
+              <label>Font</label>
               <div class="font-grid">
                 <div class="font-opt active" onclick="setFont(this,'fraunces-mono')" data-font="fraunces-mono">
-                  <div class="font-preview" style="font-family:Georgia,serif;font-style:italic;">Aa</div>
-                  <div>Fraunces + Mono</div>
+                  <div class="font-preview" style="font-family:Georgia,serif;font-style:italic;">Aa</div><div>Fraunces+Mono</div>
                 </div>
                 <div class="font-opt" onclick="setFont(this,'cormorant-light')" data-font="cormorant-light">
-                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:300;">Aa</div>
-                  <div>Cormorant Light</div>
+                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:300;">Aa</div><div>Cormorant</div>
                 </div>
                 <div class="font-opt" onclick="setFont(this,'playfair-sans')" data-font="playfair-sans">
-                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:700;">Aa</div>
-                  <div>Playfair + Sans</div>
+                  <div class="font-preview" style="font-family:Georgia,serif;font-weight:700;">Aa</div><div>Playfair+Sans</div>
                 </div>
                 <div class="font-opt" onclick="setFont(this,'mono-only')" data-font="mono-only">
-                  <div class="font-preview" style="font-family:monospace;font-size:11px;">Aa</div>
-                  <div>Mono Documentary</div>
+                  <div class="font-preview" style="font-family:monospace;font-size:11px;">Aa</div><div>Mono Doc</div>
                 </div>
               </div>
             </div>
@@ -755,7 +897,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
             <div class="field">
               <label>Text Position</label>
               <div class="pos-grid">
-                <div class="pos-opt active" onclick="setTextPos(this,'auto')">Auto AI</div>
+                <div class="pos-opt active" onclick="setTextPos(this,'auto')">Auto</div>
                 <div class="pos-opt" onclick="setTextPos(this,'top')">Top</div>
                 <div class="pos-opt" onclick="setTextPos(this,'bottom')">Bottom</div>
                 <div class="pos-opt" onclick="setTextPos(this,'left')">Left</div>
@@ -764,159 +906,48 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
             </div>
 
             <div class="field">
+              <label>Post Size</label>
+              <select id="designSize" class="finput">
+                <option value="4:5">4:5 Portrait ★</option>
+                <option value="1:1">1:1 Square</option>
+                <option value="9:16">9:16 Story</option>
+              </select>
+            </div>
+
+            <div class="field">
               <label>Text Overlay</label>
               <div class="overlay-row">
-                <input type="text" id="designText" class="finput flex1" placeholder="e.g. Where light meets luxury."/>
-                <button class="btn btn-purple btn-sm" onclick="suggestTextOverlay()" id="btnSuggestText">✦ Suggest</button>
+                <input type="text" id="designText" class="finput flex1" placeholder="e.g. Where light meets space."/>
+                <button class="btn btn-ghost btn-xs" onclick="suggestTextOverlay()" id="btnSuggestText">✦</button>
               </div>
               <div id="suggestPillsWrap" class="suggest-pills" style="display:none;"></div>
             </div>
 
             <div class="field">
-              <label>Sub-text / Location</label>
-              <input type="text" id="designSub" class="finput" placeholder="e.g. The Leela, Gurgaon"/>
+              <label>Sub-text</label>
+              <div class="row" style="gap:4px;">
+                <input type="text" id="designSub" class="finput flex1" placeholder="e.g. The Leela, Gurgaon"/>
+                <button class="btn btn-ghost btn-xs" onclick="suggestDesignSubtext()" data-tip="Auto-detect location from brief">✦</button>
+              </div>
             </div>
 
             <div class="field">
-              <label>Design Direction</label>
-              <textarea id="designPrompt" class="finput" rows="2" placeholder="e.g. Evening light, warm tones, focus on texture…"></textarea>
+              <label>Direction</label>
+              <textarea id="designPrompt" class="finput" rows="2" placeholder="Additional direction for Claude…"></textarea>
             </div>
 
             <div class="field">
               <label>Caption</label>
-              <textarea id="designCaption" class="finput" rows="3" placeholder="Generated with design…"></textarea>
+              <textarea id="designCaption" class="finput" rows="2" placeholder="Auto-generated with design…"></textarea>
             </div>
 
-            <div class="row" style="flex-wrap:wrap;gap:5px;">
-              <button class="btn btn-ghost btn-sm" onclick="exportDesignPNG()">↓ PNG</button>
-              <button class="btn btn-ghost btn-sm" onclick="generateVariants()" id="btnVariants">⊞ 3 Variants</button>
-            </div>
-            <div id="variantsStrip" class="variant-strip" style="display:none;"></div>
-          </div>
-        </div>
-      </div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;"/>
 
-      <!-- ═══ STORIES ═══ -->
-      <div class="tab-panel" id="tab-stories">
-        <div class="card">
-          <div class="card-title serif">Stories Studio</div>
-          <div class="card-sub">Design and post Instagram Stories — 9:16 format</div>
-          <!-- Claude Brief for stories — auto-pulls from global context -->
-          <div class="claude-brief-wrap">
-            <div class="claude-brief-label">✦ Claude Brief <span style="color:var(--mute);font-size:8px;font-style:italic;text-transform:none;letter-spacing:0;">auto-pulled from project brief above · edit to specialise</span></div>
-            <textarea id="storyBrief" class="claude-brief-input" rows="2" placeholder="Tell Claude what this story is about and what it should feel like…"></textarea>
-          </div>
-        </div>
-
-        <div class="stories-workspace">
-          <!-- LEFT: Story design canvas -->
-          <div class="col">
-            <!-- Active image indicator -->
-            <div id="storyActiveImgBar" style="display:none;" class="story-active-img-bar">
-              <img id="storyActiveThumb" style="width:32px;height:32px;object-fit:cover;border-radius:3px;flex-shrink:0;" src="" alt=""/>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="storyActiveName">No image</div>
-                <div style="font-size:9px;color:var(--mute);" id="storyActiveOrient"></div>
-              </div>
-              <button class="btn btn-ghost btn-xs" onclick="clearStoryImage()" data-tip="Clear selected story image">✕</button>
-            </div>
-
-            <div class="story-preview-wrap" id="storyPreviewWrap" style="height:340px;"
-              ondragover="onStoryCanvasDragOver(event)"
-              ondragleave="onStoryCanvasDragLeave(event)"
-              ondrop="onStoryCanvasDrop(event)">
-              <div id="storyPlaceholder" class="design-placeholder" style="display:flex;flex-direction:column;align-items:center;">
-                <div style="font-size:32px;margin-bottom:6px;">📱</div>
-                <div class="small mute" style="margin-bottom:4px;">Drag an image from the right</div>
-                <div class="small mute" style="opacity:.5;">or click one to select it</div>
-              </div>
-              <div id="storyOutput" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"></div>
-              <div class="loading-overlay" id="storyLoading" style="display:none;">
-                <div class="loading-spinner"></div>
-                <div class="small mute">Claude is designing your story…</div>
-              </div>
-              <div class="design-drop-hint">
-                <div class="design-drop-hint-icon">📱</div>
-                <div class="design-drop-hint-text">Drop to use as story background</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <button class="btn btn-primary btn-sm" onclick="runStoryDesign()" id="btnStoryGenerate" data-tip="Generate a designed story with Claude — uses the image, brief and style settings">Generate Story</button>
-              <button class="btn btn-ghost btn-sm" onclick="addStoryToQueue()" data-tip="Add to story queue">+ Queue</button>
-              <button class="btn btn-ghost btn-sm" onclick="downloadStory()" data-tip="Download as HTML">Download</button>
-            </div>
-
-            <div class="col" style="gap:8px;">
-              <div class="field">
-                <label>Story Style</label>
-                <select id="storyStyle" class="finput">
-                  <option value="editorial">Editorial — minimal, serif text</option>
-                  <option value="countdown">Countdown / Save the Date</option>
-                  <option value="bts">BTS / Behind the Frame</option>
-                  <option value="quote">Quote / Pull-out text</option>
-                  <option value="location">Location card</option>
-                  <option value="fullbleed">Full bleed — image only</option>
-                </select>
-              </div>
-
-              <!-- Headline options with Generate Similar -->
-              <div class="field">
-                <div class="row" style="margin-bottom:4px;">
-                  <label style="flex:1;">Headline Options</label>
-                  <button class="btn btn-purple btn-xs" onclick="generateHeadlineOptions()" id="btnGenHeadlines" data-tip="Generate 3 headline + subtext options based on your image and brief">✦ Suggest 3</button>
-                </div>
-                <div id="headlineOptions" class="col" style="gap:5px;display:none;"></div>
-                <div class="row" style="margin-top:5px;gap:5px;" id="headlineInputRow">
-                  <input type="text" id="storyText" class="finput flex1" placeholder="Headline (or click Suggest 3 above)"/>
-                </div>
-                <div id="btnGenSimilarWrap" style="display:none;margin-top:4px;">
-                  <button class="btn btn-ghost btn-xs" onclick="generateSimilarHeadlines()" data-tip="Generate 3 more options in the same style as your selected headline">↻ Generate Similar</button>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>Sub-text</label>
-                <input type="text" id="storySub" class="finput" placeholder="e.g. @kshetejsareenstudios"/>
-                <div id="storySubOptions" style="display:none;margin-top:4px;" class="col" style="gap:3px;"></div>
-              </div>
-
-              <!-- Reference screenshot -->
-              <div class="field">
-                <label>Reference Screenshot <span class="small mute" style="text-transform:none;letter-spacing:0;">(optional)</span></label>
-                <div id="storyRefUploadZone" class="ref-upload-compact">
-                  <input type="file" accept="image/*" onchange="loadStoryRefImage(this)"/>
-                  ↑ Upload a design reference to guide Claude's style
-                </div>
-                <div id="storyRefPreview" style="display:none;margin-top:4px;" class="ref-preview-compact">
-                  <img id="storyRefImg" src=""/>
-                  <span class="small mute flex1" id="storyRefName"></span>
-                  <button class="btn btn-ghost btn-xs" onclick="clearStoryRef()">✕</button>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>Caption</label>
-                <textarea id="storyCaption" class="finput" rows="2" placeholder="Add a caption or CTA…"></textarea>
-                <button class="btn btn-purple btn-xs" style="margin-top:4px;" onclick="generateStoryCaption()">✦ Write with AI</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT: Image picker -->
-          <div class="col">
-            <div class="serif" style="font-size:13px;margin-bottom:6px;">Select Image</div>
-            <div class="small mute" style="margin-bottom:8px;">Click to preview · Drag onto canvas to set as background</div>
-            <div class="img-picker-grid" id="storyImgPicker" style="max-height:420px;overflow-y:auto;"></div>
-            <div id="storyImgSelected" class="small gold" style="margin-top:5px;"></div>
-            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"/>
-            <div class="serif" style="font-size:12px;margin-bottom:6px;">Post Images Directly as Stories</div>
-            <div class="small mute" style="margin-bottom:6px;">Select multiple and add to story queue without designing</div>
-            <div class="row">
-              <button class="btn btn-ghost btn-sm" onclick="renderStoryImgPicker()">Refresh</button>
-              <button class="btn btn-primary btn-sm" onclick="addSelectedImagesToStoryQueue()">Add to Story Queue</button>
-            </div>
-            <div class="small mute" style="margin-top:5px;">Story queue: <span id="storyQueueCount" class="gold">0</span> stories</div>
+            <!-- Image picker for studio -->
+            <div class="sidebar-label">Select Image</div>
+            <div class="small mute" style="margin-bottom:5px;">Click = select · Drag = drop on canvas</div>
+            <div class="img-picker-grid" id="storyImgPicker" style="max-height:240px;overflow-y:auto;"></div>
+            <div id="storyImgSelected" class="small" style="color:var(--gold);margin-top:3px;"></div>
           </div>
         </div>
       </div>
@@ -1066,6 +1097,54 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
   </div>
 </div>
 
+<!-- DESIGN CHATBOT MODAL -->
+<div class="modal-overlay" id="designChatModal" style="display:none;" onclick="if(event.target===this)closeDesignChat()">
+  <div class="modal modal-lg" style="max-height:85vh;display:flex;flex-direction:column;">
+    <div class="modal-header">
+      <div class="modal-title">✦ Design Chat</div>
+      <span class="small mute" style="flex:1;">Tell Claude what to change on the generated design</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeDesignChat()">✕</button>
+    </div>
+    <div class="modal-body" style="flex:1;overflow-y:auto;">
+      <div id="designChatMessages" class="col" style="gap:8px;min-height:120px;"></div>
+    </div>
+    <div class="modal-footer" style="flex-direction:column;gap:6px;align-items:stretch;">
+      <div class="row" style="gap:6px;">
+        <input type="text" id="designChatInput" class="finput flex1"
+          placeholder="e.g. Move text to bottom, make it more minimal, add a location tag, darken background…"
+          onkeydown="if(event.key==='Enter')sendDesignChat()"/>
+        <button class="btn btn-primary" onclick="sendDesignChat()" id="btnSendDesignChat">Send</button>
+      </div>
+      <div class="row" style="gap:5px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Move text to bottom-left')">Move text ↙</button>
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Make it more minimal — remove decorative elements')">More minimal</button>
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Darken the overlay so text is more readable')">Darken overlay</button>
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Make the typography larger and bolder')">Bigger type</button>
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Add the studio handle @kshetejsareenstudios in small text')">Add handle</button>
+        <button class="btn btn-ghost btn-xs" onclick="quickDesignChat('Change to a completely different layout composition')">New layout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT QUESTIONS MODAL -->
+<div class="modal-overlay" id="contextQModal" style="display:none;" onclick="if(event.target===this)closeContextQModal()">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">✦ Context Questions</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeContextQModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="small mute" style="margin-bottom:10px;">Answer these so Claude writes better, more human captions for your work.</div>
+      <div class="col" id="contextQList" style="gap:8px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeContextQModal()">Skip</button>
+      <button class="btn btn-primary" onclick="saveContextAnswers()">Save Answers</button>
+    </div>
+  </div>
+</div>
+
 <!-- CAPTION EDITOR MODAL -->
 <div class="modal-overlay" id="captionModal" style="display:none;" onclick="if(event.target===this)closeCaptionModal()">
   <div class="modal modal-sm">
@@ -1147,21 +1226,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 
 <!-- DRIVE PICKER MODAL -->
 <div class="modal-overlay" id="driveModal" style="display:none;" onclick="if(event.target===this)closeDriveModal()">
-  <div class="modal">
+  <div class="modal modal-lg">
     <div class="modal-header">
       <div class="modal-title">Import from Google Drive</div>
       <button class="btn btn-ghost btn-sm" onclick="closeDriveModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="drive-hint">Folder must be <strong style="color:var(--gold)">Anyone with link → Viewer</strong>. Google API Key required (Settings).</div>
-      <div id="driveNoKeyWarning" style="display:none;background:rgba(200,74,42,.1);border:1px solid rgba(200,74,42,.3);border-radius:5px;padding:9px;font-size:11px;color:var(--red);">
+      <div class="drive-hint">Folders must be <strong style="color:var(--gold)">Anyone with link → Viewer</strong>. Google API Key required in Settings.</div>
+      <div id="driveNoKeyWarning" style="display:none;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:2px;padding:9px;font-size:11px;color:var(--red);">
         ⚠ No Google API Key — <a href="#" onclick="switchTab('settings');closeDriveModal()" style="color:var(--gold);">add in Settings →</a>
       </div>
+
+      <!-- MULTI-FOLDER LIST -->
+      <div class="col" id="driveFolderList" style="gap:5px;margin-bottom:8px;"></div>
       <div class="drive-url-row">
-        <div class="field"><label>Drive Folder URL</label><input type="text" id="driveUrl" class="finput" placeholder="https://drive.google.com/drive/folders/…" onkeydown="if(event.key==='Enter')loadDriveFolder()"/></div>
-        <button class="btn btn-primary" onclick="loadDriveFolder()" id="btnLoadDrive">Browse</button>
+        <div class="field flex1"><label>Add Folder URL</label>
+          <input type="text" id="driveUrl" class="finput" placeholder="https://drive.google.com/drive/folders/…" onkeydown="if(event.key==='Enter')addDriveFolder()"/>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="addDriveFolder()" id="btnAddFolder" data-tip="Add this folder to the pool">+ Add</button>
+        <button class="btn btn-primary" onclick="loadAllDriveFolders()" id="btnLoadDrive" data-tip="Browse all added folders">Browse All</button>
       </div>
-      <div class="row">
+
+      <div class="row" style="margin-top:6px;">
         <div id="driveStatus" class="small mute flex1"></div>
         <div id="driveLoadingSpinner" style="display:none;" class="spin spin-g"></div>
       </div>
@@ -1178,9 +1264,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
       <div class="drive-grid" id="driveGrid"></div>
     </div>
     <div class="modal-footer">
-      <div class="small mute" id="driveFooterNote">Select images to import.</div>
-      <div class="row">
+      <div class="small mute" id="driveFooterNote">Select images then import, or let Claude choose.</div>
+      <div class="row" style="gap:6px;">
         <button class="btn btn-ghost" onclick="closeDriveModal()">Cancel</button>
+        <button class="btn btn-purple" onclick="claudeChooseImages()" id="btnClaudeChoose" data-tip="Claude analyses all images and selects the best layout as a professional designer would">✦ Let Claude Choose</button>
         <button class="btn btn-primary" onclick="importFromDrive()" id="btnDriveImport" disabled>Import <span id="driveImportCount">0</span></button>
       </div>
     </div>
@@ -1211,6 +1298,24 @@ let storyImgSelected=[];
 window.addEventListener('DOMContentLoaded',()=>{
   loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus();
   renderHtagSets(); renderStoryImgPicker(); initGlobalContext();
+  initCanvasZoom();
+  // Load draft button in sidebar if draft exists
+  if(localStorage.getItem('kss_draft')){
+    const draftNote = document.createElement('button');
+    draftNote.className='btn btn-ghost btn-sm';
+    draftNote.style.cssText='width:100%;font-size:9px;color:var(--mute);margin-top:4px;';
+    draftNote.textContent='↩ Restore last draft';
+    draftNote.onclick=loadDraft;
+    document.querySelector('.sidebar-section')?.appendChild(draftNote);
+  }
+  // Render drive folder list
+  renderDriveFolderList();
+  // Fix story preview on tab switch
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.textContent.trim()==='Stories') setTimeout(fixStoryPreviewScale,100);
+    });
+  });
   const z=document.getElementById('fileInput').parentElement;
   z.addEventListener('dragover',e=>{e.preventDefault();z.style.borderColor='var(--gold)';});
   z.addEventListener('dragleave',()=>z.style.borderColor='');
@@ -1531,19 +1636,29 @@ function renderDesignOutput(containerId, htmlContent, imgDataUrl, imgSelector, w
   out.style.display='flex';out.innerHTML='';
   const wrap=out.parentElement;
   const availW=wrap.clientWidth-20;
-  const availH=Math.min(wrap.clientHeight||maxH, maxH)-10;
-  const scale=Math.min(availW/w, availH/h, 1);
+  const isStory=containerId==='storyOutput';
+  // For stories: always fit to container height
+  const useH=isStory?Math.min(wrap.clientHeight||maxH,maxH)-10:Math.min(wrap.clientHeight||maxH,maxH)-10;
+  const scale=Math.min(availW/w, useH/h, isStory?1.5:1);
   const scaledW=Math.round(w*scale);
   const scaledH=Math.round(h*scale);
   const outer=document.createElement('div');
-  outer.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:4px;flex-shrink:0;box-shadow:0 8px 32px rgba(0,0,0,.5);`;
+  outer.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:2px;flex-shrink:0;box-shadow:0 8px 32px rgba(0,0,0,.6);`;
   const inner=document.createElement('div');
   inner.style.cssText=`width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
   inner.innerHTML=htmlContent;
   outer.appendChild(inner);out.appendChild(outer);
-  // Inject actual image
+  // Inject actual image and apply transform if set
   const mainImg=inner.querySelector(imgSelector);
-  if(mainImg&&imgDataUrl)mainImg.src=imgDataUrl;
+  if(mainImg&&imgDataUrl){
+    mainImg.src=imgDataUrl;
+    // Apply any stored transform
+    const activeId=isStory?S_storyActiveImgId:S.designActiveImgId;
+    const imgObj=activeId?S.images.find(i=>i.id===activeId):null;
+    if(imgObj?.transform) mainImg.style.transform=getImgTransform(imgObj);
+  }
+  // Fix story scale after render
+  if(isStory) setTimeout(fixStoryPreviewScale,50);
   return inner;
 }
 
@@ -1758,27 +1873,51 @@ function renderListView(){
 async function generateAllCaptions(){
   if(!S.plan.length){toast('Generate a plan first');return;}
   const btn=document.getElementById('btnGenCaptions');
-  btn.innerHTML='<span class="spin"></span> Writing captions…';btn.disabled=true;
-  const voice=document.getElementById('planVoice').value;
+  btn.innerHTML='<span class="spin"></span> Writing…';btn.disabled=true;
   const globalCtx=getGlobalContext();
   const handle=S.settings.handle||'@kshetejsareenstudios';
   const hashtags=S.settings.hashtags||'#luxuryphotography';
   const capLenGuide=getCaptionLengthGuide();
+  const photographerCtx=getPhotographerContextForCaption();
+
+  // Brand research
+  let brandProfile='';
+  const brandMatch=globalCtx.match(/\b([A-Z][A-Za-z&]+(?:\s+[A-Z][A-Za-z&]+)?)\s+(?:brand|studio|client|campaign|shoot|project|launch)\b/i);
+  if(brandMatch){
+    btn.innerHTML='<span class="spin"></span> Researching brand…';
+    brandProfile=await researchBrandForCaptions(brandMatch[1]);
+  }
+
   let written=0;
   for(let i=0;i<S.plan.length;i++){
     const p=S.plan[i];
-    const img=imgByIdx(p.imageIndex);
+    const imgObj=imgByIdx(p.imageIndex);
+    const angle=getNextCaptionAngle();
     const slideImgs=p.slides?p.slides.map(idx=>{const si=imgByIdx(idx);return si?.name||'';}).join(', '):'';
+    btn.innerHTML=`<span class="spin"></span> ${written+1}/${S.plan.length} — ${angle.label}`;
+    const system=`You write Instagram captions for Kshetej Sareen Studios (${handle}).
+VOICE: Very raw and personal + punchy and minimal. Short sentences. Fragments fine.
+YOU ARE: A luxury commercial photographer, Delhi + Bangalore. Talk about YOUR work, YOUR craft, YOUR profession. Not the brand. Not the client. YOU made these images.
+NEVER: Generic luxury clichés. "Where luxury meets…" type phrases. Never.
+ALWAYS: First person. Direct. Specific. Real. ${capLenGuide}`;
+    const prompt=`Angle for this caption: ${angle.label} — ${angle.instruction}
+
+Post: ${p.type} | Theme: ${p.theme||'photography'}
+Cover image: ${imgObj?.name||'unknown'}
+${p.type==='carousel'?`All slides: ${slideImgs}`:''}
+Context: ${globalCtx||'none'}
+${brandProfile?`Brand you shot for: ${brandProfile}`:''}
+${photographerCtx}
+
+End with: ${hashtags}
+Do NOT start with "I". Do NOT make the brand the subject. Focus on the photographer's experience, eye, decision.`;
     try{
-      const cap=await claudeCall(
-        `You write Instagram captions for Kshetej Sareen Studios (${handle}) — luxury commercial photography. Photographer's POV. ${capLenGuide} Always end with studio credit.`,
-        `Write a caption for this ${p.type} post.\nTheme: ${p.theme||'luxury photography'}\nCover image: ${img?.name||'unknown'}\n${p.type==='carousel'?`All slides: ${slideImgs}`:''}\nContext: ${globalCtx||'None'}\nVoice: ${voice}\nEnd with: ${hashtags}`
-      );
-      S.plan[i].caption=cap.replace(/```/g,'').trim();
+      if(p.caption) pushUndo('capText'+i, p.caption);
+      const cap=await claudeCall(system,prompt);
+      S.plan[i].caption=cap.replace(/\`\`\`/g,'').trim();
       written++;
-      btn.innerHTML=`<span class="spin"></span> ${written}/${S.plan.length}…`;
     }catch(e){
-      S.plan[i].caption=`[Caption generation failed for post ${i+1}]`;
+      S.plan[i].caption='[Caption failed]';
       console.error(e);
     }
   }
@@ -2101,7 +2240,7 @@ function renderCaptionsTab(){
   note.textContent=`${total} posts · ${withCaptions} with captions`;
   if(!withCaptions){
     list.innerHTML=`<div style="background:rgba(138,90,191,.08);border:1px solid rgba(138,90,191,.2);border-radius:6px;padding:20px;text-align:center;">
-      <div style="font-size:14px;color:#b088e8;font-family:'Fraunces',serif;margin-bottom:6px;">No captions yet</div>
+      <div style="font-size:14px;color:var(--green2);font-family:'Fraunces',serif;margin-bottom:6px;">No captions yet</div>
       <div class="small mute" style="margin-bottom:14px;">Go back to Plan tab and click "✦ Generate Captions" after your layout is finalised</div>
       <button class="btn btn-purple" onclick="generateAllCaptions();switchTab('plan')">✦ Generate All Captions Now</button>
     </div>`;
@@ -2323,6 +2462,456 @@ function clearRefImage(){
 /* ── DESIGN STUDIO ── */
 function setStyle(el,style){document.querySelectorAll('.style-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');S.designStyle=style;}
 
+/* ══════════════════════════════════════════════
+   MULTI-FOLDER DRIVE SUPPORT
+══════════════════════════════════════════════ */
+let driveFolders = JSON.parse(localStorage.getItem('kss_drive_folders')||'[]');
+
+function renderDriveFolderList(){
+  const el = document.getElementById('driveFolderList');
+  if(!el) return;
+  if(!driveFolders.length){el.innerHTML='<div class="small mute">No folders added yet</div>';return;}
+  el.innerHTML = driveFolders.map((f,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:5px 9px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+      <span class="small flex1" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.name||f.url.substring(0,40)+'…'}</span>
+      <button class="btn btn-ghost btn-xs" onclick="removeDriveFolder(${i})" data-tip="Remove this folder">✕</button>
+    </div>`).join('');
+}
+
+function addDriveFolder(){
+  const url = document.getElementById('driveUrl').value.trim();
+  if(!url){toast('Paste a Google Drive folder URL');return;}
+  const id = extractFolderId(url);
+  if(!id){toast('⚠ Invalid Drive folder URL');return;}
+  if(driveFolders.find(f=>f.url===url)){toast('Folder already added');return;}
+  driveFolders.push({url, id, name:''});
+  localStorage.setItem('kss_drive_folders', JSON.stringify(driveFolders));
+  document.getElementById('driveUrl').value='';
+  renderDriveFolderList();
+  toast('Folder added — click Browse All to load images ✓');
+}
+
+function removeDriveFolder(i){
+  driveFolders.splice(i,1);
+  localStorage.setItem('kss_drive_folders', JSON.stringify(driveFolders));
+  renderDriveFolderList();
+}
+
+async function loadAllDriveFolders(){
+  const key = S.settings.googleApiKey;
+  if(!key){setDriveStatus('⚠ Add Google API Key in Settings');return;}
+  if(!driveFolders.length){
+    // Fall back to single URL field
+    const url = document.getElementById('driveUrl').value.trim();
+    if(url) addDriveFolder();
+    if(!driveFolders.length){toast('Add at least one folder URL');return;}
+  }
+  const btn = document.getElementById('btnLoadDrive');
+  btn.innerHTML='<span class="spin"></span>'; btn.disabled=true;
+  DS.files=[]; DS.selected=[];
+  document.getElementById('driveGrid').innerHTML='';
+  document.getElementById('driveCountBar').style.display='none';
+  for(let f of driveFolders){
+    setDriveStatus(`Scanning folder ${driveFolders.indexOf(f)+1}/${driveFolders.length}…`);
+    try{
+      const meta = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?fields=name&key=${key}`);
+      const md = await meta.json();
+      f.name = md.name||f.id;
+      await fetchDriveFilesRec(f.id, key, null);
+    }catch(e){ console.error('Folder error:', e); }
+  }
+  localStorage.setItem('kss_drive_folders', JSON.stringify(driveFolders));
+  renderDriveFolderList();
+  if(!DS.files.length){
+    document.getElementById('driveGrid').innerHTML='<div style="text-align:center;padding:30px;color:var(--mute);">No images found. Check folder sharing.</div>';
+  } else {
+    renderDriveGrid();
+    document.getElementById('driveCountBar').style.display='flex';
+    document.getElementById('driveFileCount').textContent=`${DS.files.length} images across ${driveFolders.length} folder${driveFolders.length>1?'s':''}`;
+  }
+  setDriveStatus('');
+  btn.innerHTML='Browse All'; btn.disabled=false;
+}
+
+async function claudeChooseImages(){
+  if(!DS.files.length){toast('Browse folders first to load images');return;}
+  const btn = document.getElementById('btnClaudeChoose');
+  btn.innerHTML='<span class="spin"></span> Analysing…'; btn.disabled=true;
+  const count = getPostCount();
+  const imgList = DS.files.slice(0,60).map((f,i)=>`${i+1}. ${f.name}`).join('\n');
+  try{
+    const raw = await claudeCall(
+      `You are a professional editorial photo editor and Instagram creative director. Analyse image filenames and select the best combination for a cohesive Instagram feed.`,
+      `I have ${DS.files.length} images available. I need ${count} posts. Select the best ${Math.min(count*3, DS.files.length)} images for a cohesive editorial Instagram feed, grouping similar shots into carousels.\n\nImages:\n${imgList}\n\nReturn ONLY a JSON array of 1-based image numbers in the order you'd arrange them:\n[1,5,3,8,…]`
+    );
+    const selected = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    DS.selected = selected.map(n=>DS.files[n-1]?.id).filter(Boolean);
+    updateDriveSelCount();
+    renderDriveGrid();
+    toast(`Claude selected ${DS.selected.length} images ✓`);
+  }catch(e){ toast('Error: '+e.message); }
+  btn.innerHTML='✦ Let Claude Choose'; btn.disabled=false;
+}
+
+/* ══════════════════════════════════════════════
+   DRAFT PERSISTENCE
+══════════════════════════════════════════════ */
+function saveDraft(){
+  const draft = {
+    plan: S.plan,
+    images: S.images.map(img=>({...img, dataUrl: img.dataUrl.substring(0,100)+'…'})), // truncate for storage
+    globalContext: getGlobalContext(),
+    postW: S.postW, postH: S.postH, designSize: S.designSize,
+    savedAt: new Date().toISOString()
+  };
+  // Store full draft with images
+  const fullDraft = { plan: S.plan, globalContext: getGlobalContext(), savedAt: draft.savedAt };
+  localStorage.setItem('kss_draft', JSON.stringify(fullDraft));
+  toast(`Draft saved ✓ — ${S.plan.length} posts, ${new Date().toLocaleTimeString()}`);
+  const indicator = document.getElementById('contextBarIndicator');
+  if(indicator){ indicator.textContent='💾 draft saved'; indicator.style.color='var(--green)';
+    setTimeout(()=>{indicator.textContent='✓ synced'; indicator.style.color='var(--green)';},2000); }
+}
+
+function loadDraft(){
+  const raw = localStorage.getItem('kss_draft');
+  if(!raw){ toast('No saved draft found'); return; }
+  const draft = JSON.parse(raw);
+  if(draft.plan) S.plan = draft.plan;
+  if(draft.globalContext){
+    S.globalContextValue = draft.globalContext;
+    const bar = document.getElementById('globalContextBar');
+    if(bar) bar.value = draft.globalContext;
+  }
+  renderPlan(); renderCaptionsTab(); renderUnassignedPanel();
+  const banner = document.getElementById('captionBanner');
+  if(banner && S.plan.some(p=>!p.caption)) banner.style.display='flex';
+  toast(`Draft restored — ${S.plan.length} posts from ${new Date(draft.savedAt).toLocaleString()} ✓`);
+}
+
+/* ══════════════════════════════════════════════
+   CONTEXT Q&A — photographer questions
+══════════════════════════════════════════════ */
+const CONTEXT_QUESTIONS = [
+  {id:'shoot_location', label:'Where was this shoot?', placeholder:'e.g. The Leela Gurgaon, lobby and restaurant'},
+  {id:'shoot_subject', label:'Who or what was the primary subject?', placeholder:'e.g. Two founders of a furniture brand, Somya and Ravish'},
+  {id:'shoot_mood', label:'What was the mood on set?', placeholder:'e.g. Quiet, intentional. Long pauses between frames.'},
+  {id:'shoot_challenge', label:'What was the hardest thing about this shoot?', placeholder:'e.g. The light changed dramatically every 20 minutes'},
+  {id:'shoot_moment', label:'One moment that stood out from this shoot?', placeholder:'e.g. When Somya laughed at something Ravish said and I caught it mid-burst'},
+  {id:'shoot_client', label:'Who was the client and what did they want?', placeholder:'e.g. RAVOH — a luxury furniture brand launching in Delhi'},
+  {id:'shoot_why', label:'Why does this work matter to you personally?', placeholder:'e.g. I spent three years learning to see light. These frames are the proof.'},
+];
+let S_contextAnswers = JSON.parse(localStorage.getItem('kss_context_answers')||'{}');
+
+function openContextQModal(){
+  document.getElementById('contextQList').innerHTML = CONTEXT_QUESTIONS.map(q=>`
+    <div class="field">
+      <label>${q.label}</label>
+      <input type="text" class="finput" id="cq_${q.id}"
+        value="${S_contextAnswers[q.id]||''}"
+        placeholder="${q.placeholder}"/>
+    </div>`).join('');
+  document.getElementById('contextQModal').style.display='flex';
+}
+function closeContextQModal(){ document.getElementById('contextQModal').style.display='none'; }
+function saveContextAnswers(){
+  CONTEXT_QUESTIONS.forEach(q=>{
+    const val = document.getElementById('cq_'+q.id)?.value.trim();
+    if(val) S_contextAnswers[q.id] = val;
+  });
+  localStorage.setItem('kss_context_answers', JSON.stringify(S_contextAnswers));
+  // Build context string and push to global bar
+  const ctx = Object.entries(S_contextAnswers).map(([k,v])=>{
+    const q = CONTEXT_QUESTIONS.find(q=>q.id===k);
+    return `${q?.label||k}: ${v}`;
+  }).join(' | ');
+  syncGlobalContext(ctx);
+  closeContextQModal();
+  toast('Context saved ✓ — Claude will use this for all captions');
+}
+
+function getPhotographerContextForCaption(){
+  if(!Object.keys(S_contextAnswers).length) return '';
+  return '\n\nPHOTOGRAPHER CONTEXT (use this to make captions feel real and human):\n' +
+    Object.entries(S_contextAnswers).map(([k,v])=>{
+      const q = CONTEXT_QUESTIONS.find(q=>q.id===k);
+      return `- ${q?.label||k}: ${v}`;
+    }).join('\n');
+}
+
+/* ══════════════════════════════════════════════
+   DESIGN CHATBOT
+══════════════════════════════════════════════ */
+let S_designChatHistory = [];
+let S_currentDesignHtml = '';
+
+function openDesignChat(){
+  const out = document.getElementById('designOutput');
+  if(!out?.innerHTML){ toast('Generate a design first'); return; }
+  S_currentDesignHtml = out.innerHTML;
+  document.getElementById('designChatModal').style.display='flex';
+  if(!S_designChatHistory.length){
+    addDesignChatMsg('system', 'Design loaded. Tell me what to change — text placement, typography, colours, layout…');
+  }
+}
+function closeDesignChat(){ document.getElementById('designChatModal').style.display='none'; }
+
+function addDesignChatMsg(role, text){
+  S_designChatHistory.push({role, text});
+  const el = document.getElementById('designChatMessages');
+  el.innerHTML = S_designChatHistory.map(m=>`
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="font-size:9px;color:var(--mute);white-space:nowrap;padding-top:2px;min-width:40px;">
+        ${m.role==='system'?'claude':m.role==='user'?'you':'claude'}
+      </div>
+      <div style="font-size:11px;line-height:1.6;flex:1;">${m.text}</div>
+    </div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function quickDesignChat(msg){
+  document.getElementById('designChatInput').value = msg;
+  sendDesignChat();
+}
+
+async function sendDesignChat(){
+  const input = document.getElementById('designChatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value='';
+  addDesignChatMsg('user', msg);
+  const btn = document.getElementById('btnSendDesignChat');
+  btn.innerHTML='<span class="spin"></span>'; btn.disabled=true;
+
+  const img = S.designActiveImgId ? S.images.find(i=>i.id===S.designActiveImgId) : getSelImgs()[0];
+  const handle = S.settings.handle||'@kshetejsareenstudios';
+  const history = S_designChatHistory.filter(m=>m.role!=='system').map(m=>`${m.role}: ${m.text}`).join('\n');
+
+  try{
+    const newHtml = await claudeCall(
+      `You are an elite graphic designer iterating on an Instagram post design. You receive the current HTML design and a change request. Return ONLY the updated complete HTML div — no explanation, no markdown fences.`,
+      `Current design HTML:\n${S_currentDesignHtml}\n\nConversation so far:\n${history}\n\nLatest change request: "${msg}"\n\nReturn the updated complete HTML div with this change applied. Keep all existing elements unless specifically asked to remove them. Use id="kss-main" for the image. Handle: ${handle}`
+    );
+    // Update design output
+    const out = document.getElementById('designOutput');
+    const cleanHtml = newHtml.replace(/```html|```/g,'').trim();
+    S_currentDesignHtml = cleanHtml;
+    renderDesignOutput('designOutput', cleanHtml, img?.dataUrl||'', '#kss-main',
+      S.postW, S.postH, 520);
+    out.style.display='flex';
+    document.getElementById('designPlaceholder').style.display='none';
+    addDesignChatMsg('claude', 'Updated ✓');
+  }catch(e){
+    addDesignChatMsg('claude', `Error: ${e.message}`);
+  }
+  btn.innerHTML='Send'; btn.disabled=false;
+}
+
+/* ══════════════════════════════════════════════
+   ZOOM ON SCROLL — design and stories canvas
+══════════════════════════════════════════════ */
+let S_designZoom = 1;
+let S_storyZoom = 1;
+
+function initCanvasZoom(){
+  const designWrap = document.getElementById('designCanvasWrap');
+  const storyWrap = document.getElementById('storyPreviewWrap');
+
+  if(designWrap) designWrap.addEventListener('wheel', e=>{
+    e.preventDefault();
+    S_designZoom = Math.max(0.3, Math.min(3, S_designZoom + (e.deltaY < 0 ? 0.1 : -0.1)));
+    const out = document.getElementById('designOutput');
+    if(out) out.style.transform=`scale(${S_designZoom})`;
+    document.getElementById('designPlaceholder').style.transform=`scale(${S_designZoom})`;
+  }, {passive:false});
+
+  if(storyWrap) storyWrap.addEventListener('wheel', e=>{
+    e.preventDefault();
+    S_storyZoom = Math.max(0.2, Math.min(3, S_storyZoom + (e.deltaY < 0 ? 0.1 : -0.1)));
+    const out = document.getElementById('storyOutput');
+    if(out) out.style.transform=`scale(${S_storyZoom})`;
+  }, {passive:false});
+}
+
+/* ══════════════════════════════════════════════
+   TRANSFORM PREVIEW FIX
+══════════════════════════════════════════════ */
+function applyTransformToImage(imgId, updater){
+  const img = S.images.find(i=>i.id===imgId);
+  if(!img) return;
+  if(!img.transform) img.transform={flipH:false,flipV:false,rotation:0};
+  updater(img.transform);
+  // Apply transform visually to ALL rendered instances of this image
+  document.querySelectorAll(`img[data-img-id="${imgId}"]`).forEach(el=>{
+    el.style.transform = getImgTransform(img);
+  });
+  // Also update design canvas preview if this is the active design image
+  if(imgId === S.designActiveImgId){
+    const thumb = document.getElementById('designActiveThumb');
+    if(thumb) thumb.style.transform = getImgTransform(img);
+    const kssMain = document.getElementById('designOutput')?.querySelector('#kss-main');
+    if(kssMain) kssMain.style.transform = getImgTransform(img);
+  }
+  // Update story canvas if active
+  if(imgId === S_storyActiveImgId){
+    const thumb = document.getElementById('storyActiveThumb');
+    if(thumb) thumb.style.transform = getImgTransform(img);
+    const kssStory = document.getElementById('storyOutput')?.querySelector('#kss-story');
+    if(kssStory) kssStory.style.transform = getImgTransform(img);
+  }
+  renderImageGrid(); renderPlan(); renderStoryImgPicker();
+}
+
+/* ══════════════════════════════════════════════
+   NAMED DOWNLOAD — Design-Post-BrandName-01
+══════════════════════════════════════════════ */
+let S_designSaveCount = parseInt(localStorage.getItem('kss_design_save_count')||'0');
+let S_storySaveCount = parseInt(localStorage.getItem('kss_story_save_count')||'0');
+
+function getDesignName(type){
+  const brand = (getGlobalContext().match(/brand[:\s]+([A-Z][A-Za-z]+)/)||[])[1]
+    || S.settings.handle?.replace('@','') || 'KSS';
+  const clean = brand.replace(/[^a-zA-Z0-9]/g,'');
+  if(type==='story'){
+    S_storySaveCount++;
+    localStorage.setItem('kss_story_save_count', S_storySaveCount);
+    return `Design-Story-${clean}-${String(S_storySaveCount).padStart(2,'0')}`;
+  }
+  S_designSaveCount++;
+  localStorage.setItem('kss_design_save_count', S_designSaveCount);
+  return `Design-Post-${clean}-${String(S_designSaveCount).padStart(2,'0')}`;
+}
+
+function downloadDesignNamed(){
+  const out = document.getElementById('designOutput');
+  if(!out?.innerHTML){ toast('Generate a design first'); return; }
+  const name = getDesignName('post');
+  const blob = new Blob([out.innerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name+'.html';
+  a.click();
+  toast(`Saved as ${name}.html ✓`);
+}
+
+/* ══════════════════════════════════════════════
+   UNDO STACK FOR AI SUGGESTIONS
+══════════════════════════════════════════════ */
+const S_undoStack = {};
+function pushUndo(fieldId, value){
+  if(!S_undoStack[fieldId]) S_undoStack[fieldId]=[];
+  S_undoStack[fieldId].push(value);
+  if(S_undoStack[fieldId].length>10) S_undoStack[fieldId].shift();
+}
+function undoField(fieldId){
+  const stack = S_undoStack[fieldId];
+  if(!stack?.length){ toast('Nothing to undo'); return; }
+  const prev = stack.pop();
+  const el = document.getElementById(fieldId);
+  if(el){ el.value=prev; toast('Undone ✓'); }
+}
+
+/* ══════════════════════════════════════════════
+   STORY PREVIEW FIX — correct scale
+══════════════════════════════════════════════ */
+function fixStoryPreviewScale(){
+  const wrap = document.getElementById('storyPreviewWrap');
+  const out = document.getElementById('storyOutput');
+  if(!wrap||!out||!out.innerHTML) return;
+  const wrapH = wrap.offsetHeight;
+  const wrapW = wrap.offsetWidth;
+  // Story is 1080×1920 — scale to fit wrap height
+  const scale = Math.min(wrapH/1920, wrapW/1080) * 0.9;
+  out.style.transform = `scale(${scale})`;
+  out.style.transformOrigin = 'top center';
+  S_storyZoom = scale;
+}
+
+/* ══════════════════════════════════════════════
+   BRAND RESEARCH FOR CAPTIONS
+══════════════════════════════════════════════ */
+async function researchBrandForCaptions(brandName){
+  try{
+    const result = await claudeCall(
+      `You are a brand researcher. Search your knowledge for the brand and return a concise profile.`,
+      `Brand: "${brandName}"\nProvide a brief profile: founders, positioning, aesthetic, values, target audience, what makes them distinctive. Max 120 words. If unknown, say so briefly.`
+    );
+    return result.trim();
+  }catch(e){ return ''; }
+}
+
+/* ══════════════════════════════════════════════
+   HUMAN CAPTION SYSTEM
+   Voice: Very raw + personal, punchy + minimal
+   Rotates: craft / emotion / business / photographer life
+══════════════════════════════════════════════ */
+const CAPTION_ANGLES = [
+  {
+    id:'craft',
+    label:'The Craft',
+    instruction:`Write about the technical or artistic decision behind this frame. What did you see, what did you choose, what did you have to unlearn to get this shot. Raw, specific. Not poetic for the sake of it.`
+  },
+  {
+    id:'emotion',
+    label:'The Feeling',
+    instruction:`Write about what it actually felt like on set. The energy in the room, a small human moment, something that happened between frames. Not the photo — the experience of making it.`
+  },
+  {
+    id:'business',
+    label:'The Work',
+    instruction:`Write about the reality of running a photography studio — a decision that had to be made, a client dynamic, something about the commercial side of art. Honest and direct.`
+  },
+  {
+    id:'life',
+    label:'The Life',
+    instruction:`Write about what it means to be a photographer — the freedom, the isolation, the discipline, the privilege of being let into spaces and moments most people never see. Personal, not aspirational.`
+  },
+];
+let S_captionAngleIndex = 0;
+
+function getNextCaptionAngle(){
+  const angle = CAPTION_ANGLES[S_captionAngleIndex % CAPTION_ANGLES.length];
+  S_captionAngleIndex++;
+  return angle;
+}
+
+/* ══════════════════════════════════════════════
+   AI SUBTEXT WITH LOCATION PICKUP
+══════════════════════════════════════════════ */
+async function suggestDesignSubtext(){
+  const context = getGlobalContext();
+  const activeImg = S.designActiveImgId ? S.images.find(i=>i.id===S.designActiveImgId) : getSelImgs()[0];
+  const handle = S.settings.handle||'@kshetejsareenstudios';
+  // Try to extract location from context
+  const locationMatch = context.match(/\b(The Leela|JW Marriott|Taj |Six Senses|Jumeirah|RAVOH|Boil|Chandigarh|Delhi|Bangalore|Gurgaon|Mumbai|[A-Z][a-z]+\s+(?:Hotel|Resort|Studio|Gallery|Café|Bar|Restaurant))\b/i);
+  const location = locationMatch?.[0]||'';
+  try{
+    const s = await claudeCall(
+      `You suggest sub-text for Instagram post graphics for a luxury commercial photography studio. Short, specific, location-aware. 2-6 words max.`,
+      `Context: ${context||'luxury photography'}\nImage: ${activeImg?.name||'unknown'}\nLocation detected: ${location||'none'}\n\nSuggest 3 subtext options — could be location, project name, date, studio credit. Return 3 options, one per line, no numbering.`
+    );
+    const lines = s.trim().split('\n').filter(l=>l.trim()).slice(0,3);
+    const wrap = document.getElementById('suggestPillsWrap');
+    if(wrap){
+      wrap.style.display='flex';
+      wrap.innerHTML = lines.map(l=>`<button class="suggest-pill" onclick="pickSuggestPill(this,'${l.replace(/'/g,"\\'")}')">${l}</button>`).join('');
+    }
+    // Also pre-fill if location found
+    if(location && !document.getElementById('designSub')?.value){
+      document.getElementById('designSub').value = location;
+    }
+    toast('Subtext options ready ↓');
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   RESHUFFLE FIX — non-cover images of locked posts
+   can become covers of unlocked posts
+══════════════════════════════════════════════ */
+// The updated reshuffleGrid already handles this correctly
+// locked covers = only the imageIndex of locked posts, NOT their slides
+
 /* ── GLOBAL CONTEXT SYNC ── */
 function syncGlobalContext(val){
   S.globalContextValue = val;
@@ -2510,6 +3099,279 @@ function selectHeadlineOption(i, headline, subtext){
 }
 
 function escQ(s){ return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+
+/* ══════════════════════════════════════════════
+   STUDIO MODE — post / story / both
+══════════════════════════════════════════════ */
+let S_studioMode = 'post';
+let S_postLocked = false;
+let S_storyLocked = false;
+let S_lastPostHtml = '';
+let S_lastStoryHtml = '';
+let S_lastPostImgId = null;
+
+function setStudioMode(mode){
+  S_studioMode = mode;
+  ['post','story','both'].forEach(m=>{
+    document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1))?.classList.toggle('active',m===mode);
+  });
+  const canvases = document.getElementById('studioCanvases');
+  const postCol = document.getElementById('postCanvasCol');
+  const storyCol = document.getElementById('storyCanvasCol');
+  if(mode==='post'){
+    canvases.classList.remove('both-mode');
+    postCol.style.display='flex'; storyCol.style.display='none';
+  } else if(mode==='story'){
+    canvases.classList.remove('both-mode');
+    postCol.style.display='none'; storyCol.style.display='flex';
+  } else {
+    canvases.classList.add('both-mode');
+    postCol.style.display='flex'; storyCol.style.display='flex';
+  }
+}
+
+async function runStudioGenerate(){
+  const mode = S_studioMode;
+  const btn = document.getElementById('btnStudioGenerate');
+  btn.innerHTML='<span class="spin"></span> Generating…'; btn.disabled=true;
+
+  try{
+    if(mode==='post'||(mode==='both'&&!S_postLocked)){
+      await runDesign();
+    }
+    if(mode==='story'||(mode==='both'&&!S_storyLocked)){
+      await runStoryDesign();
+    }
+  }finally{
+    btn.innerHTML='✦ Generate'; btn.disabled=false;
+  }
+}
+
+function lockStudioOutput(type){
+  if(type==='post'){
+    S_postLocked=!S_postLocked;
+    const btn=document.getElementById('btnLockPost');
+    const col=document.getElementById('postCanvasCol');
+    btn.textContent=S_postLocked?'🔒 Locked':'🔓 Lock';
+    btn.style.color=S_postLocked?'var(--green)':'';
+    col.classList.toggle('locked-canvas',S_postLocked);
+    toast(S_postLocked?'Post design locked ✓':'Post design unlocked');
+  } else {
+    S_storyLocked=!S_storyLocked;
+    const btn=document.getElementById('btnLockStory');
+    const col=document.getElementById('storyCanvasCol');
+    btn.textContent=S_storyLocked?'🔒 Locked':'🔓 Lock';
+    btn.style.color=S_storyLocked?'var(--green)':'';
+    col.classList.toggle('locked-canvas',S_storyLocked);
+    toast(S_storyLocked?'Story design locked ✓':'Story design unlocked');
+  }
+}
+
+async function rerunStudioOutput(type){
+  if(type==='post'&&S_postLocked){toast('Post is locked — unlock first');return;}
+  if(type==='story'&&S_storyLocked){toast('Story is locked — unlock first');return;}
+  const prevMode=S_studioMode;
+  S_studioMode=type;
+  if(type==='post') await runDesign();
+  else await runStoryDesign();
+  S_studioMode=prevMode;
+}
+
+/* Copy style across post ↔ story */
+async function copyStyleToStory(){
+  const postOut=document.getElementById('designOutput');
+  if(!postOut?.innerHTML){toast('Generate a post design first');return;}
+  const img=S_storyActiveImgId?S.images.find(i=>i.id===S_storyActiveImgId):
+    (S.designActiveImgId?S.images.find(i=>i.id===S.designActiveImgId):getSelImgs()[0]);
+  if(!img){toast('Select an image for the story canvas first');return;}
+
+  const handle=S.settings.handle||'@kshetejsareenstudios';
+  const hashtags=S.settings.hashtags||'#luxuryphotography';
+  const brief=document.getElementById('designBrief')?.value||getGlobalContext();
+
+  // Extract style cues from existing post HTML
+  const styleCues=`Adapt this post design's style to a 9:16 story format. Match its: colour palette, typography choices, overlay placement strategy, tone and restraint level. Do NOT copy layout literally — rethink for vertical 9:16 but keep visual DNA consistent.`;
+
+  document.getElementById('storyLoading').style.display='flex';
+  document.getElementById('storyOutput').style.display='none';
+  document.getElementById('storyPlaceholder').style.display='none';
+  setStudioMode('both');
+
+  try{
+    const prompt=`Design a 1080×1920px Instagram Story graphic.
+${styleCues}
+Brief: ${brief}
+Headline: "${document.getElementById('storyText')?.value||handle}"
+Sub-text: "${document.getElementById('storySub')?.value||''}"
+Handle: ${handle}
+Analyse the photograph for negative space. Never cover face. 
+Image: <img id="kss-story" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+Return:\nHTML:\n<div...>\nCAPTION:\n<caption ending with ${hashtags}>`;
+    const raw=await claudeVisionDesign(img.dataUrl,prompt,3500);
+    const {html,caption}=parseDesignResponse(raw);
+    S_lastStoryHtml=html;
+    renderDesignOutput('storyOutput',html,img.dataUrl,'#kss-story',1080,1920,400);
+    if(caption)document.getElementById('storyCaption').value=caption;
+    toast('Post style applied to story ✓');
+  }catch(e){toast('Error: '+e.message);}
+  document.getElementById('storyLoading').style.display='none';
+}
+
+async function copyStyleToPost(){
+  const storyOut=document.getElementById('storyOutput');
+  if(!storyOut?.innerHTML){toast('Generate a story design first');return;}
+  const img=S.designActiveImgId?S.images.find(i=>i.id===S.designActiveImgId):
+    (S_storyActiveImgId?S.images.find(i=>i.id===S_storyActiveImgId):getSelImgs()[0]);
+  if(!img){toast('Select an image for the post canvas first');return;}
+
+  const handle=S.settings.handle||'@kshetejsareenstudios';
+  const hashtags=S.settings.hashtags||'#luxuryphotography';
+  const brief=document.getElementById('designBrief')?.value||getGlobalContext();
+  const sizeVal=document.getElementById('designSize')?.value||'4:5';
+  const dims={'4:5':{w:1080,h:1350},'1:1':{w:1080,h:1080},'9:16':{w:1080,h:1920}};
+  const {w,h}=dims[sizeVal]||dims['4:5'];
+
+  const styleCues=`Adapt this story design's style to a ${w}×${h}px post format. Match its: colour palette, typography, overlay approach, visual restraint. Rethink layout for the post dimensions — don't just crop the story.`;
+
+  document.getElementById('designLoading').style.display='flex';
+  document.getElementById('designOutput').style.display='none';
+  document.getElementById('designPlaceholder').style.display='none';
+  setStudioMode('both');
+
+  try{
+    const prompt=`Design a ${w}×${h}px Instagram post.
+${styleCues}
+Brief: ${brief}
+Text: "${document.getElementById('designText')?.value||handle}"
+Sub: "${document.getElementById('designSub')?.value||''}"
+Handle: ${handle}
+Analyse negative space. Never cover face. Image: <img id="kss-main" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+Return:\nHTML:\n<div...>\nCAPTION:\n<caption ending with ${hashtags}>`;
+    const raw=await claudeVisionDesign(img.dataUrl,prompt,3500);
+    const {html,caption}=parseDesignResponse(raw);
+    S_lastPostHtml=html;
+    renderDesignOutput('designOutput',html,img.dataUrl,'#kss-main',w,h,520);
+    document.getElementById('designOutput').style.display='flex';
+    document.getElementById('designPlaceholder').style.display='none';
+    if(caption)document.getElementById('designCaption').value=caption;
+    toast('Story style applied to post ✓');
+  }catch(e){toast('Error: '+e.message);}
+  document.getElementById('designLoading').style.display='none';
+}
+
+function swapPostStory(){
+  const postOut=document.getElementById('designOutput');
+  const storyOut=document.getElementById('storyOutput');
+  const postHtml=postOut?.innerHTML||'';
+  const storyHtml=storyOut?.innerHTML||'';
+  if(!postHtml&&!storyHtml){toast('Generate at least one design first');return;}
+  // Swap innerHTML
+  if(postOut) postOut.innerHTML=storyHtml;
+  if(storyOut) storyOut.innerHTML=postHtml;
+  // Swap visibility
+  if(postHtml){storyOut.style.display='flex'; document.getElementById('storyPlaceholder').style.display='none';}
+  if(storyHtml){postOut.style.display='flex'; document.getElementById('designPlaceholder').style.display='none';}
+  setStudioMode('both');
+  toast('Post ↔ Story swapped ✓');
+}
+
+/* ══════════════════════════════════════════════
+   HIGH-RES PNG DOWNLOAD
+   Uses html2canvas at 3x scale for retina quality
+══════════════════════════════════════════════ */
+async function downloadStudioPNG(type){
+  const containerId = type==='story'?'storyOutput':'designOutput';
+  const out = document.getElementById(containerId);
+  if(!out?.innerHTML){toast(`Generate a ${type} design first`);return;}
+
+  // Find the scaled inner div that holds the actual design HTML
+  const scaledInner = out.querySelector('div > div');
+  if(!scaledInner){toast('No design to export');return;}
+
+  toast('Preparing high-res PNG…');
+
+  // Load html2canvas
+  if(!window.html2canvas){
+    await new Promise((resolve,reject)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=resolve; s.onerror=()=>reject(new Error('html2canvas load failed'));
+      document.head.appendChild(s);
+    });
+  }
+
+  // Get the true design dimensions from the inner div's width/height
+  // (it's set to e.g. width:1080px; height:1350px before scaling)
+  const styleStr = scaledInner.style.cssText;
+  const wMatch = styleStr.match(/width:(\d+)px/);
+  const hMatch = styleStr.match(/height:(\d+)px/);
+  const designW = wMatch ? parseInt(wMatch[1]) : (type==='story'?1080:1080);
+  const designH = hMatch ? parseInt(hMatch[1]) : (type==='story'?1920:1350);
+
+  // Clone the inner div (the full-res design HTML) into an off-screen container
+  const clone = scaledInner.cloneNode(true);
+  // Remove the scale transform — render at true size
+  clone.style.transform = 'none';
+  clone.style.transformOrigin = 'top left';
+  clone.style.position = 'fixed';
+  clone.style.top = '-9999px';
+  clone.style.left = '-9999px';
+  clone.style.width = designW + 'px';
+  clone.style.height = designH + 'px';
+  clone.style.zIndex = '-1';
+  clone.style.overflow = 'hidden';
+  document.body.appendChild(clone);
+
+  // Re-inject actual image src from the original (clones may lose blob URLs)
+  const origImgs = scaledInner.querySelectorAll('img');
+  const cloneImgs = clone.querySelectorAll('img');
+  origImgs.forEach((img,i)=>{
+    if(cloneImgs[i]){
+      cloneImgs[i].src = img.src;
+      cloneImgs[i].crossOrigin = 'anonymous';
+      cloneImgs[i].style.transform = img.style.transform||'none';
+    }
+  });
+
+  // Wait for images to load in clone
+  await Promise.all([...cloneImgs].map(img=>
+    new Promise(r=>{ if(img.complete)r(); else{img.onload=r;img.onerror=r;} })
+  ));
+
+  try{
+    const canvas = await html2canvas(clone, {
+      scale: 2,              // 2× = 2160×2700px for 4:5 post — true high-res
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#0d0d0d',
+      logging: false,
+      imageTimeout: 15000,
+      width: designW,
+      height: designH,
+      windowWidth: designW,
+      windowHeight: designH,
+    });
+
+    document.body.removeChild(clone);
+
+    const name = getDesignName(type);
+    const link = document.createElement('a');
+    link.download = name + '.png';
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    toast(`✓ ${name}.png — ${canvas.width}×${canvas.height}px`);
+  }catch(e){
+    if(document.body.contains(clone)) document.body.removeChild(clone);
+    console.error('PNG export error:', e);
+    toast('PNG export error: '+e.message);
+  }
+}
+
+// Keep old functions pointing to new ones
+function exportDesignPNG(){ downloadStudioPNG('post'); }
+function downloadDesign(){ downloadStudioPNG('post'); }
+function downloadStory(){ downloadStudioPNG('story'); }
+function downloadDesignNamed(){ downloadStudioPNG('post'); }
 
 /* ── DESIGN PANEL STATE SETTERS ── */
 function setMood(el,mood){
@@ -3252,6 +4114,7 @@ const DS={files:[],selected:[],folderName:''};
 function openDriveModal(){
   document.getElementById('driveModal').style.display='flex';
   document.getElementById('driveNoKeyWarning').style.display=S.settings.googleApiKey?'none':'block';
+  renderDriveFolderList();
   const last=localStorage.getItem('kss_last_drive_url');
   if(last&&!document.getElementById('driveUrl').value)document.getElementById('driveUrl').value=last;
 }
@@ -3265,25 +4128,12 @@ function showActiveFolderTag(url){
   tag.innerHTML=`<div class="drive-folder-tag"><svg width="10" height="9" viewBox="0 0 87.3 78"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/></svg> Drive · ${id.substring(0,10)}… <span onclick="openDriveModal()" style="cursor:pointer;text-decoration:underline;">reload</span></div>`;
 }
 async function loadDriveFolder(){
+  // Legacy single-folder — add to pool and load all
   const url=document.getElementById('driveUrl').value.trim();
-  const folderId=extractFolderId(url);const key=S.settings.googleApiKey;
-  if(!folderId){setDriveStatus('⚠ Invalid URL');return;}
-  if(!key){setDriveStatus('⚠ Add Google API Key in Settings');return;}
-  const btn=document.getElementById('btnLoadDrive');
-  btn.innerHTML='<span class="spin" style="border-top-color:#000"></span>';btn.disabled=true;
-  document.getElementById('driveLoadingSpinner').style.display='block';
-  document.getElementById('driveCountBar').style.display='none';
-  document.getElementById('driveGrid').innerHTML='';
-  DS.files=[];DS.selected=[];setDriveStatus('Connecting…');
-  try{
-    try{const mr=await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}?fields=name&key=${key}`);const md=await mr.json();DS.folderName=md.name||'Drive Folder';}catch(e){DS.folderName='Drive Folder';}
-    setDriveStatus(`Scanning "${DS.folderName}"…`);
-    await fetchDriveFilesRec(folderId,key,null);
-    if(!DS.files.length){document.getElementById('driveGrid').innerHTML='<div style="text-align:center;padding:30px;color:var(--mute);">No images found. Share folder publicly.</div>';}
-    else{renderDriveGrid();document.getElementById('driveCountBar').style.display='flex';document.getElementById('driveFileCount').textContent=`${DS.files.length} images in "${DS.folderName}"`;localStorage.setItem('kss_last_drive_url',url);}
-    setDriveStatus('');
-  }catch(e){setDriveStatus('⚠ '+(e.message.includes('403')?'Access denied — share publicly':e.message.includes('404')?'Folder not found':'Error: '+e.message));}
-  finally{btn.innerHTML='Browse';btn.disabled=false;document.getElementById('driveLoadingSpinner').style.display='none';}
+  if(url&&extractFolderId(url)){
+    addDriveFolder();
+  }
+  await loadAllDriveFolders();
 }
 async function fetchDriveFilesRec(folderId,key,pageToken){
   const q=encodeURIComponent(`'${folderId}' in parents and trashed=false`);
