@@ -163,6 +163,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .studio-mode-btn:hover{color:var(--text);background:var(--surface2);}
 .studio-mode-btn.active{background:var(--gold);color:#fff;}
 .studio-canvases.both-mode{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* STORY ITERATIONS — 3 side by side */
+.story-iterations{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+.story-iter-col{display:flex;flex-direction:column;gap:6px;}
+.story-iter-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute2);display:flex;align-items:center;justify-content:space-between;}
+.story-iter-canvas{background:#000;border-radius:2px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;transition:border-color .2s;}
+.story-iter-canvas:hover{border-color:var(--border2);}
+.story-iter-canvas.selected-iter{border-color:var(--gold);}
+.story-iter-loading{display:flex;align-items:center;justify-content:center;background:var(--surface2);min-height:140px;border-radius:2px;}
+.story-iter-actions{display:flex;gap:4px;flex-wrap:wrap;}
+.use-as-post-btn{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);color:var(--gold);font-size:9px;padding:3px 8px;border-radius:2px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.use-as-post-btn:hover{background:rgba(192,57,43,.25);}
+.iter-select-banner{display:none;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:2px;padding:8px 12px;align-items:center;gap:10px;margin-top:6px;}
+.iter-select-banner.visible{display:flex;}
 /* Canvas locked state */
 .studio-canvas-col.locked-canvas .design-canvas-wrap,
 .studio-canvas-col.locked-canvas .story-preview-wrap{border-color:rgba(107,124,74,.5);}
@@ -716,6 +730,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
                 <button class="btn btn-ghost btn-xs" onclick="addDesignToQueue()" data-tip="Add to schedule queue">+ Queue</button>
                 <button class="btn btn-purple btn-xs" onclick="openDesignChat()" data-tip="Chat with Claude to refine this design">✦ Refine</button>
                 <button class="btn btn-ghost btn-xs" onclick="generateVariants()" id="btnVariants" data-tip="Generate 3 layout variants">⊞ Variants</button>
+                <button class="btn btn-ghost btn-xs" onclick="openAddToPlanModal()" data-tip="Place this design as the cover of a plan post — replaces or assigns to any post slot" style="color:var(--gold);border-color:rgba(192,57,43,.3);">→ Plan</button>
               </div>
               <div id="variantsStrip" class="variant-strip" style="display:none;"></div>
 
@@ -785,6 +800,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
               <div class="row" style="gap:4px;flex-wrap:wrap;margin-top:6px;">
                 <button class="btn btn-ghost btn-xs" onclick="downloadStudioPNG('story')" data-tip="Download story as high-res PNG">↓ PNG</button>
                 <button class="btn btn-ghost btn-xs" onclick="addStoryToQueue()" data-tip="Add to story queue">+ Queue</button>
+                <span class="small mute" id="storyQueueCount" style="align-self:center;"></span>
+              </div>
+
+              <!-- 3 Story Iterations — visible in Both mode -->
+              <div id="storyIterationsWrap" style="display:none;margin-top:10px;">
+                <div class="row" style="margin-bottom:6px;align-items:center;gap:8px;">
+                  <div class="small" style="color:var(--mute2);letter-spacing:.1em;text-transform:uppercase;font-size:9px;">3 Story Iterations</div>
+                  <button class="btn btn-ghost btn-xs" onclick="runStoryIterations()" id="btnIterations" data-tip="Generate 3 different story versions simultaneously">↻ Regenerate All</button>
+                </div>
+                <div class="story-iterations" id="storyIterations"></div>
+                <!-- Banner shown when an iteration is selected -->
+                <div class="iter-select-banner" id="iterSelectBanner">
+                  <div style="flex:1;font-size:11px;">Iteration selected — adapt it as a Post?</div>
+                  <button class="btn btn-primary btn-xs" onclick="adaptIterAsPost()" data-tip="Take the selected story style and adapt it to post format">→ Use as Post</button>
+                  <button class="btn btn-ghost btn-xs" onclick="clearIterSelection()">✕</button>
+                </div>
               </div>
               <!-- Story controls -->
               <div class="col" style="gap:6px;margin-top:6px;">
@@ -943,9 +974,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
             <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;"/>
 
-            <!-- Image picker for studio -->
-            <div class="sidebar-label">Select Image</div>
-            <div class="small mute" style="margin-bottom:5px;">Click = select · Drag = drop on canvas</div>
+            <!-- Image picker for studio — serves post, story, or both -->
+            <div class="sidebar-label" id="studioPickerLabel">Select Image</div>
+            <div class="small mute" style="margin-bottom:5px;" id="studioPickerHint">Click to load · Drag onto canvas · Mode: <span id="studioPickerModeNote" style="color:var(--gold);">Post</span></div>
             <div class="img-picker-grid" id="storyImgPicker" style="max-height:240px;overflow-y:auto;"></div>
             <div id="storyImgSelected" class="small" style="color:var(--gold);margin-top:3px;"></div>
           </div>
@@ -1141,6 +1172,23 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeContextQModal()">Skip</button>
       <button class="btn btn-primary" onclick="saveContextAnswers()">Save Answers</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DESIGN TO PLAN MODAL -->
+<div class="modal-overlay" id="addToPlanModal" style="display:none;" onclick="if(event.target===this)closeAddToPlanModal()">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">→ Place Design in Plan</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeAddToPlanModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="small mute" style="margin-bottom:10px;">Choose which plan post this design should become the cover of. The image used in this design will be assigned to that post.</div>
+      <div id="addToPlanList" class="col" style="gap:5px;max-height:320px;overflow-y:auto;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAddToPlanModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1635,11 +1683,10 @@ function renderDesignOutput(containerId, htmlContent, imgDataUrl, imgSelector, w
   const out=document.getElementById(containerId);
   out.style.display='flex';out.innerHTML='';
   const wrap=out.parentElement;
-  const availW=wrap.clientWidth-20;
+  const availW=Math.max(wrap.clientWidth-20, 200);
   const isStory=containerId==='storyOutput';
-  // For stories: always fit to container height
-  const useH=isStory?Math.min(wrap.clientHeight||maxH,maxH)-10:Math.min(wrap.clientHeight||maxH,maxH)-10;
-  const scale=Math.min(availW/w, useH/h, isStory?1.5:1);
+  const availH=Math.max((wrap.clientHeight||maxH)-10, 100);
+  const scale=Math.min(availW/w, availH/h, isStory?2:1);
   const scaledW=Math.round(w*scale);
   const scaledH=Math.round(h*scale);
   const outer=document.createElement('div');
@@ -1648,17 +1695,18 @@ function renderDesignOutput(containerId, htmlContent, imgDataUrl, imgSelector, w
   inner.style.cssText=`width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
   inner.innerHTML=htmlContent;
   outer.appendChild(inner);out.appendChild(outer);
-  // Inject actual image and apply transform if set
+  // Inject actual image and apply any stored transform
   const mainImg=inner.querySelector(imgSelector);
   if(mainImg&&imgDataUrl){
     mainImg.src=imgDataUrl;
-    // Apply any stored transform
     const activeId=isStory?S_storyActiveImgId:S.designActiveImgId;
     const imgObj=activeId?S.images.find(i=>i.id===activeId):null;
     if(imgObj?.transform) mainImg.style.transform=getImgTransform(imgObj);
   }
-  // Fix story scale after render
-  if(isStory) setTimeout(fixStoryPreviewScale,50);
+  // Record the base scale so zoom can multiply on top of it
+  recordBaseScale(containerId, scale);
+  // For stories: re-fit after layout stabilises
+  if(isStory) setTimeout(fixStoryPreviewScale, 80);
   return inner;
 }
 
@@ -1870,64 +1918,153 @@ function renderListView(){
 }
 
 /* ── CAPTION GENERATION — separate from layout planning ── */
+/* ══════════════════════════════════════════════
+   HASHTAG INTELLIGENCE
+   - Stays out of caption body (goes to First Comment)
+   - Max 28 tags (safely under Instagram 30 cap)
+   - Relevant tags rotate based on image content
+══════════════════════════════════════════════ */
+const CORE_STUDIO_TAGS = [
+  '#kshetejsareenstudios','#commercialphotography','#luxuryphotography',
+  '#editorialphotography','#delhiphotographer','#bangalorephotographer',
+  '#photographylife','#behindthelens'
+];
+const HASHTAG_POOLS = {
+  hospitality: ['#hotelphotography','#hospitalityphotography','#luxuryhotel','#hotelinteriors','#hotellife','#boutiquehotel','#luxuryresort'],
+  portrait:    ['#portraitphotography','#editorialportrait','#fashionphotography','#studioPortrait','#lightandportrait','#portraitmode'],
+  architecture:['#architecturephotography','#interiordesign','#architecturelovers','#interiorphotography','#designphotography','#spacesofinstagram'],
+  food:        ['#foodphotography','#fnbphotography','#foodstyling','#restaurantphotography','#finedining','#gastronomie'],
+  bts:         ['#behindthescenes','#onsetlife','#photographybts','#makingof','#creativeprocess','#setlife'],
+  lifestyle:   ['#lifestylephotography','#brandphotography','#contentcreation','#visualstorytelling','#brandstory'],
+};
+function buildFirstComment(postType, theme, imgName){
+  const text=(theme+' '+imgName).toLowerCase();
+  let pool=HASHTAG_POOLS.lifestyle;
+  if(text.match(/hotel|leela|taj|marriott|oberoi|six.sense|jumeirah|resort|lobby|suite/)) pool=HASHTAG_POOLS.hospitality;
+  else if(text.match(/portrait|face|person|model|founder|people|headshot/)) pool=HASHTAG_POOLS.portrait;
+  else if(text.match(/arch|interior|design|space|room|building|facade/)) pool=HASHTAG_POOLS.architecture;
+  else if(text.match(/food|dish|plate|cafe|restaurant|drink|coffee|fnb|bar/)) pool=HASHTAG_POOLS.food;
+  else if(text.match(/bts|behind|setup|gear|light|crew|set/)) pool=HASHTAG_POOLS.bts;
+  const relevant=[...pool].sort(()=>Math.random()-.5).slice(0,5);
+  const core=[...CORE_STUDIO_TAGS].sort(()=>Math.random()-.5).slice(0,8);
+  return[...relevant,...core].slice(0,28).join(' ');
+}
+
+/* ══════════════════════════════════════════════
+   CAPTION GENERATION — VISION-BASED
+   Claude SEES each image. No filenames, no guessing.
+   Captions are clean — no hashtags in body.
+   Hashtags go to firstComment only.
+══════════════════════════════════════════════ */
 async function generateAllCaptions(){
   if(!S.plan.length){toast('Generate a plan first');return;}
   const btn=document.getElementById('btnGenCaptions');
   btn.innerHTML='<span class="spin"></span> Writing…';btn.disabled=true;
   const globalCtx=getGlobalContext();
   const handle=S.settings.handle||'@kshetejsareenstudios';
-  const hashtags=S.settings.hashtags||'#luxuryphotography';
   const capLenGuide=getCaptionLengthGuide();
   const photographerCtx=getPhotographerContextForCaption();
-
-  // Brand research
   let brandProfile='';
   const brandMatch=globalCtx.match(/\b([A-Z][A-Za-z&]+(?:\s+[A-Z][A-Za-z&]+)?)\s+(?:brand|studio|client|campaign|shoot|project|launch)\b/i);
   if(brandMatch){
     btn.innerHTML='<span class="spin"></span> Researching brand…';
     brandProfile=await researchBrandForCaptions(brandMatch[1]);
   }
-
+  const SYSTEM=`You are writing an Instagram caption for Kshetej Sareen Studios (${handle}).
+VOICE: Raw and personal. Punchy and minimal. Short sentences. Fragments fine.
+YOU ARE the photographer — writing about making this image. Your craft, your eye, your experience.
+NEVER: generic luxury phrases, "where light meets…", brand promotion, emojis, hashtags.
+Do NOT start with "I". No hashtags at all. Clean text only.
+${capLenGuide}`;
   let written=0;
   for(let i=0;i<S.plan.length;i++){
     const p=S.plan[i];
     const imgObj=imgByIdx(p.imageIndex);
-    const angle=getNextCaptionAngle();
-    const slideImgs=p.slides?p.slides.map(idx=>{const si=imgByIdx(idx);return si?.name||'';}).join(', '):'';
-    btn.innerHTML=`<span class="spin"></span> ${written+1}/${S.plan.length} — ${angle.label}`;
-    const system=`You write Instagram captions for Kshetej Sareen Studios (${handle}).
-VOICE: Very raw and personal + punchy and minimal. Short sentences. Fragments fine.
-YOU ARE: A luxury commercial photographer, Delhi + Bangalore. Talk about YOUR work, YOUR craft, YOUR profession. Not the brand. Not the client. YOU made these images.
-NEVER: Generic luxury clichés. "Where luxury meets…" type phrases. Never.
-ALWAYS: First person. Direct. Specific. Real. ${capLenGuide}`;
-    const prompt=`Angle for this caption: ${angle.label} — ${angle.instruction}
-
-Post: ${p.type} | Theme: ${p.theme||'photography'}
-Cover image: ${imgObj?.name||'unknown'}
-${p.type==='carousel'?`All slides: ${slideImgs}`:''}
-Context: ${globalCtx||'none'}
-${brandProfile?`Brand you shot for: ${brandProfile}`:''}
+    if(!imgObj?.dataUrl){S.plan[i].caption='[No image]';continue;}
+    btn.innerHTML=`<span class="spin"></span> ${written+1}/${S.plan.length} — reading image…`;
+    const USER=`Look at this photograph. You made it. Write a caption about THIS specific image.
+Post: ${p.type} | Theme: ${p.theme||'—'}
+Context: ${globalCtx||'—'}
+${brandProfile?`Client: ${brandProfile}`:''}
 ${photographerCtx}
-
-End with: ${hashtags}
-Do NOT start with "I". Do NOT make the brand the subject. Focus on the photographer's experience, eye, decision.`;
+Write now. No hashtags. No emojis.`;
     try{
-      if(p.caption) pushUndo('capText'+i, p.caption);
-      const cap=await claudeCall(system,prompt);
-      S.plan[i].caption=cap.replace(/\`\`\`/g,'').trim();
+      if(p.caption) pushUndo('capText'+i,p.caption);
+      p.caption=await claudeVisionCaption(imgObj.dataUrl,SYSTEM,USER);
+      p.firstComment=buildFirstComment(p.type,p.theme||'',imgObj.name||'');
       written++;
     }catch(e){
-      S.plan[i].caption='[Caption failed]';
-      console.error(e);
+      p.caption='[Caption failed — rewrite individually]';
+      console.error('Caption error post',i,e);
     }
   }
   renderPlan();renderCaptionsTab();
   const banner=document.getElementById('captionBanner');
   if(banner)banner.style.display='none';
   btn.innerHTML='✦ Generate Captions';btn.disabled=false;
-  toast(`${written} captions written ✓`);
+  toast(`${written}/${S.plan.length} captions written. Hashtags in First Comment ✓`);
 }
 
+async function claudeVisionCaption(imageDataUrl,system,user){
+  const key=S.settings.anthropicKey;
+  if(!key)throw new Error('No API key — add in Settings');
+  const resized=await resizeForVision(imageDataUrl,600);
+  const b64=extractBase64(resized);
+  if(!b64)throw new Error('Invalid image data');
+  const r=await fetch(PROXY,{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:500,system,
+      messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:b64.mediaType,data:b64.data}},
+        {type:'text',text:user}
+      ]}]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  const d=await r.json();
+  if(!d.content?.[0]?.text)throw new Error('Empty response');
+  return d.content[0].text.replace(/```/g,'').trim();
+}
+
+async function rewriteSingleCaption(i){
+  const p=S.plan[i];
+  const imgObj=imgByIdx(p.imageIndex);
+  const handle=S.settings.handle||'@kshetejsareenstudios';
+  const ctx=document.getElementById('captionContext')?.value||getGlobalContext();
+  const ta=document.getElementById('capText'+i);
+  if(ta)ta.style.opacity='.4';
+  const SYSTEM=`You are rewriting an Instagram caption for Kshetej Sareen Studios (${handle}).
+VOICE: Raw and personal. Punchy and minimal. Photographer's POV.
+Look at the image — write about THIS specific photograph. No hashtags. No emojis. No generic phrases.`;
+  const USER=`Post: ${p.type} | Theme: ${p.theme||'—'}
+Context: ${ctx||'—'}
+Previous caption (improve on this): ${p.caption||'(none)'}
+Write a better, more specific caption based on what you actually see in the image.`;
+  try{
+    if(p.caption)pushUndo('capText'+i,p.caption);
+    let newCap;
+    if(imgObj?.dataUrl){
+      newCap=await claudeVisionCaption(imgObj.dataUrl,SYSTEM,USER);
+    }else{
+      newCap=await claudeCall(SYSTEM,USER);
+    }
+    S.plan[i].caption=newCap.trim();
+    S.plan[i].firstComment=buildFirstComment(p.type,p.theme||'',imgObj?.name||'');
+    if(ta){ta.value=newCap.trim();ta.style.opacity='1';updateCapChar(i);}
+    toast('Caption rewritten ✓');
+  }catch(e){
+    toast('Error: '+e.message);
+    if(ta)ta.style.opacity='1';
+  }
+}
+
+async function rewriteAllCaptions(){
+  if(!S.plan.length){toast('No plan to rewrite');return;}
+  const btn=document.querySelector('[onclick="rewriteAllCaptions()"]');
+  if(btn){btn.innerHTML='<span class="spin"></span> Rewriting…';btn.disabled=true;}
+  for(let i=0;i<S.plan.length;i++) await rewriteSingleCaption(i);
+  renderCaptionsTab();
+  if(btn){btn.innerHTML='✦ Rewrite All with AI';btn.disabled=false;}
+  toast('All captions rewritten from image ✓');
+}
 /* ── UNASSIGNED IMAGES PANEL ── */
 function renderUnassignedPanel(){
   if(!S.plan.length||!S.images.length){
@@ -2711,27 +2848,264 @@ async function sendDesignChat(){
 /* ══════════════════════════════════════════════
    ZOOM ON SCROLL — design and stories canvas
 ══════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════
+   STORY ITERATIONS — 3 side by side in Both mode
+   + Adapt selected story style as a Post
+══════════════════════════════════════════════ */
+let S_selectedIterIdx = -1;
+let S_iterHtmls = [null, null, null];
+
+async function runStoryIterations(){
+  const img = S_storyActiveImgId
+    ? S.images.find(i=>i.id===S_storyActiveImgId)
+    : S.designActiveImgId
+      ? S.images.find(i=>i.id===S.designActiveImgId)
+      : getSelImgs()[0];
+  if(!img){ document.getElementById('storyIterations').innerHTML='<div class="small mute" style="grid-column:1/-1;padding:10px;">Select an image first</div>'; return; }
+
+  const iterContainer = document.getElementById('storyIterations');
+  const styles = ['editorial','bts','minimal'];
+  const styleLabels = ['Editorial','BTS Frame','Minimal'];
+  S_iterHtmls = [null,null,null];
+  S_selectedIterIdx = -1;
+  clearIterSelection();
+
+  // Show loading placeholders
+  iterContainer.innerHTML = styles.map((_,i)=>`
+    <div class="story-iter-col">
+      <div class="story-iter-label">${styleLabels[i]}</div>
+      <div class="story-iter-loading" id="iterLoad${i}">
+        <span class="spin spin-g"></span>
+      </div>
+    </div>`).join('');
+
+  const handle = S.settings.handle||'@kshetejsareenstudios';
+  const brief = document.getElementById('designBrief')?.value||getGlobalContext();
+  const headline = document.getElementById('storyText')?.value||'';
+  const sub = document.getElementById('storySub')?.value||'';
+
+  // Run all 3 in parallel
+  const storyStyleGuides = {
+    editorial:'Thin serif text in negative space. Minimal. Thin rule line. Studio credit small mono.',
+    bts:'Documentary. Raw DM Mono. Film grain overlay. "Behind the frame" label.',
+    minimal:'Maximum restraint. Studio handle only in 9px mono. Full bleed image. Pure photography.'
+  };
+
+  await Promise.all(styles.map(async (style, i)=>{
+    const prompt=`Design a 1080×1920px Instagram Story.
+Style: ${style} — ${storyStyleGuides[style]}
+Headline: "${headline||'—'}"
+Sub: "${sub||handle}"
+Brief: ${brief||'luxury photography studio'}
+Handle: ${handle}
+Analyse negative space. Never cover face. Image placeholder: <img id="kss-story-${i}" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+Return ONLY the HTML div, no caption needed.`;
+    try{
+      const raw = await claudeVisionDesign(img.dataUrl, prompt, 2000);
+      const clean = raw.replace(/```html|```/g,'').replace(/HTML:/i,'').replace(/CAPTION:[\s\S]*/i,'').trim();
+      S_iterHtmls[i] = clean;
+      // Render mini preview
+      const scale = 0.14; // mini preview scale
+      const w=1080,h=1920;
+      const scaledW=Math.round(w*scale), scaledH=Math.round(h*scale);
+      const loadEl = document.getElementById(`iterLoad${i}`);
+      if(!loadEl) return;
+      const colEl = loadEl.parentElement;
+      colEl.innerHTML = `
+        <div class="story-iter-label">
+          <span>${styleLabels[i]}</span>
+          <span class="small mute">${style}</span>
+        </div>
+        <div class="story-iter-canvas" id="iterCanvas${i}" onclick="selectIter(${i})"
+          style="width:${scaledW}px;height:${scaledH}px;margin:0 auto;">
+          <div style="width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;">
+            ${clean}
+          </div>
+        </div>
+        <div class="story-iter-actions">
+          <button class="btn btn-ghost btn-xs" onclick="selectIter(${i})" data-tip="Select this iteration">Select</button>
+          <button class="btn btn-ghost btn-xs" onclick="downloadIterPNG(${i})" data-tip="Download this iteration as PNG">↓</button>
+        </div>`;
+      // Inject image
+      colEl.querySelector(`#kss-story-${i}`)?.setAttribute('src', img.dataUrl);
+    }catch(e){
+      const loadEl = document.getElementById(`iterLoad${i}`);
+      if(loadEl) loadEl.innerHTML=`<span class="small mute" style="padding:8px;">Failed</span>`;
+      console.error('Iter',i,'error:',e);
+    }
+  }));
+  toast('3 story iterations ready — select one to use or adapt as post ✓');
+}
+
+function selectIter(i){
+  S_selectedIterIdx = i;
+  document.querySelectorAll('.story-iter-canvas').forEach((el,idx)=>{
+    el.classList.toggle('selected-iter', idx===i);
+  });
+  const banner = document.getElementById('iterSelectBanner');
+  if(banner) banner.classList.add('visible');
+  // Load selected iteration into main story canvas
+  if(S_iterHtmls[i]){
+    const img = S_storyActiveImgId
+      ? S.images.find(im=>im.id===S_storyActiveImgId)
+      : S.images.find(im=>im.id===S.designActiveImgId);
+    if(img) renderDesignOutput('storyOutput', S_iterHtmls[i], img.dataUrl, `#kss-story-${i}`, 1080, 1920, 400);
+    document.getElementById('storyOutput').style.display='flex';
+    document.getElementById('storyPlaceholder').style.display='none';
+  }
+  toast(`Iteration ${i+1} selected — click "→ Use as Post" to adapt it`);
+}
+
+function clearIterSelection(){
+  S_selectedIterIdx = -1;
+  document.querySelectorAll('.story-iter-canvas').forEach(el=>el.classList.remove('selected-iter'));
+  const banner = document.getElementById('iterSelectBanner');
+  if(banner) banner.classList.remove('visible');
+}
+
+async function adaptIterAsPost(){
+  if(S_selectedIterIdx<0||!S_iterHtmls[S_selectedIterIdx]){toast('Select an iteration first');return;}
+  const img = S.designActiveImgId
+    ? S.images.find(i=>i.id===S.designActiveImgId)
+    : S_storyActiveImgId
+      ? S.images.find(i=>i.id===S_storyActiveImgId)
+      : getSelImgs()[0];
+  if(!img){toast('No image loaded');return;}
+
+  const handle = S.settings.handle||'@kshetejsareenstudios';
+  const iterStyle = ['editorial','bts','minimal'][S_selectedIterIdx];
+  const brief = document.getElementById('designBrief')?.value||getGlobalContext();
+  const headline = document.getElementById('designText')?.value||document.getElementById('storyText')?.value||'';
+
+  toast('Adapting story style to post format…');
+  const prompt = `Adapt the following story (9:16) design concept to a post (1080×1350px, 4:5).
+Keep the same visual style, typography, and mood. Adapt the layout for portrait post format.
+Style: ${iterStyle}
+Brief: ${brief}
+Headline: "${headline}"
+Handle: ${handle}
+
+The story HTML for reference (adapt the STYLE not copy the layout):
+${S_iterHtmls[S_selectedIterIdx].substring(0,800)}
+
+Design a 1080×1350px post with the same aesthetic.
+Image: <img id="kss-main" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
+Return ONLY the HTML div.
+
+CAPTION:
+Write a short photographer's caption.`;
+
+  try{
+    const raw = await claudeVisionDesign(img.dataUrl, prompt, 3000);
+    const {html,caption} = parseDesignResponse(raw);
+    renderDesignOutput('designOutput', html, img.dataUrl, '#kss-main', 1080, 1350, 520);
+    document.getElementById('designOutput').style.display='flex';
+    document.getElementById('designPlaceholder').style.display='none';
+    if(caption&&document.getElementById('designCaption')) document.getElementById('designCaption').value=caption;
+    clearIterSelection();
+    toast('Story style adapted to post ✓ — check post canvas');
+  }catch(e){toast('Error: '+e.message);console.error(e);}
+}
+
+async function downloadIterPNG(i){
+  if(!S_iterHtmls[i]){toast('Iteration not generated');return;}
+  const img = S_storyActiveImgId
+    ? S.images.find(im=>im.id===S_storyActiveImgId)
+    : S.images.find(im=>im.id===S.designActiveImgId);
+  // Temporarily set story output to this iteration and download
+  const prev = document.getElementById('storyOutput').innerHTML;
+  if(img) renderDesignOutput('storyOutput', S_iterHtmls[i], img.dataUrl, `#kss-story-${i}`, 1080, 1920, 400);
+  await downloadStudioPNG('story');
+  document.getElementById('storyOutput').innerHTML = prev;
+}
+
+/* ══════════════════════════════════════════════
+   ZOOM ON SCROLL — correct inner-div architecture
+   renderDesignOutput creates:
+     storyOutput (flex container)
+       └── outer (width:scaledW, height:scaledH, overflow:hidden)  ← clip box
+             └── inner (width:1080, transform:scale(fit))           ← zoom THIS
+   We track: baseScale (fit-to-container) × userZoom = finalScale
+══════════════════════════════════════════════ */
+let S_designBaseScale = 1;
 let S_designZoom = 1;
+let S_storyBaseScale = 1;
 let S_storyZoom = 1;
+
+function getDesignInner(){
+  return document.getElementById('designOutput')?.firstElementChild?.firstElementChild;
+}
+function getStoryInner(){
+  return document.getElementById('storyOutput')?.firstElementChild?.firstElementChild;
+}
+
+function applyDesignZoom(){
+  const inner = getDesignInner();
+  if(!inner) return;
+  const finalScale = S_designBaseScale * S_designZoom;
+  inner.style.transform = `scale(${finalScale})`;
+  inner.style.transformOrigin = 'top left';
+  // Let outer overflow so zoomed content is visible
+  const outer = inner.parentElement;
+  if(outer){
+    outer.style.overflow = S_designZoom > 1 ? 'visible' : 'hidden';
+    // Show scroll hint at high zoom
+    outer.style.cursor = S_designZoom > 1.2 ? 'zoom-out' : 'default';
+  }
+}
+function applyStoryZoom(){
+  const inner = getStoryInner();
+  if(!inner) return;
+  const finalScale = S_storyBaseScale * S_storyZoom;
+  inner.style.transform = `scale(${finalScale})`;
+  inner.style.transformOrigin = 'top center';
+  const outer = inner.parentElement;
+  if(outer){
+    outer.style.overflow = S_storyZoom > 1 ? 'visible' : 'hidden';
+    outer.style.cursor = S_storyZoom > 1.2 ? 'zoom-out' : 'default';
+  }
+}
 
 function initCanvasZoom(){
   const designWrap = document.getElementById('designCanvasWrap');
-  const storyWrap = document.getElementById('storyPreviewWrap');
+  const storyWrap  = document.getElementById('storyPreviewWrap');
 
   if(designWrap) designWrap.addEventListener('wheel', e=>{
     e.preventDefault();
-    S_designZoom = Math.max(0.3, Math.min(3, S_designZoom + (e.deltaY < 0 ? 0.1 : -0.1)));
-    const out = document.getElementById('designOutput');
-    if(out) out.style.transform=`scale(${S_designZoom})`;
-    document.getElementById('designPlaceholder').style.transform=`scale(${S_designZoom})`;
+    S_designZoom = Math.max(0.4, Math.min(4, S_designZoom + (e.deltaY < 0 ? 0.12 : -0.12)));
+    applyDesignZoom();
   }, {passive:false});
 
   if(storyWrap) storyWrap.addEventListener('wheel', e=>{
     e.preventDefault();
-    S_storyZoom = Math.max(0.2, Math.min(3, S_storyZoom + (e.deltaY < 0 ? 0.1 : -0.1)));
-    const out = document.getElementById('storyOutput');
-    if(out) out.style.transform=`scale(${S_storyZoom})`;
+    S_storyZoom = Math.max(0.4, Math.min(4, S_storyZoom + (e.deltaY < 0 ? 0.12 : -0.12)));
+    applyStoryZoom();
   }, {passive:false});
+}
+
+/* Called after each render to record the base scale (so zoom multiplies on top) */
+function recordBaseScale(containerId, scale){
+  if(containerId === 'storyOutput'){
+    S_storyBaseScale = scale;
+    S_storyZoom = 1; // reset user zoom on fresh render
+  } else {
+    S_designBaseScale = scale;
+    S_designZoom = 1;
+  }
+}
+
+/* Story preview scale — ONLY runs on initial render, not fighting user zoom */
+function fixStoryPreviewScale(){
+  const wrap = document.getElementById('storyPreviewWrap');
+  const inner = getStoryInner();
+  if(!wrap||!inner) return;
+  const wrapH = wrap.offsetHeight || 340;
+  const wrapW = wrap.offsetWidth || 300;
+  const scale = Math.min(wrapH/1920, wrapW/1080) * 0.88;
+  S_storyBaseScale = scale;
+  S_storyZoom = 1;
+  applyStoryZoom();
 }
 
 /* ══════════════════════════════════════════════
@@ -2911,6 +3285,83 @@ async function suggestDesignSubtext(){
 ══════════════════════════════════════════════ */
 // The updated reshuffleGrid already handles this correctly
 // locked covers = only the imageIndex of locked posts, NOT their slides
+
+/* ══════════════════════════════════════════════
+   ADD DESIGN TO PLAN
+   Takes the current generated post design and
+   assigns it to any plan post as its cover image.
+   Works on locked posts too — you're explicitly choosing.
+══════════════════════════════════════════════ */
+function openAddToPlanModal(){
+  const out = document.getElementById('designOutput');
+  if(!out?.innerHTML){ toast('Generate a design first'); return; }
+  if(!S.plan.length){ toast('Generate a plan first in the Plan tab'); return; }
+
+  const total = S.plan.length;
+  const list = document.getElementById('addToPlanList');
+  list.innerHTML = S.plan.map((p,i)=>{
+    const img = imgByIdx(p.imageIndex);
+    const igNum = total - i;
+    const lockBadge = p.locked ? '<span class="lock-badge">🔒 locked</span>' : '';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;">
+      <img src="${img?.dataUrl||''}" style="width:36px;height:36px;object-fit:cover;border-radius:2px;flex-shrink:0;" onerror="this.style.background='var(--surface3)'"/>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;color:var(--text);">#${igNum} · ${p.date} · ${p.type} ${lockBadge}</div>
+        <div style="font-size:9px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.theme||'—'}</div>
+      </div>
+      <button class="btn btn-primary btn-xs" onclick="assignDesignToPlanPost(${i})" data-tip="${p.locked?'Will unlock and reassign':'Assign this design to post #'+igNum}">
+        ${p.locked?'🔓 Assign':'Assign'}
+      </button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('addToPlanModal').style.display = 'flex';
+}
+
+function closeAddToPlanModal(){
+  document.getElementById('addToPlanModal').style.display = 'none';
+}
+
+function assignDesignToPlanPost(planIdx){
+  const activeImg = S.designActiveImgId
+    ? S.images.find(i=>i.id===S.designActiveImgId)
+    : getSelImgs()[0];
+
+  if(!activeImg){
+    toast('No image loaded in design canvas');
+    return;
+  }
+
+  // Find the image index in S.images (1-based)
+  const imgIdx = S.images.indexOf(activeImg) + 1;
+  if(imgIdx < 1){ toast('Image not in library'); return; }
+
+  const p = S.plan[planIdx];
+  const wasLocked = p.locked;
+
+  // Unlock if needed, assign image
+  p.locked = false;
+  p.imageIndex = imgIdx;
+  p.slides = [imgIdx];
+
+  // Store the design HTML as a preview on the plan post
+  const out = document.getElementById('designOutput');
+  p.designHtml = out?.innerHTML || '';
+  p.hasDesign = true;
+
+  // Re-lock if it was locked before (user explicitly chose to assign)
+  // Leave unlocked — let them re-lock manually if they want
+  p.locked = false;
+
+  closeAddToPlanModal();
+  switchTab('plan');
+  renderPlan();
+  renderUnassignedPanel();
+
+  const total = S.plan.length;
+  const igNum = total - planIdx;
+  toast(`Design assigned to post #${igNum} ✓${wasLocked?' (unlocked)':''}`);
+}
 
 /* ── GLOBAL CONTEXT SYNC ── */
 function syncGlobalContext(val){
@@ -3124,26 +3575,40 @@ function setStudioMode(mode){
   } else if(mode==='story'){
     canvases.classList.remove('both-mode');
     postCol.style.display='none'; storyCol.style.display='flex';
-  } else {
+  } else { // both
     canvases.classList.add('both-mode');
     postCol.style.display='flex'; storyCol.style.display='flex';
+    const iterWrap=document.getElementById('storyIterationsWrap');
+    if(iterWrap)iterWrap.style.display='block';
   }
+  if(mode!=='both'){
+    const iterWrap=document.getElementById('storyIterationsWrap');
+    if(iterWrap)iterWrap.style.display='none';
+  }
+  const note = document.getElementById('studioPickerModeNote');
+  if(note) note.textContent = mode==='both'?'Post + Story':mode==='post'?'Post':'Story';
 }
 
 async function runStudioGenerate(){
   const mode = S_studioMode;
   const btn = document.getElementById('btnStudioGenerate');
-  btn.innerHTML='<span class="spin"></span> Generating…'; btn.disabled=true;
-
+  if(btn){btn.innerHTML='<span class="spin"></span> Generating…';btn.disabled=true;}
   try{
-    if(mode==='post'||(mode==='both'&&!S_postLocked)){
-      await runDesign();
+    if(mode==='post' || mode==='both'){
+      if(!S_postLocked) await runDesign(true);
+      else toast('Post is locked — unlock to regenerate');
     }
-    if(mode==='story'||(mode==='both'&&!S_storyLocked)){
-      await runStoryDesign();
+    if(mode==='story' || mode==='both'){
+      if(!S_storyLocked) await runStoryDesign(true);
+      else toast('Story is locked — unlock to regenerate');
     }
+    // In both mode: also generate 3 story iterations in parallel
+    if(mode==='both') runStoryIterations(); // fire and forget — don't await
+  }catch(e){
+    toast('Generate error: '+e.message);
+    console.error(e);
   }finally{
-    btn.innerHTML='✦ Generate'; btn.disabled=false;
+    if(btn){btn.innerHTML='✦ Generate';btn.disabled=false;}
   }
 }
 
@@ -3170,11 +3635,8 @@ function lockStudioOutput(type){
 async function rerunStudioOutput(type){
   if(type==='post'&&S_postLocked){toast('Post is locked — unlock first');return;}
   if(type==='story'&&S_storyLocked){toast('Story is locked — unlock first');return;}
-  const prevMode=S_studioMode;
-  S_studioMode=type;
-  if(type==='post') await runDesign();
-  else await runStoryDesign();
-  S_studioMode=prevMode;
+  if(type==='post') await runDesign(false);
+  else await runStoryDesign(false);
 }
 
 /* Copy style across post ↔ story */
@@ -3392,31 +3854,58 @@ function setTextPos(el,pos){
 }
 
 /* ── SUGGEST TEXT OVERLAY — inline pills, no browser prompt ── */
-async function suggestTextOverlay(){
+let S_lastSuggestedStyle = ''; // tracks the style of last selected pill for "similar"
+
+async function suggestTextOverlay(mode='fresh'){
   const btn=document.getElementById('btnSuggestText');
-  btn.innerHTML='<span class="spin"></span>';btn.disabled=true;
+  if(btn){btn.innerHTML='<span class="spin"></span>';btn.disabled=true;}
   const style=S.designStyle;
   const mood=S.designMood;
-  const dir=document.getElementById('designPrompt').value;
+  const brief=document.getElementById('designBrief')?.value||getGlobalContext();
   const sub=document.getElementById('designSub').value;
   const handle=S.settings.handle||'@kshetejsareenstudios';
+  const currentText=document.getElementById('designText').value;
+
+  let systemPrompt, userPrompt;
+
+  if(mode==='similar' && S_lastSuggestedStyle){
+    // More options in the same style as what was selected
+    systemPrompt=`You suggest short text overlay lines for Instagram posts for ${handle}. Return exactly 4 options, one per line, no numbering, no punctuation at end.`;
+    userPrompt=`Generate 4 MORE options in the SAME style and energy as: "${S_lastSuggestedStyle}"\nSame mood: ${mood}. Same length. Same tone. Different wording and angle.\nContext: ${brief||sub||'luxury photography'}\n4 options:`;
+  } else {
+    // Fresh suggestions — diverge in style if "different" mode
+    const diverge = mode==='different';
+    systemPrompt=`You suggest short evocative text overlay lines for luxury photography Instagram posts for ${handle}. Lines: 3-8 words. ${diverge?'Make each option radically different in tone, length, and approach — surprise me.':'Premium, specific to this image.'} No clichés. Return exactly 4 options, one per line, no numbering, no punctuation at end.`;
+    userPrompt=`Style: ${style} | Mood: ${mood}\nContext: ${brief||'luxury photography'}\nLocation/sub-text: ${sub||'—'}\n${diverge?'Generate 4 DIVERGENT options — vary the approach completely: short/long, emotional/factual, abstract/specific, poetic/blunt.':'4 text overlay options:'}`;
+  }
+
   try{
-    const suggestions=await claudeCall(
-      `You suggest short evocative text overlay lines for luxury photography Instagram posts for Kshetej Sareen Studios (${handle}). Lines: 3-8 words, poetic, premium. Mood: ${mood}. No clichés. Return exactly 4 options, one per line, no numbering, no punctuation at end.`,
-      `Style: ${style}\nMood: ${mood}\nLocation/context: ${sub||'luxury hospitality'}\nDesign direction: ${dir||'editorial luxury'}\n4 text overlay options:`
-    );
+    const suggestions=await claudeCall(systemPrompt, userPrompt);
     const lines=suggestions.trim().split('\n').filter(l=>l.trim()).slice(0,4);
     const wrap=document.getElementById('suggestPillsWrap');
+    if(!wrap) return;
     wrap.style.display='flex';
-    wrap.innerHTML=lines.map(l=>`<button class="suggest-pill" onclick="pickSuggestPill(this,'${l.replace(/'/g,"\\'")}')"> ${l}</button>`).join('');
+    wrap.innerHTML=`
+      <div style="display:flex;gap:4px;flex-wrap:wrap;width:100%;">
+        ${lines.map(l=>`<button class="suggest-pill" onclick="pickSuggestPill(this,'${escQ(l)}')">${l}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:4px;margin-top:4px;width:100%;">
+        <button class="btn btn-ghost btn-xs" onclick="suggestTextOverlay('similar')" data-tip="More options in the same style as what you picked">↻ More like this</button>
+        <button class="btn btn-ghost btn-xs" onclick="suggestTextOverlay('different')" data-tip="Try completely different approaches — different tone, length, angle">⇄ Try different</button>
+      </div>`;
     toast('Tap a suggestion to use it');
   }catch(e){toast('Error: '+e.message);}
-  finally{btn.innerHTML='✦ Suggest';btn.disabled=false;}
+  finally{if(btn){btn.innerHTML='✦ Suggest';btn.disabled=false;}}
 }
+
 function pickSuggestPill(el,text){
+  S_lastSuggestedStyle=text; // remember for "similar" follow-up
   document.getElementById('designText').value=text;
-  document.getElementById('suggestPillsWrap').style.display='none';
-  toast('Text overlay set ✓');
+  // Highlight selected pill
+  el.closest('.suggest-pill')?.classList?.add('selected-headline');
+  document.querySelectorAll('.suggest-pill').forEach(p=>p.style.borderColor='');
+  el.style.borderColor='var(--gold)';
+  toast('Text overlay set — hit Generate or click "More like this" ✓');
 }
 
 /* ── EXPORT PNG ── */
@@ -3456,7 +3945,7 @@ async function generateVariants(){
   if(!_activeImg){toast('Drag an image onto the canvas first');return;}
   const imgs=[_activeImg];
   const btn=document.getElementById('btnVariants');
-  btn.innerHTML='<span class="spin"></span> Generating…';btn.disabled=true;
+  if(btn){btn.innerHTML='<span class="spin"></span> Generating…';btn.disabled=true;}
   const strip=document.getElementById('variantsStrip');
   strip.style.display='flex';strip.innerHTML='';
 
@@ -3513,7 +4002,7 @@ async function generateVariants(){
       placeholder.innerHTML=`<span class="small mute" style="padding:6px;text-align:center;">Failed</span>`;
     }
   }
-  btn.innerHTML='⊞ 3 Variants';btn.disabled=false;
+  if(btn){btn.innerHTML='⊞ 3 Variants';btn.disabled=false;}
   toast('3 variants ready — click to select ✓');
 }
 
@@ -3543,7 +4032,7 @@ Style: ${style} — ${styleGuides[style]||styleGuides.editorial}
 Fonts: ${fontGuide}
 Color mode: ${colorGuide}
 Text position preference: ${posGuide}
-Text overlay: "${overlayText||handle}"
+${overlayText ? `Text overlay (MUST use exactly): "${overlayText}"` : `Text overlay: Choose appropriate text based on image composition — studio handle (${handle}) in small mono is fine if no clear text placement exists`}
 Sub-text: "${subText||''}"
 
 COMPOSITION — look at the photograph first:
@@ -3659,14 +4148,22 @@ function clearDesignImage(){
     <div class="small mute" style="opacity:.6;">or select one and click Generate</div>`;
 }
 
-async function runDesign(){
-  // Prefer explicitly loaded image, fall back to sidebar selection
+async function runDesign(calledFromStudio=false){
+  // In "both" mode, if no post image set, use the story active image
   let img = S.designActiveImgId
     ? S.images.find(i => i.id === S.designActiveImgId)
-    : getSelImgs()[0];
-  if(!img){toast('Drag an image onto the canvas or select one from the sidebar');return;}
-  const btn=document.getElementById('btnDesign');
-  btn.innerHTML='<span class="spin"></span> Analysing…';btn.disabled=true;
+    : (S_studioMode === 'both' && S_storyActiveImgId)
+      ? S.images.find(i => i.id === S_storyActiveImgId)
+      : getSelImgs()[0];
+
+  if(!img){toast('Select or drag an image first');return;}
+
+  // If we used story image for post, sync the active IDs
+  if(!S.designActiveImgId && img) setDesignActiveImage(img.id);
+
+  const btn = document.getElementById('btnStudioGenerate') || document.getElementById('btnDesign');
+  if(btn&&!calledFromStudio){btn.innerHTML='<span class="spin"></span> Analysing…';btn.disabled=true;}
+
   document.getElementById('designPlaceholder').style.display='none';
   document.getElementById('designOutput').style.display='none';
   document.getElementById('designLoading').style.display='flex';
@@ -3702,7 +4199,10 @@ async function runDesign(){
     document.getElementById('designOutput').style.display='none';
   }finally{
     document.getElementById('designLoading').style.display='none';
-    btn.innerHTML='Generate Design';btn.disabled=false;
+    if(!calledFromStudio){
+      const btn2 = document.getElementById('btnStudioGenerate') || document.getElementById('btnDesign');
+      if(btn2){btn2.innerHTML='✦ Generate';btn2.disabled=false;}
+    }
   }
 }
 
@@ -3741,19 +4241,30 @@ function toggleStoryImg(i){
   const idx=storyImgSelected.indexOf(i);
   if(idx===-1)storyImgSelected.push(i);else storyImgSelected.splice(idx,1);
   renderStoryImgPicker();
-  // Preview first selected image on canvas immediately
+  // Route to correct canvas based on current studio mode
   if(storyImgSelected.length>0){
     const firstImg=S.images[storyImgSelected[0]];
-    if(firstImg)setStoryActiveImage(firstImg.id);
+    if(firstImg){
+      if(S_studioMode==='post'||S_studioMode==='both'){
+        setDesignActiveImage(firstImg.id);
+      }
+      if(S_studioMode==='story'||S_studioMode==='both'){
+        setStoryActiveImage(firstImg.id);
+      }
+    }
   }
 }
 
-async function runStoryDesign(){
+async function runStoryDesign(calledFromStudio=false){
   // Use explicitly loaded story image, fall back to sidebar selection
+  // In both mode, borrow from post canvas if story has no image
   let img = S_storyActiveImgId
     ? S.images.find(i=>i.id===S_storyActiveImgId)
-    : getSelImgs()[0];
-  if(!img){toast('Drag an image onto the canvas or select one from the right');return;}
+    : (S_studioMode==='both'&&S.designActiveImgId)
+      ? S.images.find(i=>i.id===S.designActiveImgId)
+      : getSelImgs()[0];
+  if(!img){toast('Select or drag an image first');return;}
+  if(!S_storyActiveImgId&&img)setStoryActiveImage(img.id);
 
   document.getElementById('storyPlaceholder').style.display='none';
   document.getElementById('storyOutput').style.display='none';
@@ -3815,25 +4326,31 @@ CAPTION:
     document.getElementById('storyPlaceholder').style.display='block';
   }finally{
     document.getElementById('storyLoading').style.display='none';
+    if(!calledFromStudio){
+      const btn = document.getElementById('btnStudioGenerate') || document.getElementById('btnStoryGenerate');
+      if(btn){btn.innerHTML='✦ Generate';btn.disabled=false;}
+    }
   }
 }
 
 function addStoryToQueue(){
-  const cap=document.getElementById('storyCaption').value;
-  const imgs=getSelImgs();
+  const cap=document.getElementById('storyCaption')?.value||'';
+  const activeImg=S_storyActiveImgId?S.images.find(i=>i.id===S_storyActiveImgId):getSelImgs()[0];
   S.storyQueue=S.storyQueue||[];
-  S.storyQueue.push({id:'sq_'+Date.now(),imageDataUrl:imgs[0]?.dataUrl||'',caption:cap,type:'story',date:'',time:'09:00'});
-  document.getElementById('storyQueueCount').textContent=S.storyQueue.length;
-  toast('Story added to queue ✓');
+  S.storyQueue.push({id:'sq_'+Date.now(),imageDataUrl:activeImg?.dataUrl||'',caption:cap,type:'story',date:'',time:'09:00'});
+  const cnt=document.getElementById('storyQueueCount');
+  if(cnt)cnt.textContent=`${S.storyQueue.length} queued`;
+  toast(`Story added to queue (${S.storyQueue.length} total) ✓`);
 }
 function addSelectedImagesToStoryQueue(){
   if(!storyImgSelected.length){toast('Select images first');return;}
-  const cap=document.getElementById('storyCaption').value;
+  const cap=document.getElementById('storyCaption')?.value||'';
   S.storyQueue=S.storyQueue||[];
   storyImgSelected.forEach(i=>{
     S.storyQueue.push({id:'sq_'+Date.now()+Math.random(),imageDataUrl:S.images[i]?.dataUrl||'',caption:cap,type:'story',date:'',time:'09:00'});
   });
-  document.getElementById('storyQueueCount').textContent=S.storyQueue.length;
+  const cnt=document.getElementById('storyQueueCount');
+  if(cnt)cnt.textContent=`${S.storyQueue.length} queued`;
   storyImgSelected=[];renderStoryImgPicker();
   toast(`${S.storyQueue.length} stories queued ✓`);
 }
