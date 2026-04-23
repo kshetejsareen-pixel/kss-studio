@@ -708,29 +708,14 @@ img,video,canvas,iframe{max-width:100%;}
           <div class="card-title serif">Content Planner</div>
           <div class="card-sub">Arrange images into a posting schedule — captions in the Captions tab</div>
 
-          <!-- FREQUENCY — weeks + posts/week -->
+          <!-- POST COUNT — single input -->
           <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:flex-end;">
-            <div class="field" style="min-width:80px;">
-              <label>Weeks</label>
-              <input type="number" id="planWeeks" min="1" max="12" value="2" class="finput"
-                style="width:70px;text-align:center;"
-                oninput="updateSmartFreqHint()"/>
-            </div>
-            <div class="field flex1">
-              <label>Posts per week</label>
-              <select id="planFreq" class="finput" onchange="toggleCustomFreq(this)">
-                <option value="7">Daily (7/wk)</option>
-                <option value="5">5× week</option>
-                <option value="3" selected>3× week</option>
-                <option value="2">2× week</option>
-                <option value="1">1× week</option>
-                <option value="custom">Custom total…</option>
-              </select>
-            </div>
-            <div id="customFreqWrap" style="display:none;align-items:center;gap:4px;">
-              <input type="number" id="customPostCount" min="1" max="60" value="6" class="finput"
-                style="width:55px;text-align:center;" oninput="updateSmartFreqHint()"/>
-              <span class="small mute">posts total</span>
+            <div class="field" style="min-width:120px;">
+              <label>No. of Posts</label>
+              <input type="number" id="planPostCount" min="1" max="60" value="6" class="finput"
+                style="width:80px;text-align:center;"
+                oninput="updateSmartFreqHint()"
+                placeholder="e.g. 6"/>
             </div>
             <div class="field flex1">
               <label>Content Mix</label>
@@ -743,7 +728,7 @@ img,video,canvas,iframe{max-width:100%;}
             </div>
             <div class="field" style="align-self:flex-end;">
               <button class="btn btn-ghost btn-sm" onclick="confirmFrequency()"
-                data-tip="Apply frequency and reset grid to new slot count — clears unfilled slots, keeps filled ones">
+                data-tip="Apply post count and set grid slots">
                 ✓ Set Layout
               </button>
             </div>
@@ -1648,10 +1633,7 @@ function setPostSize(el,ratio,w,h){
   const notes={'4:5':'4:5 Portrait (1080×1350) — maximum Instagram real estate ★','9:16':'9:16 Reel/Story (1080×1920)','1:1':'1:1 Square (1080×1080)','16:9':'16:9 Landscape (1080×608)'};
   document.getElementById('sizeNote').textContent=notes[ratio]||'';
 }
-function toggleCustomFreq(sel){
-  document.getElementById('customFreqWrap').style.display=sel.value==='custom'?'flex':'none';
-  updateSmartFreqHint();
-}
+function toggleCustomFreq(sel){ updateSmartFreqHint(); } // kept for safety
 
 function confirmFrequency(){
   const count = getPostCount();
@@ -1690,23 +1672,12 @@ function updateSmartFreqHint(){
   const hint=document.getElementById('smartFreqHint');
   if(!hint) return;
   const count=getPostCount();
-  const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
-  const freq=document.getElementById('planFreq')?.value;
-  if(freq!=='custom'){
-    hint.style.display='block';
-    hint.textContent=`${weeks} week${weeks>1?'s':''} × ${freq}/week = ${count} posts — hit ✓ Set Layout to apply`;
-  } else {
-    hint.style.display='block';
-    hint.textContent=`${count} posts total — hit ✓ Set Layout to apply`;
-  }
+  hint.style.display='block';
+  hint.textContent=`${count} post${count!==1?'s':''} — hit ✓ Set Layout to apply`;
 }
 
 function getPostCount(){
-  const freq = document.getElementById('planFreq').value;
-  const weeks = parseInt(document.getElementById('planWeeks')?.value)||2;
-  if(freq==='custom') return parseInt(document.getElementById('customPostCount')?.value)||6;
-  const perWeek = parseInt(freq)||3;
-  return perWeek * weeks;
+  return parseInt(document.getElementById('planPostCount')?.value)||6;
 }
 
 function updateSmartFreqHint(){
@@ -1973,7 +1944,7 @@ async function runContentPlan(){
 
   const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}). Voice: ${voice}. You plan image assignments and themes ONLY — captions will be generated separately after layout is approved. Always respond with valid JSON only.`;
 
-  const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
+  const weeks=Math.ceil(getPostCount()/3)||2; // approximate weeks for prompt context
   const prompt=`Plan a ${weeks}-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over ${weeks*7} days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","caption":"","theme":"short theme label","notes":""}]`;
 
   try{
@@ -4729,10 +4700,7 @@ function autoDateQueue(){
   if(!S.queue.length){toast('Queue is empty — add posts from Plan tab first');return;}
 
   // Get posting frequency from plan settings
-  const freq = document.getElementById('planFreq')?.value;
-  const postsPerWeek = freq === 'custom'
-    ? Math.ceil(S.queue.length / (parseInt(document.getElementById('planWeeks')?.value)||2))
-    : parseInt(freq)||3;
+  const postsPerWeek = 3; // default spacing — user sets dates manually or adjusts
 
   // Build array of posting days based on frequency
   const dayPatterns = {
