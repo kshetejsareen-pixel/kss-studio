@@ -714,7 +714,7 @@ img,video,canvas,iframe{max-width:100%;}
               <label>Weeks</label>
               <input type="number" id="planWeeks" min="1" max="12" value="2" class="finput"
                 style="width:70px;text-align:center;"
-                oninput="updateSmartFreqHint()" data-tip="How many weeks to plan — grid updates immediately"/>
+                oninput="updateSmartFreqHint()"/>
             </div>
             <div class="field flex1">
               <label>Posts per week</label>
@@ -740,6 +740,12 @@ img,video,canvas,iframe{max-width:100%;}
                 <option value="carousels">Carousels heavy</option>
                 <option value="reels">Reels heavy</option>
               </select>
+            </div>
+            <div class="field" style="align-self:flex-end;">
+              <button class="btn btn-ghost btn-sm" onclick="confirmFrequency()"
+                data-tip="Apply frequency and reset grid to new slot count — clears unfilled slots, keeps filled ones">
+                ✓ Set Layout
+              </button>
             </div>
           </div>
           <div id="smartFreqHint" class="small" style="margin-top:5px;color:var(--green2);display:none;"></div>
@@ -1645,24 +1651,54 @@ function setPostSize(el,ratio,w,h){
 function toggleCustomFreq(sel){
   document.getElementById('customFreqWrap').style.display=sel.value==='custom'?'flex':'none';
   updateSmartFreqHint();
-  initEmptyPlan();
+}
+
+function confirmFrequency(){
+  const count = getPostCount();
+  const current = S.plan.length;
+
+  if(current === count){
+    toast(`Already ${count} slots — no change needed`);
+    return;
+  }
+
+  // Warn if shrinking and losing filled slots
+  const filled = S.plan.filter(p=>p.imageIndex).length;
+  const losing = current > count ? S.plan.slice(count).filter(p=>p.imageIndex).length : 0;
+
+  if(losing > 0){
+    if(!confirm(`Reducing to ${count} slots will remove ${losing} filled post${losing>1?'s':''}. Continue?`)) return;
+  }
+
+  if(current < count){
+    // Add empty slots
+    const toAdd = count - current;
+    for(let i=0;i<toAdd;i++){
+      S.plan.push({imageIndex:null,slides:[],type:'single',caption:'',theme:'',notes:'',date:'',time:'',locked:false});
+    }
+  } else {
+    // Trim slots from end
+    S.plan = S.plan.slice(0, count);
+  }
+
+  renderPlan();
+  updateSmartFreqHint();
+  toast(`Layout set to ${count} posts ✓`);
 }
 
 function updateSmartFreqHint(){
   const hint=document.getElementById('smartFreqHint');
+  if(!hint) return;
   const count=getPostCount();
   const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
   const freq=document.getElementById('planFreq')?.value;
-  if(hint&&freq!=='custom'){
+  if(freq!=='custom'){
     hint.style.display='block';
-    hint.textContent=`${weeks} week${weeks>1?'s':''} × ${freq}/week = ${count} posts`;
-  } else if(hint&&freq==='custom'){
+    hint.textContent=`${weeks} week${weeks>1?'s':''} × ${freq}/week = ${count} posts — hit ✓ Set Layout to apply`;
+  } else {
     hint.style.display='block';
-    hint.textContent=`${count} posts total`;
+    hint.textContent=`${count} posts total — hit ✓ Set Layout to apply`;
   }
-  // Resize empty plan grid if plan is still all-empty
-  const allEmpty = S.plan.length === 0 || S.plan.every(p => !p.imageIndex);
-  if(allEmpty) initEmptyPlan();
 }
 
 function getPostCount(){
