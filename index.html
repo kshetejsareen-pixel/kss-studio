@@ -1996,7 +1996,7 @@ function renderGridView(){
   const grid = document.getElementById('gridPreview');
   grid.innerHTML = '';
   if(!S.plan.length){
-    grid.innerHTML = '<div class="grid-cell" style="aspect-ratio:1;grid-column:1/-1;display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--mute);font-size:11px;">Set No. of Posts above and click ✓ Set Layout<br/>or drag images from the sidebar</div>';
     return;
   }
   const total = S.plan.length;
@@ -2006,41 +2006,55 @@ function renderGridView(){
   grid.style.aspectRatio = ''; // remove fixed aspect-ratio so grid can grow
 
   S.plan.forEach((p,i) => {
-    const img = imgByIdx(p.imageIndex);
+    const img = p.imageIndex ? imgByIdx(p.imageIndex) : null;
+    const isEmpty = !img;
     const slides = p.slides ? p.slides.length : 1;
     const isLocked = p.locked || false;
     const igNum = total - i;
     const hasCap = p.caption && p.caption.trim().length > 0;
     const isInspected = S_inspectIdx === i;
     const cell = document.createElement('div');
-    cell.className = 'grid-cell' + (isLocked ? ' locked-cell' : '') + (isInspected ? ' inspected-cell' : '');
-    cell.style.aspectRatio = '1'; // always square cells for grid preview
-    cell.draggable = !isLocked;
-    cell.title = `Post #${igNum} · click to inspect`;
-    cell.innerHTML = `
-      <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" loading="lazy"
-        style="width:100%;height:100%;object-fit:cover;display:block;transform:${getImgTransform(img)};object-position:${p.panX||50}% ${p.panY||50}%;"
-        onerror="this.style.display='none'"/>
-      <div class="grid-cell-num" data-tip="Instagram post #${igNum}">${igNum}${isLocked ? ' 🔒' : ''}</div>
-      <div class="grid-cell-type type-${p.type}">${p.type}${p.type==='carousel'&&slides>1?' ▤'+slides:''}</div>
-      ${!hasCap ? '<div style="position:absolute;bottom:3px;left:3px;background:rgba(192,57,43,.8);color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;">no cap</div>' : ''}
-      <div class="grid-cell-overlay">
-        <div class="grid-cell-date">#${igNum} · ${p.type}${p.type==='carousel'&&slides>1?' ▤ '+slides:''}</div>
-        <div class="grid-cell-actions">
-          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})" data-tip="Swap cover">swap</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();toggleLock(${i})" data-tip="${isLocked?'Unlock':'Lock'}">${isLocked?'🔒':'🔓'}</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();S.plan.splice(${i},1);renderPlan();" data-tip="Remove post">✕</button>
+    cell.className = 'grid-cell' +
+      (isEmpty ? ' grid-cell-empty' : '') +
+      (isLocked ? ' locked-cell' : '') +
+      (isInspected ? ' inspected-cell' : '');
+    cell.style.aspectRatio = '1';
+    cell.draggable = !isLocked && !isEmpty;
+    cell.title = isEmpty ? `Slot ${igNum} — drag an image here` : `Post #${igNum} · click to inspect`;
+
+    if(isEmpty){
+      cell.innerHTML = `
+        <div class="grid-cell-empty-inner">
+          <div class="grid-cell-slot-num">#${igNum}</div>
+          <div style="font-size:22px;opacity:.25;margin-bottom:4px;">+</div>
+          <div style="font-size:9px;color:var(--mute);">drag image here</div>
+        </div>`;
+    } else {
+      cell.innerHTML = `
+        <img src="${img.dataUrl}" crossorigin="anonymous" loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;display:block;transform:${getImgTransform(img)};object-position:${p.panX||50}% ${p.panY||50}%;"
+          onerror="this.style.display='none'"/>
+        <div class="grid-cell-num">${igNum}${isLocked?' 🔒':''}</div>
+        <div class="grid-cell-type type-${p.type}">${p.type}${p.type==='carousel'&&slides>1?' ▤'+slides:''}</div>
+        ${!hasCap?'<div style="position:absolute;bottom:3px;left:3px;background:rgba(192,57,43,.8);color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;">no cap</div>':''}
+        <div class="grid-cell-overlay">
+          <div class="grid-cell-date">#${igNum} · ${p.type}${p.type==='carousel'&&slides>1?' ▤ '+slides:''}</div>
+          <div class="grid-cell-actions">
+            <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})" data-tip="Swap cover">swap</button>
+            <button class="gcell-btn" onclick="event.stopPropagation();toggleLock(${i})" data-tip="${isLocked?'Unlock':'Lock'}">${isLocked?'🔒':'🔓'}</button>
+            <button class="gcell-btn" onclick="event.stopPropagation();clearPlanSlot(${i})" data-tip="Clear slot">✕</button>
+          </div>
         </div>
-      </div>`;
-
-    // Click cell → open Carousel Inspector
-    cell.addEventListener('click', () => openCarouselInspector(i));
-
-    // Drag to reorder
-    if(!isLocked){
+        <div class="pan-hint" title="Alt+drag to reposition crop">⤢</div>`;
+      cell.addEventListener('click', () => openCarouselInspector(i));
+      if(!isLocked) initPanDragOnCell(cell, i);
+    }
+    // Drag to reorder (filled, unlocked cells only)
+    if(!isEmpty && !isLocked){
       cell.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); cell.style.opacity = '.4'; });
       cell.addEventListener('dragend', () => cell.style.opacity = '1');
     }
+    // Accept drops on all cells
     cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
     cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
     cell.addEventListener('drop', e => {
