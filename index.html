@@ -627,6 +627,13 @@ img,video,canvas,iframe{max-width:100%;}
 .ci-thumb-add{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;}
 .ci-unassigned-thumb:hover .ci-thumb-add{opacity:1;}
 .inspected-cell{outline:2px solid var(--gold)!important;outline-offset:-2px;}
+
+/* ── EMPTY PLAN GRID CELLS ── */
+.grid-cell-empty{border:1px dashed var(--border2);background:var(--surface);}
+.grid-cell-empty:hover{border-color:var(--gold);background:rgba(192,57,43,.04);}
+.grid-cell-empty.drag-over{border-color:var(--gold);background:rgba(192,57,43,.08);}
+.grid-cell-empty-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:8px;}
+.grid-cell-slot-num{font-size:9px;color:var(--mute);font-family:'DM Mono',monospace;margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -707,7 +714,7 @@ img,video,canvas,iframe{max-width:100%;}
               <label>Weeks</label>
               <input type="number" id="planWeeks" min="1" max="12" value="2" class="finput"
                 style="width:70px;text-align:center;"
-                oninput="updateSmartFreqHint()" data-tip="How many weeks to plan"/>
+                oninput="updateSmartFreqHint()" data-tip="How many weeks to plan — grid updates immediately"/>
             </div>
             <div class="field flex1">
               <label>Posts per week</label>
@@ -1179,6 +1186,7 @@ img,video,canvas,iframe{max-width:100%;}
           <div>
             <div class="row" style="margin-bottom:8px;">
               <div class="serif" style="font-size:13px;flex:1;">Queue</div>
+              <button class="btn btn-ghost btn-sm" onclick="autoDateQueue()" data-tip="Auto-assign dates based on your frequency setting — spreads posts evenly from today">⏰ Auto-date</button>
               <button class="btn btn-ghost btn-sm" onclick="clearQueue()">Clear</button>
             </div>
             <div class="col" id="postQueue" style="gap:7px;max-height:360px;overflow-y:auto;">
@@ -1478,7 +1486,7 @@ let storyImgSelected=[];
 
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded',()=>{
-  loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus();
+  loadSettings(); renderCalendar(); renderQueue(); updateMetaStatus(); updateSmartFreqHint();
   renderHtagSets(); renderStoryImgPicker(); initGlobalContext();
   initCanvasZoom();
   // Load draft button in sidebar if draft exists
@@ -1637,6 +1645,24 @@ function setPostSize(el,ratio,w,h){
 function toggleCustomFreq(sel){
   document.getElementById('customFreqWrap').style.display=sel.value==='custom'?'flex':'none';
   updateSmartFreqHint();
+  initEmptyPlan();
+}
+
+function updateSmartFreqHint(){
+  const hint=document.getElementById('smartFreqHint');
+  const count=getPostCount();
+  const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
+  const freq=document.getElementById('planFreq')?.value;
+  if(hint&&freq!=='custom'){
+    hint.style.display='block';
+    hint.textContent=`${weeks} week${weeks>1?'s':''} × ${freq}/week = ${count} posts`;
+  } else if(hint&&freq==='custom'){
+    hint.style.display='block';
+    hint.textContent=`${count} posts total`;
+  }
+  // Resize empty plan grid if plan is still all-empty
+  const allEmpty = S.plan.length === 0 || S.plan.every(p => !p.imageIndex);
+  if(allEmpty) initEmptyPlan();
 }
 
 function getPostCount(){
@@ -1912,7 +1938,7 @@ async function runContentPlan(){
   const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}). Voice: ${voice}. You plan image assignments and themes ONLY — captions will be generated separately after layout is approved. Always respond with valid JSON only.`;
 
   const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
-  const prompt=`Plan a ${weeks}-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over ${weeks*7} days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed.\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","time":"09:00","caption":"","theme":"short theme label","notes":""}]`;
+  const prompt=`Plan a ${weeks}-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over ${weeks*7} days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","caption":"","theme":"short theme label","notes":""}]`;
 
   try{
     const raw=await claudeCall(system,prompt);
@@ -1922,6 +1948,7 @@ async function runContentPlan(){
       if(!p.notes)p.notes='';
       p.caption=p.caption||''; // captions empty until generated
       p.locked=false;
+      p.date=''; p.time=''; // dates/times set in Schedule tab only
     });
     renderPlan();
     renderCaptionsTab();
@@ -2035,14 +2062,48 @@ function renderGridView(){
   });
 }
 
+/* ══════════════════════════════════════════════
+   EMPTY PLAN GRID — shows placeholder slots
+   immediately based on frequency, no API needed.
+   Drag sidebar images to fill slots manually.
+══════════════════════════════════════════════ */
+function initEmptyPlan(){
+  const count = getPostCount();
+  // Only init if plan is empty — don't overwrite existing work
+  if(S.plan.length > 0) return;
+  S.plan = Array.from({length: count}, (_,i) => ({
+    imageIndex: null,
+    slides: [],
+    type: 'single',
+    caption: '',
+    theme: '',
+    notes: '',
+    date: '',
+    time: '',
+    locked: false,
+  }));
+  renderPlan();
+}
+
 function renderPlan(){
   renderGridView();
-  // Update label
+  renderListView();
   const label = document.getElementById('planPostCountLabel');
   if(label) label.textContent = S.plan.length ? `${S.plan.length} posts` : '';
   renderUnassignedPanel();
-  // Reset carousel inspector
   openCarouselInspector(null);
+}
+
+
+
+function clearPlanSlot(i){
+  S.plan[i].imageIndex = null;
+  S.plan[i].slides = [];
+  S.plan[i].type = 'single';
+  S.plan[i].caption = '';
+  renderPlan();
+  openCarouselInspector(null);
+  toast('Slot cleared');
 }
 
 /* ── CAROUSEL INSPECTOR ── */
@@ -2399,15 +2460,15 @@ function setPostType(i,type){
   renderPlan();
 }
 function movePlanItem(i,dir){const j=i+dir;if(j<0||j>=S.plan.length)return;[S.plan[i],S.plan[j]]=[S.plan[j],S.plan[i]];renderPlan();}
-function duplicatePlanItem(i){const c=JSON.parse(JSON.stringify(S.plan[i]));c.date='TBD';S.plan.splice(i+1,0,c);renderPlan();toast('Duplicated ✓');}
-function queueAll(){if(!S.plan.length){toast('Generate a plan first');return;}S.plan.forEach((_,i)=>addPlanToQueue(i,true));saveQueue();renderQueue();toast(`${S.plan.length} posts queued ✓`);}
+function duplicatePlanItem(i){const c=JSON.parse(JSON.stringify(S.plan[i]));c.date='';c.time='';S.plan.splice(i+1,0,c);renderPlan();toast('Duplicated ✓');}
+function queueAll(){if(!S.plan.length){toast('Build a plan first — drag images into the grid or use Plan with Claude');return;}S.plan.forEach((_,i)=>addPlanToQueue(i,true));saveQueue();renderQueue();toast(`${S.plan.length} posts queued ✓`);}
 function addPlanToQueue(i,silent=false){
   const p=S.plan[i];const img=imgByIdx(p.imageIndex);
-  S.queue.push({id:'q_'+Date.now()+Math.random(),imageDataUrl:img?.dataUrl||'',caption:p.caption,firstComment:p.firstComment||S.settings.hashtags||'',type:p.type,date:p.date,time:p.time,status:'queued',notes:p.notes||''});
+  S.queue.push({id:'q_'+Date.now()+Math.random(),imageDataUrl:img?.dataUrl||'',caption:p.caption,firstComment:p.firstComment||S.settings.hashtags||'',type:p.type,date:'',time:'',status:'queued',notes:p.notes||''});
   if(!silent){saveQueue();renderQueue();toast('Added to queue ✓');}
 }
 function reshuffleGrid(){
-  if(!S.plan.length){toast('Generate a plan first');return;}
+  if(!S.plan.length){toast('Build a plan first');return;}
   if(!S.images.length){toast('No images loaded');return;}
   const total=S.images.length;
 
@@ -4628,6 +4689,50 @@ function renderQueue(){
     </div>`).join('')+(S.queue.length>3?`<div class="small mute">+${S.queue.length-3} more</div>`:'');
   renderCalendar();
 }
+function autoDateQueue(){
+  if(!S.queue.length){toast('Queue is empty — add posts from Plan tab first');return;}
+
+  // Get posting frequency from plan settings
+  const freq = document.getElementById('planFreq')?.value;
+  const postsPerWeek = freq === 'custom'
+    ? Math.ceil(S.queue.length / (parseInt(document.getElementById('planWeeks')?.value)||2))
+    : parseInt(freq)||3;
+
+  // Build array of posting days based on frequency
+  const dayPatterns = {
+    7: [0,1,2,3,4,5,6],      // daily
+    5: [1,2,3,4,5],           // Mon-Fri
+    3: [1,3,6],               // Mon, Wed, Sat
+    2: [2,5],                 // Wed, Sat
+    1: [3],                   // Thu
+  };
+  const pattern = dayPatterns[postsPerWeek] || dayPatterns[3];
+
+  // Start from tomorrow
+  const start = new Date();
+  start.setDate(start.getDate() + 1);
+  start.setHours(9, 0, 0, 0);
+
+  // Assign dates to queue items
+  let postIdx = 0;
+  let weekOffset = 0;
+  while(postIdx < S.queue.length){
+    for(const day of pattern){
+      if(postIdx >= S.queue.length) break;
+      const d = new Date(start);
+      d.setDate(start.getDate() + weekOffset * 7 + (day - start.getDay() + 7) % 7);
+      S.queue[postIdx].date = d.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'});
+      S.queue[postIdx].time = postIdx % 2 === 0 ? '09:00' : '19:00';
+      postIdx++;
+    }
+    weekOffset++;
+  }
+
+  saveQueue();
+  renderQueue();
+  toast(`Dates assigned across ${weekOffset} week${weekOffset>1?'s':''} ✓ — adjust times in queue below`);
+}
+
 function removeFromQueue(i){S.queue.splice(i,1);saveQueue();renderQueue();}
 function clearQueue(){if(confirm('Clear all?')){S.queue=[];saveQueue();renderQueue();}}
 function saveQueue(){localStorage.setItem('kss_queue',JSON.stringify(S.queue));}
