@@ -1646,6 +1646,7 @@ function setPostSize(el,ratio,w,h){
   S.postW=parseInt(w); S.postH=parseInt(h); S.designSize=ratio;
   const notes={'4:5':'4:5 Portrait (1080×1350) — maximum Instagram real estate ★','9:16':'9:16 Reel/Story (1080×1920)','1:1':'1:1 Square (1080×1080)','16:9':'16:9 Landscape (1080×608)'};
   document.getElementById('sizeNote').textContent=notes[ratio]||'';
+  if(S.plan.length) renderGridView(); // update cell aspect ratios immediately
 }
 function toggleCustomFreq(sel){ updateSmartFreqHint(); } // kept for safety
 
@@ -1893,7 +1894,14 @@ function renderDesignOutput(containerId, htmlContent, imgDataUrl, imgSelector, w
   const outer=document.createElement('div');
   outer.style.cssText=`width:${scaledW}px;height:${scaledH}px;overflow:hidden;position:relative;border-radius:2px;flex-shrink:0;box-shadow:0 8px 32px rgba(0,0,0,.6);`;
   const inner=document.createElement('div');
-  inner.style.cssText=`width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;position:absolute;top:0;left:0;overflow:hidden;`;
+  inner.style.width=`${w}px`;
+  inner.style.height=`${h}px`;
+  inner.style.transformOrigin='top left';
+  inner.style.position='absolute';
+  inner.style.top='0';
+  inner.style.left='0';
+  inner.style.overflow='hidden';
+  inner.style.transform=`scale(${scale})`; // set separately so zoom can override
   inner.innerHTML=htmlContent;
   outer.appendChild(inner);out.appendChild(outer);
   // Inject actual image and apply any stored transform
@@ -2018,7 +2026,7 @@ function renderGridView(){
       (isEmpty ? ' grid-cell-empty' : '') +
       (isLocked ? ' locked-cell' : '') +
       (isInspected ? ' inspected-cell' : '');
-    cell.style.aspectRatio = '1';
+    cell.style.aspectRatio = `${S.postW}/${S.postH}`;
     cell.draggable = !isLocked && !isEmpty;
     cell.title = isEmpty ? `Slot ${igNum} — drag an image here` : `Post #${igNum} · click to inspect`;
 
@@ -3896,7 +3904,7 @@ async function researchBrandFromContextBar(){
     if(useWebSearch) body.tools = [{type:'web_search_20250305',name:'web_search'}];
 
     const r = await fetch(PROXY,{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31'},
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
       body:JSON.stringify(body)
     });
     if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${r.status}`);}
