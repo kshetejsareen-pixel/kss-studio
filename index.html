@@ -673,7 +673,7 @@ img,video,canvas,iframe{max-width:100%;}
             <svg width="14" height="12" viewBox="0 0 87.3 78"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/><path d="M73.4 14.45c-.8-1.4-1.95-2.55-3.3-3.3L55.8 1.2C54.45.4 52.9 0 51.35 0h-1.5L43.65 25l16.15 28h27.3c0-1.55-.4-3.1-1.2-4.5L73.4 14.45z" fill="#ffba00"/></svg>
             <span style="font-size:9px;display:block;margin-top:2px;">Drive</span>
           </button>
-          <div id="driveActiveFolderTag" style="display:none;flex:1;min-width:0;"></div>
+          <div id="driveActiveFolderTag" style="display:none;font-size:9px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;"></div>
         </div>
         <div class="img-grid" id="imgGrid"></div>
         <div style="font-size:10px;color:var(--mute);margin-top:3px;" id="imgCount"></div>
@@ -711,7 +711,7 @@ img,video,canvas,iframe{max-width:100%;}
             </div>
             <div class="field flex1">
               <label>Posts per week</label>
-              <select id="planFreq" class="finput" onchange="updateSmartFreqHint()">
+              <select id="planFreq" class="finput" onchange="toggleCustomFreq(this)">
                 <option value="7">Daily (7/wk)</option>
                 <option value="5">5× week</option>
                 <option value="3" selected>3× week</option>
@@ -1712,7 +1712,7 @@ function renderImageGrid(){
       ondragstart="onSidebarImgDragStart(event,'${img.id}')"
       ondragend="this.style.opacity='1'"
       title="${img.name}"
-      data-tip="${img.name} · ${img.orientation||'portrait'} · drag to Design canvas">
+      data-tip="${img.name} · ${img.orientation||'portrait'} · drag to Plan grid or Design canvas · shift+drag to add as carousel slide">
       <img src="${img.dataUrl}" loading="lazy" onerror="this.style.background='var(--surface3)'"/>
       <div class="sel-badge">✓</div>
       ${img.orientation==='landscape'?'<div style="position:absolute;bottom:2px;left:2px;background:rgba(74,122,191,.8);color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;">L</div>':''}
@@ -1733,8 +1733,11 @@ function imgByIdx(idx){
 async function claudeCall(system,user){
   const key=S.settings.anthropicKey;
   if(!key){toast('Add Anthropic API key in Settings');throw new Error('No key');}
-  const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:M_SONNET,max_tokens:1500,system,messages:[{role:'user',content:user}]})});
+  const r=await fetch(PROXY,{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31'},
+    body:JSON.stringify({model:M_SONNET,max_tokens:1500,
+      system:[{type:'text',text:system,cache_control:{type:'ephemeral'}}],
+      messages:[{role:'user',content:user}]})});
   if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
   const d=await r.json();
   if(!d.content||!d.content[0])throw new Error('Empty response from API');
@@ -1802,8 +1805,11 @@ HTML:
 CAPTION:
 <the instagram caption here with hashtags>`;
 
-  const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:model,max_tokens:maxTokens,system,messages:[{role:'user',content}]})});
+  const r=await fetch(PROXY,{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31'},
+    body:JSON.stringify({model:model,max_tokens:maxTokens,
+      system:[{type:'text',text:system,cache_control:{type:'ephemeral'}}],
+      messages:[{role:'user',content}]})});
   if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
   const d=await r.json();
   if(!d.content||!d.content[0])throw new Error('Empty response from API');
@@ -1994,11 +2000,35 @@ function renderGridView(){
     cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
     cell.addEventListener('drop', e => {
       e.preventDefault(); cell.classList.remove('drag-over');
+
+      // 1. Sidebar image drag (drag from imgGrid to plan cell)
+      const sidebarImgId = e.dataTransfer.getData('sidebar-img-id');
+      if(sidebarImgId){
+        const imgIdx = S.images.findIndex(im=>im.id===sidebarImgId) + 1;
+        if(imgIdx > 0){
+          if(e.shiftKey || p.type==='carousel'){
+            // Shift+drop or carousel post → append as slide
+            appendSlideToPost(i, imgIdx);
+          } else {
+            // Normal drop → set as cover
+            S.plan[i].imageIndex = imgIdx;
+            S.plan[i].slides = [imgIdx];
+            renderPlan();
+            openCarouselInspector(i);
+            toast('Cover image set ✓ — shift+drop to add as carousel slide');
+          }
+        }
+        return;
+      }
+
+      // 2. Unassigned panel drag
       const unassignedIdx = e.dataTransfer.getData('unassigned-img');
       if(unassignedIdx !== ''){
         const imgIdx = parseInt(unassignedIdx);
         if(!isNaN(imgIdx)){ appendSlideToPost(i, imgIdx); return; }
       }
+
+      // 3. Grid cell reorder drag
       const from = parseInt(e.dataTransfer.getData('text/plain'));
       if(!isNaN(from) && from !== i && !S.plan[from]?.locked){
         const m = S.plan.splice(from, 1)[0]; S.plan.splice(i, 0, m); renderPlan(); toast('Reordered ✓');
@@ -2228,12 +2258,13 @@ Write now. No hashtags. No emojis.`;
 async function claudeVisionCaption(imageDataUrl,system,user){
   const key=S.settings.anthropicKey;
   if(!key)throw new Error('No API key — add in Settings');
-  const resized=await resizeForVision(imageDataUrl,400); // 400px sufficient for composition read
+  const resized=await resizeForVision(imageDataUrl,400);
   const b64=extractBase64(resized);
   if(!b64)throw new Error('Invalid image data');
   const r=await fetch(PROXY,{method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:M_SONNET,max_tokens:400,system,
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31'},
+    body:JSON.stringify({model:M_SONNET,max_tokens:400,
+      system:[{type:'text',text:system,cache_control:{type:'ephemeral'}}],
       messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:b64.mediaType,data:b64.data}},
         {type:'text',text:user}
@@ -3559,17 +3590,16 @@ async function researchBrandFromContextBar(){
   toast('Researching brand online…',8000);
 
   try{
-    // Use Sonnet with web search tool
+    const RESEARCH_SYSTEM = `You are a brand researcher. Search for the brand/client mentioned and return a concise profile in 3-4 sentences covering: founders, positioning, aesthetic, target audience, what makes them distinctive. Be specific and factual. If it's a photography project description not a brand name, extract the key context instead.`;
+    // Use Sonnet with web search tool + prompt caching on system prompt
     const r = await fetch(PROXY,{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31'},
       body:JSON.stringify({
         model:M_SONNET,
         max_tokens:800,
         tools:[{type:'web_search_20250305',name:'web_search'}],
-        system:`You are a brand researcher. Search for the brand/client mentioned and return a concise profile in 3-4 sentences covering: founders, positioning, aesthetic, target audience, what makes them distinctive. Be specific and factual. If it's a photography project description not a brand name, extract the key context instead.`,
-        messages:[{role:'user',content:`Research this for Instagram content creation context: "${val}"
-
-Search for their website, Instagram, press coverage. Return a 3-4 sentence profile that will help write authentic captions and design briefs. Include: brand positioning, visual aesthetic, key people, location if relevant.`}]
+        system:[{type:'text',text:RESEARCH_SYSTEM,cache_control:{type:'ephemeral'}}],
+        messages:[{role:'user',content:`Research this for Instagram content creation context: "${val}"\n\nSearch for their website, Instagram, press coverage. Return a 3-4 sentence profile that will help write authentic captions and design briefs. Include: brand positioning, visual aesthetic, key people, location if relevant.`}]
       })
     });
 
@@ -4758,10 +4788,10 @@ function closeDriveModal(){document.getElementById('driveModal').style.display='
 function extractFolderId(url){let m=url.match(/\/folders\/([a-zA-Z0-9_-]+)/);if(m)return m[1];m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);return m?m[1]:null;}
 function setDriveStatus(msg){document.getElementById('driveStatus').textContent=msg;}
 function showActiveFolderTag(url){
-  const id=extractFolderId(url);if(!id)return;
   const tag=document.getElementById('driveActiveFolderTag');
-  tag.style.display='block';
-  tag.innerHTML=`<div class="drive-folder-tag"><svg width="10" height="9" viewBox="0 0 87.3 78"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066da"/><path d="M43.65 25L29.9 1.2C28.55.4 27 0 25.45 0c-1.55 0-3.1.4-4.5 1.2L6.6 11.15c-1.4.8-2.55 1.95-3.3 3.3L27.5 53l16.15-28z" fill="#00ac47"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.1-.4 4.5-1.2L59.8 53z" fill="#2684fc"/></svg> Drive · ${id.substring(0,10)}… <span onclick="openDriveModal()" style="cursor:pointer;text-decoration:underline;">reload</span></div>`;
+  if(!url){tag.style.display='none';return;}
+  tag.style.display='inline-block';
+  tag.innerHTML=`<span style="color:var(--green2);cursor:pointer;font-size:9px;" onclick="openDriveModal()" title="Drive folder active — click to manage">● Drive</span>`;
 }
 async function loadDriveFolder(){
   // Legacy single-folder — add to pool and load all
