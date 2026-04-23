@@ -51,6 +51,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .context-bar-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--green2);white-space:nowrap;flex-shrink:0;font-family:'DM Mono',monospace;}
 .context-bar-input{background:transparent;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;flex:1;padding:0;min-width:0;}
 .context-bar-input::placeholder{color:var(--mute);}
+.context-bar-research-btn{
+  background:rgba(107,124,74,.15);border:1px solid rgba(107,124,74,.3);
+  color:var(--green2);font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.08em;padding:3px 8px;border-radius:2px;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;transition:all .15s;
+}
+.context-bar-research-btn:hover{background:rgba(107,124,74,.25);}
 .context-bar-indicator{flex-shrink:0;font-size:9px;color:var(--green);white-space:nowrap;font-family:'DM Mono',monospace;}
 .logo{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--gold);white-space:nowrap;letter-spacing:.2em;text-transform:uppercase;}
 .nav{display:flex;gap:1px;flex:1;}
@@ -626,12 +633,13 @@ img,video,canvas,iframe{max-width:100%;}
 
   <!-- GLOBAL CONTEXT BAR — always visible, syncs across all tabs -->
   <div class="context-bar">
-    <span class="context-bar-label">✦ Project Brief</span>
+    <span class="context-bar-label">Brief</span>
     <input type="text" id="globalContextBar" class="context-bar-input"
-      placeholder="Describe your project — e.g. RAVOH luxury furniture brand launch, Delhi, two founders, editorial tone, avoid repeating same person…"
+      placeholder="Brand name or project — e.g. RAVOH, luxury furniture, Delhi…"
       oninput="syncGlobalContext(this.value)"
-      data-tip="This brief is shared across Plan, Captions, Design and Stories. Claude reads it for every generation."/>
-    <span class="context-bar-indicator" id="contextBarIndicator">✓ synced</span>
+      data-tip="Type a brand name and hit Research — Claude finds their website, Instagram and positioning. Or describe your project manually."/>
+    <button id="btnResearchBrand" class="context-bar-research-btn" onclick="researchBrandFromContextBar()" data-tip="Claude searches web for this brand and adds context automatically">✦ Research</button>
+    <span class="context-bar-indicator" id="contextBarIndicator">synced</span>
   </div>
 
   <div class="main">
@@ -1412,6 +1420,9 @@ img,video,canvas,iframe{max-width:100%;}
 
 <script>
 const PROXY = 'https://kss-proxy.kshetej-sareen.workers.dev';
+const M_OPUS   = 'claude-opus-4-5';    // design generation only
+const M_SONNET = 'claude-sonnet-4-5';  // captions, plan, research
+const M_HAIKU  = 'claude-haiku-4-5-20251001'; // suggestions, chat, helpers
 
 /* ── STATE ── */
 const S = {
@@ -1681,7 +1692,7 @@ async function claudeCall(system,user){
   const key=S.settings.anthropicKey;
   if(!key){toast('Add Anthropic API key in Settings');throw new Error('No key');}
   const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,system,messages:[{role:'user',content:user}]})});
+    body:JSON.stringify({model:M_SONNET,max_tokens:1500,system,messages:[{role:'user',content:user}]})});
   if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
   const d=await r.json();
   if(!d.content||!d.content[0])throw new Error('Empty response from API');
@@ -1694,7 +1705,7 @@ function extractBase64(dataUrl){
   return m?{mediaType:m[1],data:m[2]}:null;
 }
 
-async function claudeVisionDesign(imageDataUrl, textPrompt, maxTokens=4000){
+async function claudeVisionDesign(imageDataUrl, textPrompt, maxTokens=3000, model=M_OPUS){
   const key=S.settings.anthropicKey;
   if(!key){toast('Add Anthropic API key in Settings');throw new Error('No key');}
   const b64=extractBase64(imageDataUrl);
@@ -1750,7 +1761,7 @@ CAPTION:
 <the instagram caption here with hashtags>`;
 
   const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:maxTokens,system,messages:[{role:'user',content}]})});
+    body:JSON.stringify({model:model,max_tokens:maxTokens,system,messages:[{role:'user',content}]})});
   if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
   const d=await r.json();
   if(!d.content||!d.content[0])throw new Error('Empty response from API');
@@ -2104,12 +2115,12 @@ Write now. No hashtags. No emojis.`;
 async function claudeVisionCaption(imageDataUrl,system,user){
   const key=S.settings.anthropicKey;
   if(!key)throw new Error('No API key — add in Settings');
-  const resized=await resizeForVision(imageDataUrl,600);
+  const resized=await resizeForVision(imageDataUrl,400); // 400px sufficient for composition read
   const b64=extractBase64(resized);
   if(!b64)throw new Error('Invalid image data');
   const r=await fetch(PROXY,{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:500,system,
+    body:JSON.stringify({model:M_SONNET,max_tokens:400,system,
       messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:b64.mediaType,data:b64.data}},
         {type:'text',text:user}
@@ -2893,9 +2904,14 @@ async function sendDesignChat(){
   const history = S_designChatHistory.filter(m=>m.role!=='system').map(m=>`${m.role}: ${m.text}`).join('\n');
 
   try{
+    // Trim HTML to save tokens — send structure not full content
+    const trimmedHtml = S_currentDesignHtml.length > 1200
+      ? S_currentDesignHtml.substring(0,1200)+'…[truncated]'
+      : S_currentDesignHtml;
+    // Use claudeCall (Sonnet) for chat — cheaper than Opus
     const newHtml = await claudeCall(
-      `You are an elite graphic designer iterating on an Instagram post design. You receive the current HTML design and a change request. Return ONLY the updated complete HTML div — no explanation, no markdown fences.`,
-      `Current design HTML:\n${S_currentDesignHtml}\n\nConversation so far:\n${history}\n\nLatest change request: "${msg}"\n\nReturn the updated complete HTML div with this change applied. Keep all existing elements unless specifically asked to remove them. Use id="kss-main" for the image. Handle: ${handle}`
+      `You are a graphic designer editing an Instagram post design HTML. Apply the requested change and return ONLY the complete updated HTML div. No explanation, no markdown.`,
+      `Design HTML (may be truncated — keep structure):\n${trimmedHtml}\n\nLast request: "${msg}"\nHistory: ${history.slice(-200)}\n\nReturn full updated HTML div. Use id="kss-main" for image. Handle: ${handle}`
     );
     // Update design output
     const out = document.getElementById('designOutput');
@@ -2969,7 +2985,7 @@ Handle: ${handle}
 Analyse negative space. Never cover face. Image placeholder: <img id="kss-story-${i}" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"/>
 Return ONLY the HTML div, no caption needed.`;
     try{
-      const raw = await claudeVisionDesign(img.dataUrl, prompt, 2000);
+      const raw = await claudeVisionDesign(img.dataUrl, prompt, 1800, M_SONNET);
       const clean = raw.replace(/```html|```/g,'').replace(/HTML:/i,'').replace(/CAPTION:[\s\S]*/i,'').trim();
       S_iterHtmls[i] = clean;
       // Render mini preview
@@ -3064,7 +3080,7 @@ CAPTION:
 Write a short photographer's caption.`;
 
   try{
-    const raw = await claudeVisionDesign(img.dataUrl, prompt, 3000);
+    const raw = await claudeVisionDesign(img.dataUrl, prompt, 2500, M_SONNET);
     const {html,caption} = parseDesignResponse(raw);
     renderDesignOutput('designOutput', html, img.dataUrl, '#kss-main', 1080, 1350, 520);
     document.getElementById('designOutput').style.display='flex';
@@ -3394,6 +3410,57 @@ function assignDesignToPlanPost(planIdx){
 }
 
 /* ── GLOBAL CONTEXT SYNC ── */
+/* ══════════════════════════════════════════════
+   BRAND RESEARCH — web search from context bar
+══════════════════════════════════════════════ */
+async function researchBrandFromContextBar(){
+  const bar = document.getElementById('globalContextBar');
+  const val = bar?.value?.trim();
+  if(!val){toast('Type a brand name or project description first');return;}
+
+  const btn = document.getElementById('btnResearchBrand');
+  if(btn){btn.innerHTML='<span class="spin"></span>';btn.disabled=true;}
+
+  const key = S.settings.anthropicKey;
+  if(!key){toast('Add Anthropic API key in Settings');if(btn){btn.innerHTML='✦ Research';btn.disabled=false;}return;}
+
+  toast('Researching brand online…',8000);
+
+  try{
+    // Use Sonnet with web search tool
+    const r = await fetch(PROXY,{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:M_SONNET,
+        max_tokens:800,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        system:`You are a brand researcher. Search for the brand/client mentioned and return a concise profile in 3-4 sentences covering: founders, positioning, aesthetic, target audience, what makes them distinctive. Be specific and factual. If it's a photography project description not a brand name, extract the key context instead.`,
+        messages:[{role:'user',content:`Research this for Instagram content creation context: "${val}"
+
+Search for their website, Instagram, press coverage. Return a 3-4 sentence profile that will help write authentic captions and design briefs. Include: brand positioning, visual aesthetic, key people, location if relevant.`}]
+      })
+    });
+
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+    const d = await r.json();
+
+    // Extract text from response (may include tool use blocks)
+    const textBlocks = d.content?.filter(b=>b.type==='text').map(b=>b.text).join(' ');
+    if(!textBlocks){throw new Error('No research results');}
+
+    // Append research to context bar
+    const researched = val + ' | ' + textBlocks.trim().substring(0,300);
+    if(bar) bar.value = researched;
+    syncGlobalContext(researched);
+    toast('Brand researched ✓ — context updated');
+  }catch(e){
+    toast('Research failed: '+e.message);
+    console.error(e);
+  }finally{
+    if(btn){btn.innerHTML='✦ Research';btn.disabled=false;}
+  }
+}
+
 function syncGlobalContext(val){
   S.globalContextValue = val;
   // Flash indicator
@@ -3971,7 +4038,7 @@ async function generateVariants(){
       const handle=S.settings.handle||'@kshetejsareenstudios';
       const hashtags=S.settings.hashtags||'#luxuryphotography';
       const varPrompt=buildDesignPrompt(w,h,varStyle,overlayText,subText,handle,hashtags);
-      const raw=await claudeVisionDesign(imgs[0].dataUrl,varPrompt,3500);
+      const raw=await claudeVisionDesign(imgs[0].dataUrl,varPrompt,2000,M_SONNET);
       const {html}=parseDesignResponse(raw);
       S.designStyle=origStyle;
 
