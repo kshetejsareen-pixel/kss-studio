@@ -1911,7 +1911,8 @@ async function runContentPlan(){
 
   const system=`You are a luxury Instagram content strategist for Kshetej Sareen Studios (${handle}). Voice: ${voice}. You plan image assignments and themes ONLY — captions will be generated separately after layout is approved. Always respond with valid JSON only.`;
 
-  const prompt=`Plan a 2-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over 14 days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed.\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","time":"09:00","caption":"","theme":"short theme label","notes":""}]`;
+  const weeks=parseInt(document.getElementById('planWeeks')?.value)||2;
+  const prompt=`Plan a ${weeks}-week Instagram calendar. ${totalImgs} images (orientation noted):\n${imgDesc}\n\nContext: ${globalCtx||'None'}\nPosts: ${count} over ${weeks*7} days\nPost format: ${ratio}\n\n${distributionNote}\n\n${orientNote}\n\nBEST TIMES (India IST): 09:00 and 19:00 on Tue/Thu/Sat, 07:00 and 20:00 on Mon/Wed.\n\nVISUAL DIVERSITY:\n- Never place similar images adjacent in the 3-column grid\n- Alternate wide/close, people/spaces, warm/cool across grid rows\n- No imageIndex repeated as cover across posts\n\nReturn ONLY valid JSON array (caption field = empty string ""):\n[{"day":1,"date":"Mon Apr 21","imageIndex":1,"slides":[1,3],"type":"single|carousel|reel","time":"09:00","caption":"","theme":"short theme label","notes":""}]`;
 
   try{
     const raw=await claudeCall(system,prompt);
@@ -1925,11 +1926,7 @@ async function runContentPlan(){
     renderPlan();
     renderCaptionsTab();
     renderUnassignedPanel();
-    // Show caption generation banner
-    const banner=document.getElementById('captionBanner');
-    if(banner)banner.style.display='flex';
-    document.getElementById('igOrderNote').style.display='block';
-    toast(`Layout ready — ${S.plan.length} posts. Now generate captions when ready ✓`);
+    toast(`Layout ready — ${S.plan.length} posts ✓ Go to Captions tab to generate captions`);
   }catch(e){toast('Error: '+e.message);console.error(e);}
   finally{btn.innerHTML='Plan with Claude';btn.disabled=false;}
 }
@@ -2249,8 +2246,6 @@ Write now. No hashtags. No emojis.`;
     }
   }
   renderPlan();renderCaptionsTab();
-  const banner=document.getElementById('captionBanner');
-  if(banner)banner.style.display='none';
   btn.innerHTML='✦ Generate Captions';btn.disabled=false;
   toast(`${written}/${S.plan.length} captions written. Hashtags in First Comment ✓`);
 }
@@ -2477,10 +2472,7 @@ function reshuffleGrid(){
   });
 
   renderPlan();renderUnassignedPanel();
-  // Show/update caption banner
-  const banner=document.getElementById('captionBanner');
-  if(banner&&S.plan.some(p=>!p.caption))banner.style.display='flex';
-  toast('Grid reshuffled ✓ · Locked covers preserved · Generate captions when ready');
+  toast('Grid reshuffled ✓ · Locked covers preserved');
 }
 
 /* ── IMAGE TRANSFORM ── */
