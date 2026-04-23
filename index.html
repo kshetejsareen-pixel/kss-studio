@@ -612,6 +612,21 @@ img,video,canvas,iframe{max-width:100%;}
 }
 .mobile-nav-btn.active{color:var(--gold);}
 .mobile-nav-btn svg{width:20px;height:20px;fill:currentColor;display:block;margin:0 auto 1px;}
+
+/* ── CAROUSEL INSPECTOR ── */
+.carousel-inspector{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;min-height:200px;}
+.ci-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;text-align:center;}
+.ci-slides{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
+.ci-slide{position:relative;aspect-ratio:1;border-radius:2px;overflow:hidden;cursor:grab;border:2px solid transparent;transition:border-color .15s;}
+.ci-slide:hover{border-color:var(--border2);}
+.ci-slide-num{position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;font-size:8px;padding:1px 4px;border-radius:2px;font-family:'DM Mono',monospace;}
+.ci-slide-remove{position:absolute;top:3px;right:3px;background:rgba(192,57,43,.8);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.ci-unassigned-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px;}
+.ci-unassigned-thumb{position:relative;aspect-ratio:1;border-radius:2px;overflow:hidden;cursor:pointer;border:1px dashed var(--border2);transition:border-color .15s;}
+.ci-unassigned-thumb:hover{border-color:var(--gold);}
+.ci-thumb-add{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;}
+.ci-unassigned-thumb:hover .ci-thumb-add{opacity:1;}
+.inspected-cell{outline:2px solid var(--gold)!important;outline-offset:-2px;}
 </style>
 </head>
 <body>
@@ -684,20 +699,33 @@ img,video,canvas,iframe{max-width:100%;}
       <div class="tab-panel active" id="tab-plan">
         <div class="card">
           <div class="card-title serif">Content Planner</div>
-          <div class="card-sub">Arrange images into a 2-week posting schedule — captions in the Captions tab</div>
+          <div class="card-sub">Arrange images into a posting schedule — captions in the Captions tab</div>
 
-          <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px;">
-            <div class="field flex1" >
-              <label>Frequency</label>
-              <select id="planFreq" class="finput" onchange="toggleCustomFreq(this)">
-                <option value="daily">Daily (14)</option>
-                <option value="5pw">5× week (10)</option>
-                <option value="3pw" selected>3× week (6)</option>
-                <option value="2pw">2× week (4)</option>
-                <option value="custom">Custom…</option>
+          <!-- FREQUENCY — weeks + posts/week -->
+          <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:flex-end;">
+            <div class="field" style="min-width:80px;">
+              <label>Weeks</label>
+              <input type="number" id="planWeeks" min="1" max="12" value="2" class="finput"
+                style="width:70px;text-align:center;"
+                oninput="updateSmartFreqHint()" data-tip="How many weeks to plan"/>
+            </div>
+            <div class="field flex1">
+              <label>Posts per week</label>
+              <select id="planFreq" class="finput" onchange="updateSmartFreqHint()">
+                <option value="7">Daily (7/wk)</option>
+                <option value="5">5× week</option>
+                <option value="3" selected>3× week</option>
+                <option value="2">2× week</option>
+                <option value="1">1× week</option>
+                <option value="custom">Custom total…</option>
               </select>
             </div>
-            <div class="field flex1" >
+            <div id="customFreqWrap" style="display:none;align-items:center;gap:4px;">
+              <input type="number" id="customPostCount" min="1" max="60" value="6" class="finput"
+                style="width:55px;text-align:center;" oninput="updateSmartFreqHint()"/>
+              <span class="small mute">posts total</span>
+            </div>
+            <div class="field flex1">
               <label>Content Mix</label>
               <select id="planMix" class="finput">
                 <option value="mixed">Mixed — stills, carousels, reels</option>
@@ -707,13 +735,9 @@ img,video,canvas,iframe{max-width:100%;}
               </select>
             </div>
           </div>
-          <div id="customFreqWrap" style="display:none;align-items:center;gap:6px;margin-top:6px;">
-            <input type="number" id="customPostCount" min="1" max="30" value="6" class="finput" style="width:60px;text-align:center;" oninput="updateSmartFreqHint()"/>
-            <span class="small mute">posts</span>
-          </div>
-          <div id="smartFreqHint" class="small" style="margin-top:4px;color:var(--green);display:none;"></div>
+          <div id="smartFreqHint" class="small" style="margin-top:5px;color:var(--green2);display:none;"></div>
 
-          <!-- POST SIZE -->
+          <!-- POST FORMAT -->
           <div class="field" style="margin-top:10px;">
             <label>Post Format</label>
             <div class="size-pills">
@@ -728,58 +752,70 @@ img,video,canvas,iframe{max-width:100%;}
           <!-- PRIMARY ACTION -->
           <button class="btn btn-primary" onclick="runContentPlan()" id="btnPlan"
             style="width:100%;margin-top:12px;padding:12px;"
-            data-tip="Generates layout with dates, times and image assignments">Plan with Claude</button>
+            data-tip="Generates layout with image assignments across your selected weeks">Plan with Claude</button>
 
-          <!-- SECONDARY ACTIONS — collapsible row -->
+          <!-- SECONDARY ACTIONS -->
           <div class="row" style="flex-wrap:wrap;gap:5px;margin-top:8px;">
             <button class="btn btn-ghost btn-sm" onclick="reshuffleGrid()" data-tip="Reassign images randomly — locked posts skipped">↺ Reshuffle</button>
-            <button class="btn btn-ghost btn-sm" onclick="applyBestTimes()" data-tip="Apply India IST optimal posting times">⏰ Times</button>
             <button class="btn btn-ghost btn-sm" onclick="queueAll()" data-tip="Add all posts to Schedule">→ Queue</button>
-            <button class="btn btn-ghost btn-sm" onclick="saveDraft()" data-tip="Save plan draft">💾</button>
-            <button class="btn btn-ghost btn-sm" onclick="exportPlan()" data-tip="Export as text">Export</button>
-            <div class="flex1"></div>
-            <div class="view-toggle">
-              <button class="view-btn active" id="btnViewGrid" onclick="setView('grid')">Grid</button>
-              <button class="view-btn" id="btnViewTimeline" onclick="setView('timeline')">List</button>
-            </div>
+            <button class="btn btn-ghost btn-sm" onclick="saveDraft()" data-tip="Save plan draft — restores images from Drive automatically">💾</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportPlan()" data-tip="Export plan as text">Export</button>
           </div>
         </div>
 
-        <!-- PLAN GRID — stacks on mobile -->
+        <!-- PLAN WORKSPACE — grid left, carousel inspector right -->
         <div id="planViewGrid" class="plan-view-grid">
+
+          <!-- LEFT: Grid preview — scales with post count -->
           <div>
-            <div class="row" style="margin-bottom:8px;">
-              <div class="serif" style="font-size:13px;flex:1;">Grid Preview <span class="mute small" style="font-family:'DM Mono',monospace;">drag to reorder · Instagram order: bottom-right = post 1</span></div>
+            <div class="row" style="margin-bottom:6px;align-items:center;">
+              <div class="small mute flex1">Instagram grid · drag to reorder · bottom-right = post 1</div>
+              <span class="small mute" id="planPostCountLabel"></span>
             </div>
-            <div class="grid-preview" id="gridPreview" style="aspect-ratio:1;">
-              <div class="grid-cell" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div>
-              <div class="row" style="margin-bottom:8px;">
-                <div class="serif" style="font-size:13px;flex:1;">Post List</div>
-                <span class="small mute" id="igOrderNote" style="display:none;">№ = Instagram feed order</span>
-              </div>
-              <div class="col" id="planItems" style="max-height:380px;overflow-y:auto;gap:7px;">
-                <div class="small mute">Generate a plan to see posts here.</div>
+            <div class="grid-preview" id="gridPreview">
+              <div class="grid-cell" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;">
+                <span class="mute small">Generate plan first</span>
               </div>
             </div>
-            <!-- Unassigned images panel fills negative space -->
-            <div class="unassigned-panel" id="unassignedPanel" style="display:none;">
+            <!-- Unassigned images — below grid -->
+            <div class="unassigned-panel" id="unassignedPanel" style="display:none;margin-top:10px;">
               <div class="unassigned-header">
-                <div class="unassigned-title serif">Unassigned Images</div>
+                <div class="unassigned-title">Unassigned</div>
                 <span class="unassigned-count" id="unassignedCount">0</span>
-                <span class="small mute" data-tip="Drag any image onto a post in the list above to assign it as that post's cover">drag onto posts ↑</span>
+                <span class="small mute">drag onto grid or carousel ↑</span>
               </div>
               <div class="unassigned-grid" id="unassignedGrid"></div>
             </div>
           </div>
+
+          <!-- RIGHT: Carousel Inspector — updates when grid cell is clicked -->
+          <div class="carousel-inspector" id="carouselInspector">
+            <div class="ci-empty" id="ciEmpty">
+              <div style="font-size:24px;margin-bottom:6px;opacity:.3;">▤</div>
+              <div class="small mute">Click any post in the grid to inspect its slides</div>
+            </div>
+            <div id="ciContent" style="display:none;">
+              <div class="row" style="margin-bottom:8px;align-items:center;">
+                <div class="small" style="flex:1;" id="ciTitle">Post #1</div>
+                <div class="row" style="gap:4px;">
+                  <button class="btn btn-ghost btn-xs" onclick="setPostType(S_inspectIdx,'single')" id="ciTypeSingle" data-tip="Single image">single</button>
+                  <button class="btn btn-ghost btn-xs" onclick="setPostType(S_inspectIdx,'carousel')" id="ciTypeCarousel" data-tip="Carousel">carousel</button>
+                  <button class="btn btn-ghost btn-xs" onclick="setPostType(S_inspectIdx,'reel')" id="ciTypeReel" data-tip="Reel">reel</button>
+                  <button class="btn btn-ghost btn-xs" onclick="toggleLock(S_inspectIdx)" id="ciLock">🔓</button>
+                </div>
+              </div>
+              <!-- Carousel slides -->
+              <div class="ci-slides" id="ciSlides"></div>
+              <!-- Add from unassigned -->
+              <div id="ciAddSection" style="margin-top:8px;display:none;">
+                <div class="small mute" style="margin-bottom:5px;">Add from unassigned images:</div>
+                <div class="ci-unassigned-grid" id="ciUnassignedGrid"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <div id="planViewTimeline" style="display:none;">
-          <div id="timelineView"></div>
-        </div>
       </div>
 
       <!-- ═══ CAPTIONS ═══ -->
@@ -1428,6 +1464,7 @@ const M_HAIKU  = 'claude-haiku-4-5-20251001'; // suggestions, chat, helpers
 const S = {
   images:[], selected:[], plan:[], queue:[],
   designStyle:'editorial', designSize:'4:5',
+  globalContextValue:'',
   designMood:'intimate', designFont:'fraunces-mono',
   designColorMode:'auto', designTextPos:'auto',
   postW:1080, postH:1350,
@@ -1603,9 +1640,11 @@ function toggleCustomFreq(sel){
 }
 
 function getPostCount(){
-  const freq=document.getElementById('planFreq').value;
-  return freq==='daily'?14:freq==='5pw'?10:freq==='3pw'?6:freq==='2pw'?4
-    :parseInt(document.getElementById('customPostCount').value)||6;
+  const freq = document.getElementById('planFreq').value;
+  const weeks = parseInt(document.getElementById('planWeeks')?.value)||2;
+  if(freq==='custom') return parseInt(document.getElementById('customPostCount')?.value)||6;
+  const perWeek = parseInt(freq)||3;
+  return perWeek * weeks;
 }
 
 function updateSmartFreqHint(){
@@ -1685,7 +1724,10 @@ function toggleSelect(id){const i=S.selected.indexOf(id);if(i===-1)S.selected.pu
 function clearSelected(){S.selected=[];renderImageGrid();}
 function selectAll(){S.selected=S.images.map(i=>i.id);renderImageGrid();}
 function getSelImgs(){return S.images.filter(i=>S.selected.includes(i.id));}
-function imgByIdx(idx){return S.images[(idx-1+S.images.length)%S.images.length];}
+function imgByIdx(idx){
+  if(!idx||idx<1||idx>S.images.length)return null;
+  return S.images[idx-1]||null;
+}
 
 /* ── CLAUDE API ── */
 async function claudeCall(system,user){
@@ -1900,127 +1942,198 @@ function setView(v){
 }
 
 function renderGridView(){
-  const grid=document.getElementById('gridPreview');
-  grid.innerHTML='';
-  grid.style.aspectRatio=`${S.postW}/${S.postH}`;
-  const total=S.plan.length;
-  // Instagram feed order: newest post = top-left of feed = LAST posted
-  // Grid in tool: left-to-right, top-to-bottom = index 0,1,2,3,4,5
-  // Instagram actual order: bottom-right = post 1 (first on feed chronologically last)
-  // So Instagram post number = total - index (reversed)
-  // For a 6-post grid: tool index 0=top-left=Instagram post 6, index 5=bottom-right=Instagram post 1
-  S.plan.forEach((p,i)=>{
-    const img=imgByIdx(p.imageIndex);
-    const orientation=img?.orientation||'portrait';
-    const cell=document.createElement('div');
-    cell.className='grid-cell';
-    cell.draggable=!p.locked;
-    cell.style.aspectRatio=orientation==='landscape'?'16/9':orientation==='square'?'1/1':`${S.postW}/${S.postH}`;
-    const slides=p.slides?p.slides.length:1;
-    const isLocked=p.locked||false;
-    const igNum=total-i; // Instagram post order number
-    const hasCap=p.caption&&p.caption.trim().length>0;
-    if(isLocked)cell.classList.add('locked-cell');
-    cell.innerHTML=`
-      <img src="${img?img.dataUrl:''}" crossorigin="anonymous" loading="lazy"
+  const grid = document.getElementById('gridPreview');
+  grid.innerHTML = '';
+  if(!S.plan.length){
+    grid.innerHTML = '<div class="grid-cell" style="aspect-ratio:1;grid-column:1/-1;display:flex;align-items:center;justify-content:center;"><span class="mute small">Generate plan first</span></div>';
+    return;
+  }
+  const total = S.plan.length;
+  // Scale grid columns: 3 cols always (Instagram grid is 3-wide)
+  // Grid height scales naturally with number of rows
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  grid.style.aspectRatio = ''; // remove fixed aspect-ratio so grid can grow
+
+  S.plan.forEach((p,i) => {
+    const img = imgByIdx(p.imageIndex);
+    const slides = p.slides ? p.slides.length : 1;
+    const isLocked = p.locked || false;
+    const igNum = total - i;
+    const hasCap = p.caption && p.caption.trim().length > 0;
+    const isInspected = S_inspectIdx === i;
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell' + (isLocked ? ' locked-cell' : '') + (isInspected ? ' inspected-cell' : '');
+    cell.style.aspectRatio = '1'; // always square cells for grid preview
+    cell.draggable = !isLocked;
+    cell.title = `Post #${igNum} · click to inspect`;
+    cell.innerHTML = `
+      <img src="${img ? img.dataUrl : ''}" crossorigin="anonymous" loading="lazy"
         style="width:100%;height:100%;object-fit:cover;display:block;transform:${getImgTransform(img)};"
         onerror="this.style.display='none'"/>
-      <div class="grid-cell-num" data-tip="Instagram post #${igNum} · Tool position ${i+1}">${igNum}${isLocked?' 🔒':''}</div>
-      <div class="grid-cell-type type-${p.type}">${p.type}</div>
-      ${p.type==='carousel'&&slides>1?`<div class="slide-count">▤ ${slides}</div>`:''}
-      ${!hasCap?'<div style="position:absolute;bottom:5px;left:5px;background:rgba(200,74,42,.7);color:#fff;font-size:7px;padding:1px 5px;border-radius:2px;">no caption</div>':''}
+      <div class="grid-cell-num" data-tip="Instagram post #${igNum}">${igNum}${isLocked ? ' 🔒' : ''}</div>
+      <div class="grid-cell-type type-${p.type}">${p.type}${p.type==='carousel'&&slides>1?' ▤'+slides:''}</div>
+      ${!hasCap ? '<div style="position:absolute;bottom:3px;left:3px;background:rgba(192,57,43,.8);color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;">no cap</div>' : ''}
       <div class="grid-cell-overlay">
-        <div class="grid-cell-date">${p.date} · ${p.time}</div>
+        <div class="grid-cell-date">#${igNum} · ${p.type}${p.type==='carousel'&&slides>1?' ▤ '+slides:''}</div>
         <div class="grid-cell-actions">
-          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})" data-tip="Swap cover image">swap</button>
-          ${p.type==='carousel'?`<button class="gcell-btn" onclick="event.stopPropagation();openCarouselEditor(${i})" data-tip="Edit carousel slides">slides</button>`:''}
-          <button class="gcell-btn" onclick="event.stopPropagation();openCaptionEditor(${i})" data-tip="Edit caption">edit</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();flipPlanImg(${i},'H')" data-tip="Flip horizontally">↔</button>
-          <button class="gcell-btn" onclick="event.stopPropagation();rotatePlanImg(${i},90)" data-tip="Rotate 90°">↻</button>
-          <button class="gcell-btn ${isLocked?'gold':''}" onclick="event.stopPropagation();toggleLock(${i})" data-tip="${isLocked?'Unlock this post':'Lock post — freezes image assignment and prevents reshuffling'}">${isLocked?'🔒':'🔓'}</button>
+          <button class="gcell-btn gold" onclick="event.stopPropagation();openImagePicker(${i})" data-tip="Swap cover">swap</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();toggleLock(${i})" data-tip="${isLocked?'Unlock':'Lock'}">${isLocked?'🔒':'🔓'}</button>
+          <button class="gcell-btn" onclick="event.stopPropagation();S.plan.splice(${i},1);renderPlan();" data-tip="Remove post">✕</button>
         </div>
       </div>`;
-    // Only allow drag if not locked
+
+    // Click cell → open Carousel Inspector
+    cell.addEventListener('click', () => openCarouselInspector(i));
+
+    // Drag to reorder
     if(!isLocked){
-      cell.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);cell.style.opacity='.4';});
-      cell.addEventListener('dragend',()=>cell.style.opacity='1');
+      cell.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); cell.style.opacity = '.4'; });
+      cell.addEventListener('dragend', () => cell.style.opacity = '1');
     }
-    cell.addEventListener('dragover',e=>{e.preventDefault();cell.classList.add('drag-over');});
-    cell.addEventListener('dragleave',()=>cell.classList.remove('drag-over'));
-    cell.addEventListener('drop',e=>{
-      e.preventDefault();cell.classList.remove('drag-over');
-      // Check if this is an unassigned image being dragged
-      const unassignedIdx=e.dataTransfer.getData('unassigned-img');
-      if(unassignedIdx!==''){
-        const imgIdx=parseInt(unassignedIdx);
-        if(!isNaN(imgIdx)){S.plan[i].imageIndex=imgIdx;S.plan[i].slides=[imgIdx];renderPlan();renderUnassignedPanel();toast('Image assigned ✓');return;}
+    cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+    cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+    cell.addEventListener('drop', e => {
+      e.preventDefault(); cell.classList.remove('drag-over');
+      const unassignedIdx = e.dataTransfer.getData('unassigned-img');
+      if(unassignedIdx !== ''){
+        const imgIdx = parseInt(unassignedIdx);
+        if(!isNaN(imgIdx)){ appendSlideToPost(i, imgIdx); return; }
       }
-      const from=parseInt(e.dataTransfer.getData('text/plain'));
-      if(!isNaN(from)&&from!==i&&!S.plan[from]?.locked){
-        const m=S.plan.splice(from,1)[0];S.plan.splice(i,0,m);renderPlan();toast('Reordered ✓');
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      if(!isNaN(from) && from !== i && !S.plan[from]?.locked){
+        const m = S.plan.splice(from, 1)[0]; S.plan.splice(i, 0, m); renderPlan(); toast('Reordered ✓');
       }
     });
     grid.appendChild(cell);
   });
 }
 
-function renderListView(){
-  const dupes=findDuplicateCoverImages();
-  const total=S.plan.length;
-  document.getElementById('planItems').innerHTML=S.plan.map((p,i)=>{
-    const img=imgByIdx(p.imageIndex);
-    const slides=p.slides?p.slides.length:1;
-    const isLocked=p.locked||false;
-    const isDupe=dupes.has(p.imageIndex);
-    const qualBadge=img?.qualityFlag==='warn'?'<span class="quality-warn">⚠ low res</span>':img?.qualityFlag==='err'?'<span class="quality-err">✕ too small</span>':'';
-    const bestTimeBadge=p.bestTime?'<span class="best-time-tag">⏰ optimal</span>':'';
-    const igNum=total-i;
-    const hasCap=p.caption&&p.caption.trim().length>0;
-    const orientBadge=img?.orientation==='landscape'?'<span class="landscape-badge">⬛ L</span>':img?.orientation==='square'?'<span style="background:rgba(74,140,92,.2);color:var(--green);border-radius:3px;padding:1px 5px;font-size:8px;">□ S</span>':'';
-    return `<div class="plan-item ${isLocked?'locked':''}" id="planItem${i}"
-      ondragover="event.preventDefault();this.style.outline='2px solid var(--gold)'"
-      ondragleave="this.style.outline=''"
-      ondrop="dropUnassignedOnPost(event,${i});this.style.outline=''">
-      <div class="plan-thumb" onclick="${isLocked?'':(`openImagePicker(${i})`)}">
-        <img src="${img?img.dataUrl:''}" crossorigin="anonymous" style="transform:${getImgTransform(img)};" onerror="this.style.background='var(--surface3)'"/>
-        ${isLocked?'':`<div class="plan-thumb-swap">swap</div>`}
-      </div>
-      <div style="flex:1;min-width:0;">
-        ${isDupe?`<div class="dup-warn">⚠ Same image used in another post</div>`:''}
-        <div class="plan-meta">
-          <span class="small" style="color:var(--mute);min-width:28px;" data-tip="Instagram post #${igNum} (feeds show newest first — bottom-right of grid = post 1)">#${igNum}</span>
-          <input class="date-input" type="text" value="${p.date}" ${isLocked?'disabled':''} onchange="S.plan[${i}].date=this.value;"/>
-          <span class="mute">·</span>
-          <input class="time-input" type="time" value="${p.time}" ${isLocked?'disabled':''} onchange="S.plan[${i}].time=this.value;"/>
-          <span class="badge badge-${p.type}">${p.type}${p.type==='carousel'?` · ${slides}`:''}</span>
-          ${orientBadge}${qualBadge}${bestTimeBadge}
-          ${isLocked?'<span class="lock-badge">🔒 locked</span>':''}
-        </div>
-        ${isLocked?'':`<div class="type-toggle">
-          <button class="type-btn ${p.type==='single'?'act-single':''}" onclick="setPostType(${i},'single')" data-tip="Single image post">single</button>
-          <button class="type-btn ${p.type==='carousel'?'act-carousel':''}" onclick="setPostType(${i},'carousel')" data-tip="Carousel — multiple slides, swipe to view">carousel</button>
-          <button class="type-btn ${p.type==='reel'?'act-reel':''}" onclick="setPostType(${i},'reel')" data-tip="Reel — short video format">reel</button>
-        </div>`}
-        ${hasCap
-          ?`<div class="plan-caption-preview" onclick="openCaptionEditor(${i})" data-tip="Click to edit full caption">${p.caption.substring(0,140)}…</div>`
-          :`<div style="font-size:11px;color:var(--mute);font-style:italic;cursor:default;">No caption yet — generate captions when layout is ready</div>`}
-        <div class="plan-notes" onclick="openCaptionEditor(${i})">${p.notes||'+ notes'}</div>
-        <div class="plan-actions">
-          ${p.type==='carousel'?`<button class="btn btn-ghost btn-xs" onclick="openCarouselEditor(${i})" data-tip="Edit carousel slides — reorder, add or remove">▤ slides</button>`:''}
-          <button class="btn btn-ghost btn-xs" onclick="flipPlanImg(${i},'H')" data-tip="Flip image horizontally">↔</button>
-          <button class="btn btn-ghost btn-xs" onclick="rotatePlanImg(${i},90)" data-tip="Rotate image 90° clockwise">↻</button>
-          ${isLocked?'':`<button class="btn btn-ghost btn-xs" onclick="duplicatePlanItem(${i})" data-tip="Duplicate this post with same settings">⎘</button>
-          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},-1)" data-tip="Move post up (earlier in feed)">↑</button>
-          <button class="btn btn-ghost btn-xs" onclick="movePlanItem(${i},1)" data-tip="Move post down (later in feed)">↓</button>`}
-          <button class="btn btn-ghost btn-xs" onclick="toggleLock(${i})" style="${isLocked?'color:var(--green);border-color:rgba(74,140,92,.4);':''}" data-tip="${isLocked?'Unlock — allows reshuffling and editing':'Lock — freezes image assignment, excluded from reshuffle'}">
-            ${isLocked?'🔒 Unlock':'🔓 Lock'}
-          </button>
-          <button class="btn btn-primary btn-xs" onclick="addPlanToQueue(${i})" data-tip="Add to Schedule queue">+ Queue</button>
-          ${isLocked?'':`<button class="btn btn-danger btn-xs" onclick="S.plan.splice(${i},1);renderPlan();renderUnassignedPanel();" data-tip="Remove this post from plan">✕</button>`}
-        </div>
-      </div>
+function renderPlan(){
+  renderGridView();
+  // Update label
+  const label = document.getElementById('planPostCountLabel');
+  if(label) label.textContent = S.plan.length ? `${S.plan.length} posts` : '';
+  renderUnassignedPanel();
+  // Reset carousel inspector
+  openCarouselInspector(null);
+}
+
+/* ── CAROUSEL INSPECTOR ── */
+let S_inspectIdx = null;
+
+function openCarouselInspector(i){
+  const empty = document.getElementById('ciEmpty');
+  const content = document.getElementById('ciContent');
+  if(i === null || i < 0 || i >= S.plan.length){
+    if(empty) empty.style.display = 'block';
+    if(content) content.style.display = 'none';
+    S_inspectIdx = null;
+    return;
+  }
+  S_inspectIdx = i;
+  const p = S.plan[i];
+  const total = S.plan.length;
+  const igNum = total - i;
+  if(empty) empty.style.display = 'none';
+  if(content) content.style.display = 'block';
+
+  // Title + type + lock
+  const titleEl = document.getElementById('ciTitle');
+  if(titleEl) titleEl.textContent = `Post #${igNum} · ${p.theme||p.type}`;
+  ['ciTypeSingle','ciTypeCarousel','ciTypeReel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('active', id.includes(p.type));
+  });
+  const lockBtn = document.getElementById('ciLock');
+  if(lockBtn){ lockBtn.textContent = p.locked ? '🔒' : '🔓'; lockBtn.style.color = p.locked ? 'var(--green2)' : ''; }
+
+  // Render slides
+  const slidesEl = document.getElementById('ciSlides');
+  if(slidesEl){
+    const slideIdxs = p.slides?.length ? p.slides : [p.imageIndex];
+    slidesEl.innerHTML = slideIdxs.map((idx, si) => {
+      const img = imgByIdx(idx);
+      return `<div class="ci-slide" draggable="true"
+        ondragstart="event.dataTransfer.setData('ci-slide','${si}')"
+        ondragover="event.preventDefault()"
+        ondrop="reorderCarouselSlide(event,${i},${si})">
+        <img src="${img?.dataUrl||''}" onerror="this.style.background='var(--surface3)'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>
+        <div class="ci-slide-num">${si+1}</div>
+        ${slideIdxs.length > 1 ? `<button class="ci-slide-remove" onclick="removeSlideFromPost(${i},${si})" data-tip="Remove slide">✕</button>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Render unassigned images to add
+  renderCIUnassigned(i);
+}
+
+function renderCIUnassigned(planIdx){
+  const addSection = document.getElementById('ciAddSection');
+  const grid = document.getElementById('ciUnassignedGrid');
+  if(!addSection || !grid) return;
+
+  const allUsed = new Set();
+  S.plan.forEach(p => {
+    allUsed.add(p.imageIndex);
+    (p.slides||[]).forEach(idx => allUsed.add(idx));
+  });
+  const unassigned = S.images.filter((_,i) => !allUsed.has(i+1));
+
+  if(!unassigned.length){ addSection.style.display = 'none'; return; }
+  addSection.style.display = 'block';
+
+  grid.innerHTML = unassigned.map(img => {
+    const imgIdx = S.images.indexOf(img) + 1;
+    return `<div class="ci-unassigned-thumb" onclick="appendSlideToPost(${planIdx},${imgIdx})"
+      data-tip="Add to carousel end">
+      <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>
+      <div class="ci-thumb-add">+</div>
     </div>`;
   }).join('');
+}
+
+function appendSlideToPost(planIdx, imgIdx){
+  const p = S.plan[planIdx];
+  if(!p) return;
+  // Ensure slides array exists
+  if(!p.slides || !p.slides.length) p.slides = [p.imageIndex];
+  // Only append if not already in carousel
+  if(p.slides.includes(imgIdx)){ toast('Already in this carousel'); return; }
+  p.slides.push(imgIdx);
+  p.type = 'carousel';
+  renderPlan();
+  openCarouselInspector(planIdx); // refresh inspector
+  toast(`Image added to carousel (${p.slides.length} slides) ✓`);
+}
+
+function removeSlideFromPost(planIdx, slideIdx){
+  const p = S.plan[planIdx];
+  if(!p?.slides || p.slides.length <= 1){ toast('Cannot remove last slide'); return; }
+  p.slides.splice(slideIdx, 1);
+  p.imageIndex = p.slides[0];
+  if(p.slides.length === 1) p.type = 'single';
+  renderPlan();
+  openCarouselInspector(planIdx);
+  toast('Slide removed ✓');
+}
+
+function reorderCarouselSlide(event, planIdx, toIdx){
+  event.preventDefault();
+  const fromIdx = parseInt(event.dataTransfer.getData('ci-slide'));
+  if(isNaN(fromIdx) || fromIdx === toIdx) return;
+  const p = S.plan[planIdx];
+  if(!p?.slides) return;
+  const [moved] = p.slides.splice(fromIdx, 1);
+  p.slides.splice(toIdx, 0, moved);
+  p.imageIndex = p.slides[0];
+  openCarouselInspector(planIdx);
+  toast('Slide reordered ✓');
+}
+
+function renderListView(){
+  // Post List removed — Carousel Inspector handles post detail
+  // This function kept as no-op to avoid broken calls
 }
 
 /* ── CAPTION GENERATION — separate from layout planning ── */
@@ -2775,34 +2888,53 @@ async function claudeChooseImages(){
 function saveDraft(){
   const draft = {
     plan: S.plan,
-    images: S.images.map(img=>({...img, dataUrl: img.dataUrl.substring(0,100)+'…'})), // truncate for storage
     globalContext: getGlobalContext(),
     postW: S.postW, postH: S.postH, designSize: S.designSize,
+    driveFolders: driveFolders, // save folder URLs so images can be re-imported on restore
     savedAt: new Date().toISOString()
   };
-  // Store full draft with images
-  const fullDraft = { plan: S.plan, globalContext: getGlobalContext(), savedAt: draft.savedAt };
-  localStorage.setItem('kss_draft', JSON.stringify(fullDraft));
-  toast(`Draft saved ✓ — ${S.plan.length} posts, ${new Date().toLocaleTimeString()}`);
+  localStorage.setItem('kss_draft', JSON.stringify(draft));
+  toast(`Draft saved ✓ — ${S.plan.length} posts`);
   const indicator = document.getElementById('contextBarIndicator');
-  if(indicator){ indicator.textContent='💾 draft saved'; indicator.style.color='var(--green)';
-    setTimeout(()=>{indicator.textContent='✓ synced'; indicator.style.color='var(--green)';},2000); }
+  if(indicator){
+    indicator.textContent='💾 saved';
+    indicator.style.color='var(--green2)';
+    setTimeout(()=>{indicator.textContent='synced';indicator.style.color='';},2500);
+  }
 }
 
-function loadDraft(){
+async function loadDraft(){
   const raw = localStorage.getItem('kss_draft');
   if(!raw){ toast('No saved draft found'); return; }
   const draft = JSON.parse(raw);
   if(draft.plan) S.plan = draft.plan;
+  if(draft.postW) S.postW = draft.postW;
+  if(draft.postH) S.postH = draft.postH;
   if(draft.globalContext){
     S.globalContextValue = draft.globalContext;
     const bar = document.getElementById('globalContextBar');
     if(bar) bar.value = draft.globalContext;
   }
+  // Restore Drive folder list + auto-reimport images
+  if(draft.driveFolders?.length){
+    driveFolders = draft.driveFolders;
+    localStorage.setItem('kss_drive_folders', JSON.stringify(driveFolders));
+    renderDriveFolderList();
+    toast(`Draft restored — loading images from Drive…`,6000);
+    // Wait for Drive files to load BEFORE selecting and importing
+    await loadAllDriveFolders();
+    // Now DS.files is populated — select all and import
+    if(DS.files.length){
+      driveSelectAll();
+      await importFromDrive();
+      toast(`Draft restored — ${S.plan.length} posts, ${S.images.length} images ✓`);
+    } else {
+      toast(`Draft restored — open Drive to reimport images manually ✓`);
+    }
+  } else {
+    toast(`Draft restored — ${S.plan.length} posts ✓`);
+  }
   renderPlan(); renderCaptionsTab(); renderUnassignedPanel();
-  const banner = document.getElementById('captionBanner');
-  if(banner && S.plan.some(p=>!p.caption)) banner.style.display='flex';
-  toast(`Draft restored — ${S.plan.length} posts from ${new Date(draft.savedAt).toLocaleString()} ✓`);
 }
 
 /* ══════════════════════════════════════════════
@@ -4413,7 +4545,7 @@ function addSelectedImagesToStoryQueue(){
   const cnt=document.getElementById('storyQueueCount');
   if(cnt)cnt.textContent=`${S.queue.filter(q=>q.type==='story').length} queued`;
   storyImgSelected=[];renderStoryImgPicker();
-  toast(`${S.storyQueue.length} stories queued ✓`);
+  toast(`Stories queued ✓`);
 }
 async function generateStoryCaption(){
   const handle=S.settings.handle||'@kshetejsareenstudios';
